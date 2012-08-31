@@ -1,0 +1,56 @@
+<?php
+
+/**
+ * Implements hook_ding_entity_fields
+ **/
+function bibdk_reservation_ding_entity_fields() {
+  $fields = array();
+  
+  $fields['bibdk_mani_reservation_button'] = array(
+      'field' => array(
+        'locked' => FALSE,
+        'storage' => array(
+          'type' => 'virtual_field',
+        ),
+      ),
+      'instance' => array(
+        'ding_entity_type' => 'bibdkManifestation',
+        'label' => t('Reservation Button'),
+        'bundle' => 'bibdkManifestation',
+        'entity_type' => 'bibdkManifestation'
+      ),
+    );
+  
+  $fields['bibdk_sub_reservation_button'] = array(
+      'field' => array(
+        'locked' => FALSE,
+        'storage' => array(
+          'type' => 'virtual_field',
+        ),
+      ),
+      'instance' => array(
+        'ding_entity_type' => 'bibdkSubwork',
+        'label' => t('Reservation Button'),
+        'bundle' => 'bibdkSubwork',
+        'entity_type' => 'bibdkSubwork'
+      ),
+    );
+  
+  $fields['bibdk_reservation_info'] = array(
+      'field' => array(
+        'locked' => FALSE,
+        'storage' => array(
+          'type' => 'virtual_field',
+        ),
+      ),
+      'instance' => array(
+        'ding_entity_type' => 'bibdkManifestation',
+        'label' => t('Infotext'),
+        'bundle' => 'bibdkManifestation',
+        'entity_type' => 'bibdkManifestation'
+      ),
+    );
+
+return $fields;
+  
+}

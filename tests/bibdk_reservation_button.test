@@ -1,0 +1,45 @@
+<?php
+
+/**
+* Test validation of fields and form submission
+*/
+class BibdkReservationButtonTestCase extends DrupalWebTestCase {
+ 
+//protected $profile = 'bibdk';
+/**
+   * Implements getInfo().
+   */
+  public static function getInfo() {
+    return array (
+      'name' => t('Form submission'),
+      'description' => t('Test if button is present on the right manifistations'),
+      'group' => t('Reservation'),
+    );
+  }
+  public function setUp() {
+     $this->profile = 'bibdk';
+    // Enable any module that you will need in your tests.
+    parent::setUp('bibdk_reservation', 'ting', 'ding_entity', 'ting_openformat');
+    variable_set('clean_url', 1);
+    variable_set('ting_agency', '100200');
+    variable_set('ting_search_url', 'http://lakiseks.dbc.dk/hive/');
+    
+//$account = $this->drupalCreateUser(array('access content'));
+    //$this->drupalLogin($account);
+  }
+  
+  // Test validation error if user makes no input
+  public function testButtonIsPresent(){
+    $this->drupalGet('/work/870970-basis%3A28960115');
+    $this->assertText('Reservation Button Manifestation');
+    $this->assertText('Reservation Button Subwork');
+  }
+  
+  public function testButtonIsMissing(){
+    $this->drupalGet('/work/870970-basis:04727061');
+    $this->assertText('870970-basis:04727061', "Page could be found");
+    $this->assertTrue('Reservation Button Manifestation', "No Button Present on Manifestation");
+    $this->assertTrue('Reservation Button Subwork', "No Button Present on Subwork");
+  }
+}
+
