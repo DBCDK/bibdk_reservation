@@ -73,8 +73,10 @@ function bibdk_reservation_field_formatter_view($entity_type, $entity, $field, $
   foreach ($items as $delta => $item) {
     switch ($display['type']) {
       case "bibdk_reservation_button_default" :
-        if ($entity->isReservable())
-          $element[$delta]['#markup'] = drupal_render(drupal_get_form("bibdk_reservation_button_form", $entity->getIDs(), $entity->getType(), $entity_type));
+        if ($entity->isReservable()){
+          $button_form = drupal_get_form("bibdk_reservation_button_form", $entity->getIDs(), $entity->getType(), $entity_type);
+          $element[$delta]['#markup'] = drupal_render($button_form);
+        }
         break;
       case "bibdk_reservation_information_default" :
         $infotext = $entity->getInfotext(); // . $entity->getRequestMethod() ;

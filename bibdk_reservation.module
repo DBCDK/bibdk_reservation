@@ -21,7 +21,6 @@ function bibdk_user_view ($account, $view_mode, $langcode) {
  * Implementation of hook_form
  */
 function bibdk_reservation_button_form($form, &$form_state, $entity_ids, $type, $entity_type) {
-
   $form['bibdk_reservation_button']['entity_id']["#tree"] = true;
   
   
@@ -56,25 +55,3 @@ function bibdk_reservation_button_form_submit($form, $form_state) {
     "@type" => $form_state['values']['type'] 
   )));
 }
-
-function bibdk_reservation_ding_entity_buttons($type, $entity) {
-  
-}
-
-/*
- * parse information texts 
- */
-
-function get_reservation_information_text (manifestation $manefistation){
-  $restictedUse = $manefistation->getRestrictedUse();
-  
-  if (!isset($restictedUse))
-    return null;
-
-  switch ($restictedUse) {
-    
-  }
-  
-}
-
-?>
