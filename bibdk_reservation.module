@@ -1,42 +1,33 @@
 <?php
 
 /**
- * tODO:
- * 
- *  * Write test
- *  * Implement submit function (Cannot be done until next step is ready)
+ * TODO: Implement submit function (Cannot be done until next step is ready)
  */
+
 // Load Field module hooks.
 module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation.field');
-
-
-/* Dette var en test
-function bibdk_user_view ($account, $view_mode, $langcode) {
-  print_r(func_get_args());
-  die();
-}*/
-
 
 /*
  * Implementation of hook_form
  */
 function bibdk_reservation_button_form($form, &$form_state, $entity_ids, $type, $entity_type) {
-  $form['bibdk_reservation_button']['entity_id']["#tree"] = true;
+  $form_id = 'bibdk_reservation_button_'.$entity_type;
+  $form[$form_id]['entity_id']["#tree"] = true;
   
   
   
   foreach ($entity_ids as $entity_id) {
-    $form['bibdk_reservation_button']['entity_id'][] = array(
+    $form[$form_id]['entity_id'][] = array(
       '#type' => 'hidden',
       "#value" => $entity_id,
     );
   }
 
-  $form['bibdk_reservation_button']['type'] = array(
+  $form[$form_id]['type'] = array(
     '#type' => 'hidden',
     "#value" => $type,
   );
-  $form['bibdk_reservation_button']['submit'] = array(
+  $form[$form_id]['submit'] = array(
     '#type' => 'submit',
     '#value' => ($entity_type == "bibdkSubwork") ? t("Order any edition") : t("Order this @type", array("@type" => $type)),
     '#executes_submit_callback' => TRUE,
