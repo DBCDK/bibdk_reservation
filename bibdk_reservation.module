@@ -6,6 +6,8 @@
 
 // Load Field module hooks.
 module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation.field');
+module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_form_step_1');
+module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_form_step_2');
 module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_form_step_3');
 
 /*
@@ -69,15 +71,12 @@ function _bibdk_reservation_steps() {
   $steps = array(
       1 => array(
         'form' => 'bibdk_reservation_form_step_1',
-        'file' => 'bibdk_reservation_form_step_1',
       ),
       2 => array(
         'form' => 'bibdk_reservation_form_step_2',
-        'file' => 'bibdk_reservation_form_step_2',
       ),
       3 => array(
         'form' => 'bibdk_reservation_form_step_3',
-        'file' => 'bibdk_reservation_form_step_4',
       ),
       
     );
@@ -105,7 +104,6 @@ function bibdk_reservation_create_wizard_form($form, &$form_state){
 
   // Call the function named in $form_state['step_information'] to get the
   // form elements to display for this step.
-  module_load_include('inc', 'bibdk_reservation', $form_state['step_information'][$step]['file']);
   $form = $form_state['step_information'][$step]['form']($form, $form_state);
 
   // Show the 'previous' button if appropriate. Note that #submit is set to
