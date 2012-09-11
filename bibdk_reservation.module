@@ -73,6 +73,7 @@ function _bibdk_reservation_steps() {
       ),
       2 => array(
         'form' => 'bibdk_reservation_form_step_2',
+        'file' => 'bibdk_reservation_form_step_2',
       ),
       3 => array(
         'form' => 'bibdk_reservation_form_step_3',
