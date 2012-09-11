@@ -17,8 +17,16 @@ function bibdk_reservation_form_step_3($form, &$form_state) {
 }
 
 function bibdk_reservation_form_step_3_validate($form, &$form_state) {
-  if (!is_numeric($form_state['values']['pincode'])) {
+  if (isset($form_state['values']['pincode']) && !is_numeric($form_state['values']['pincode'])) {
     form_set_error('pincode', t('Pincode needs to be a four diggit number'));
+  }
+  
+  if (isset($form_state['values']['cpr']) && !is_numeric($form_state['values']['cpr'])) {
+    form_set_error('cpr', t('CPR-number needs to be a valid CPR-number'));
+  }
+  
+  if (isset($form_state['values']['userMail']) && !valid_email_address($form_state['values']['userMail'])) {
+    form_set_error('cpr', t('email needs to be a valid email'));
   }
 }
 
@@ -96,7 +104,6 @@ private function _getSettingsFromType($type){
       $settings = array(
         'field_name' => t('CPR-number'),
         'field_type' => 'password',
-        'field_validation' => 'cpr'
       );
       break;
     case 'userId':
@@ -109,7 +116,6 @@ private function _getSettingsFromType($type){
       $settings = array(
         'field_name' => t('Barcode'),
         'field_type' => 'password',
-        'field_validation' => 'cpr'
       );
       break;
     case 'cardno':
@@ -122,7 +128,6 @@ private function _getSettingsFromType($type){
       $settings = array(
         'field_name' => t('Pincode'),
         'field_type' => 'password',
-        'field_validation' => 'pin'
       );
       break;
     case 'customId':
@@ -149,8 +154,6 @@ private function _getSettingsFromType($type){
     case 'userMail':
       $settings = array(
         'field_name' => t('E-mail'),
-        'field_type' => 'email',
-        'field_validation' => 'email',
       );
       break;
     case 'userTelephone':
