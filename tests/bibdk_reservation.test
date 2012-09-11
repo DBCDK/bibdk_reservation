@@ -51,3 +51,33 @@ class BibdkReservationButtonTestCase extends DrupalWebTestCase {
   
 }
 
+
+class BibdkReservationOpenagencyWebservice extends DrupalWebTestCase {
+  
+  public static function getInfo() {
+    return array(
+      'name' => 'Webservice',
+      'description' => t('Test OpenAgency ServiceRequest'),
+      'group' => 'Reservation',
+    );
+  }
+  
+  public function setUp() {
+    $this->profile = 'bibdk';
+    parent::setup(array('bibdk_reservation', 'openagency_webservice_mockup', 'ting'));
+  }
+
+
+  public function testServiceRequest() {
+    $url = variable_get('agency_search_url');
+    $this->assertNull($url, 'No URL set for Open Agency yet');
+    global $base_url;
+    variable_set('agency_search_url', $base_url.'/openagency_webservice/');
+    $newUrl = variable_get('agency_search_url');
+    $this->assertNotNull($newUrl, 'URL to mockup set: ' . $newUrl);
+
+    $xml = '<?xml version="1.0" encoding="UTF-8"?><SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"><SOAP-ENV:Body><serviceRequest><agencyId>DK-810010</agencyId><service>userOrderParameters</service><outputType>xml</outputType></serviceRequest></SOAP-ENV:Body></SOAP-ENV:Envelope>';
+    $this->drupalPost('openagency_webservice_test', array('xml' => $xml), t('submit'));
+    $this->assertText('userId', t('Mockup Agency serviceRequest passes'));
+  }
+}

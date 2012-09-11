@@ -6,6 +6,7 @@
 
 // Load Field module hooks.
 module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation.field');
+module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation.step3');
 
 /*
  * Implementation of hook_form

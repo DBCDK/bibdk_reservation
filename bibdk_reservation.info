@@ -8,4 +8,5 @@ php = 5.2.4
 ;version = 7.x-0.0
 
 files[] = bibdk_reservation.field.inc
-files[] = tests/bibdk_reservation_button.test
+files[] = bibdk_reservation.step3.inc
+files[] = tests/bibdk_reservation.test
