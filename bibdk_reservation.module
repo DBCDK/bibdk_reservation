@@ -6,7 +6,7 @@
 
 // Load Field module hooks.
 module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation.field');
-module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation.step3');
+module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_form_step_3');
 
 /*
  * Implementation of hook_form
@@ -52,7 +52,7 @@ function bibdk_reservation_menu() {
   $items['reservation'] = array(
     'title' => t('Make reservation'),
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('bibdk_reservation_create_wizard_form', 'bibdk_reservation_pick_library'),
+    'page arguments' => array('bibdk_reservation_create_wizard_form'),
     'access callback' => TRUE,
     'description' => t('Make reservation in six steps'),
   );
@@ -73,10 +73,13 @@ function _bibdk_reservation_steps() {
       ),
       2 => array(
         'form' => 'bibdk_reservation_form_step_2',
+        'file' => 'bibdk_reservation_form_step_2',
       ),
       3 => array(
         'form' => 'bibdk_reservation_form_step_3',
+        'file' => 'bibdk_reservation_form_step_4',
       ),
+      
     );
   return $steps;
 }
