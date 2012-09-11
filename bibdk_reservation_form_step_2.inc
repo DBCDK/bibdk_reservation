@@ -1,5 +1,5 @@
 <?php
 
-function bibdk_reservation_form_step_1($form) {
+function bibdk_reservation_form_step_2($form) {
   
 }
