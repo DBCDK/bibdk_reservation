@@ -14,8 +14,6 @@ function bibdk_reservation_button_form($form, &$form_state, $entity_ids, $type, 
   $form_id = 'bibdk_reservation_button_'.$entity_type;
   $form[$form_id]['entity_id']["#tree"] = true;
   
-  
-  
   foreach ($entity_ids as $entity_id) {
     $form[$form_id]['entity_id'][] = array(
       '#type' => 'hidden',
@@ -39,10 +37,166 @@ function bibdk_reservation_button_form($form, &$form_state, $entity_ids, $type, 
 /*
  * Implementation of hook_form_submit
  */
-
 function bibdk_reservation_button_form_submit($form, $form_state) {
   drupal_set_message(t("You have expressed a wish to reserve @entity_id of type @type", array (
     "@entity_id" => implode(", ", $form_state['values']['entity_id']), 
     "@type" => $form_state['values']['type'] 
   )));
+}
+
+/**
+ * Implements hook_menu();
+ */
+function bibdk_reservation_menu() {
+  $items['reservation'] = array(
+    'title' => t('Make reservation'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('bibdk_reservation_create_wizard_form', 'bibdk_reservation_pick_library'),
+    'access callback' => TRUE,
+    'description' => t('Make reservation in six steps'),
+  );
+  
+  return $items;
+}
+
+/**
+ * Defines the steps in the reservation process
+ * The file representing the step, should be written without .inc as it will be appended automatically
+ * @return Array
+ */
+function _bibdk_reservation_steps() {
+  $steps = array(
+      1 => array(
+        'form' => 'bibdk_reservation_form_step_1',
+        'file' => 'bibdk_reservation_form_step_1',
+      ),
+      2 => array(
+        'form' => 'bibdk_reservation_form_step_2',
+      ),
+      3 => array(
+        'form' => 'bibdk_reservation_form_step_3',
+      ),
+    );
+  return $steps;
+}
+
+/**
+ * Initializes the form when a reservation button is clicked
+ * @param type $form
+ * @param type $form_state
+ * @return array $form
+ */
+function bibdk_reservation_create_wizard_form($form, &$form_state){
+  // Initialize a description of the steps for the wizard.
+  if (empty($form_state['step'])) {
+    $form_state['step'] = 1;
+
+    // This array contains the function to be called at each step to get the
+    // relevant form elements. It will also store state information for each
+    // step.
+    $form_state['step_information'] = _bibdk_reservation_steps();
+  }
+  $step = &$form_state['step'];
+  drupal_set_title(t('Reservation: Step @step of ' . count($form_state['step_information']), array('@step' => $step)));
+
+  // Call the function named in $form_state['step_information'] to get the
+  // form elements to display for this step.
+  module_load_include('inc', 'bibdk_reservation', $form_state['step_information'][$step]['file']);
+  $form = $form_state['step_information'][$step]['form']($form, $form_state);
+
+  // Show the 'previous' button if appropriate. Note that #submit is set to
+  // a special submit handler, and that we use #limit_validation_errors to
+  // skip all complaints about validation when using the back button. The
+  // values entered will be discarded, but they will not be validated, which
+  // would be annoying in a "back" button.
+  if ($step > 1) {
+    $form['prev'] = array(
+      '#type' => 'submit',
+      '#value' => t('Previous'),
+      '#name' => 'prev',
+      '#submit' => array('bibdk_reservation_wizard_previous_submit'),
+      '#limit_validation_errors' => array(),
+    );
+  }
+
+  // Show the Next button only if there are more steps defined.
+  if ($step < count($form_state['step_information'])) {
+    // The Next button should be included on every step
+    $form['next'] = array(
+      '#type' => 'submit',
+      '#value' => t('Next'),
+      '#name' => 'next',
+      '#submit' => array('bibdk_reservation_wizard_next_submit'),
+    );
+  }
+  else {
+    // Just in case there are no more steps, we use the default submit handler
+    // of the form wizard. Call this button Finish, Submit, or whatever you
+    // want to show. When this button is clicked, the
+    // form_example_wizard_submit handler will be called.
+    $form['finish'] = array(
+      '#type' => 'submit',
+      '#value' => t('Finish'),
+    );
+  }
+
+  // Include each validation function defined for the different steps.
+  if (function_exists($form_state['step_information'][$step]['form'] . '_validate')) {
+    $form['next']['#validate'] = array($form_state['step_information'][$step]['form'] . '_validate');
+  }
+
+  return $form;
+}
+
+/**
+ * Submit handler for the "previous" button.
+ * - Stores away $form_state['values']
+ * - Decrements the step counter
+ * - Replaces $form_state['values'] with the values from the previous state.
+ * - Forces form rebuild.
+ *
+ * You are not required to change this function.
+ *
+ * @ingroup form_example
+ */
+function bibdk_reservation_wizard_previous_submit($form, &$form_state) {
+  $current_step = &$form_state['step'];
+  $form_state['step_information'][$current_step]['stored_values'] = $form_state['values'];
+  if ($current_step > 1) {
+    $current_step--;
+    $form_state['values'] = $form_state['step_information'][$current_step]['stored_values'];
+  }
+  $form_state['rebuild'] = TRUE;
+}
+
+/**
+ * Submit handler for the 'next' button.
+ * - Saves away $form_state['values']
+ * - Increments the step count.
+ * - Replace $form_state['values'] from the last time we were at this page
+ *   or with array() if we haven't been here before.
+ * - Force form rebuild.
+ *
+ * You are not required to change this function.
+ *
+ * @param $form
+ * @param $form_state
+ *
+ * @ingroup form_example
+ */
+function bibdk_reservation_wizard_next_submit($form, &$form_state) {
+  $current_step = &$form_state['step'];
+  $form_state['step_information'][$current_step]['stored_values'] = $form_state['values'];
+
+  if ($current_step < count($form_state['step_information'])) {
+    $current_step++;
+    if (!empty($form_state['step_information'][$current_step]['stored_values'])) {
+      $form_state['values'] = $form_state['step_information'][$current_step]['stored_values'];
+    }
+    else {
+      $form_state['values'] = array();
+    }
+    $form_state['rebuild'] = TRUE;  // Force rebuild with next step.
+    return;
+  }
 }
