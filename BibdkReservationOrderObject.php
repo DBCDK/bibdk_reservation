@@ -1,7 +1,12 @@
 <?php
 
 class BibdkReservationOrderObject {
-  private $agencyId;
+  public $agencyId;
+  public $manifestationIds;
+  
+  public function setManifestationIds(array $ids){
+    $this->manifestationIds = $ids;
+  }
   
   public function setAgencyId($id){
     $this->agencyId = $id;
@@ -9,5 +14,9 @@ class BibdkReservationOrderObject {
   
   public function getAgencyId(){
     return $this->agencyId;
+  }
+  
+  public function save(){
+    $_SESSION['orderobject'] = $this;
   }
 }

@@ -77,7 +77,8 @@ function bibdk_reservation_create_wizard_form($form, &$form_state){
     // step.
     $form_state['step_information'] = _bibdk_reservation_steps();
     
-    $_SESSION['orderobject'] = new BibdkReservationOrderObject();
+    $order = bibdk_reservation_new_order_object();
+    dpm($order);
   }
   $step = &$form_state['step'];
   drupal_set_title(t('Reservation: Step @step of ' . count($form_state['step_information']), array('@step' => $step)));
@@ -180,6 +181,23 @@ function bibdk_reservation_wizard_next_submit($form, &$form_state) {
     $form_state['rebuild'] = TRUE;  // Force rebuild with next step.
     return;
   }
+}
+
+
+function bibdk_reservation_new_order_object(){
+  dpm($_GET);
+  if(!isset($_GET['ids'])){
+    drupal_set_error("NO objects have been chosen");
+    return false;
+  }
+  $ids = explode(",", $_GET['ids']);
+  $order = new BibdkReservationOrderObject();
+  $order->setManifestationIds($ids);
+  return $order;
+}
+
+function bibdk_reservation_get_order_object(){
+  return $_SESSION['orderobject'];
 }
 
 
