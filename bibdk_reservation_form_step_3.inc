@@ -1,5 +1,8 @@
 <?php
 
+/*
+ * Form for user input on Step 3
+ */
 function bibdk_reservation_form_step_3($form, &$form_state) {
   $userData = bibdk_reservation_execute_agency_service("DK-810010");
   foreach($userData->getUserParameters() as $userParameter){
@@ -16,6 +19,10 @@ function bibdk_reservation_form_step_3($form, &$form_state) {
   return $form;
 }
 
+/*
+ * Implements hook_form_validate
+ * Validate user input
+ */
 function bibdk_reservation_form_step_3_validate($form, &$form_state) {
   if (isset($form_state['values']['pincode']) && !is_numeric($form_state['values']['pincode'])) {
     form_set_error('pincode', t('Pincode needs to be a four diggit number'));
@@ -30,6 +37,12 @@ function bibdk_reservation_form_step_3_validate($form, &$form_state) {
   }
 }
 
+/**
+ * Get result from OpenAgency ServiceRequest
+ * 
+ * @param string $agencyId
+ * @return \bibdkReservationUserInput
+ */
 function bibdk_reservation_execute_agency_service($agencyId) {
 
   module_load_include('inc', 'ting_openformat', 'ting_openformat.search_client');
@@ -43,6 +56,11 @@ function bibdk_reservation_execute_agency_service($agencyId) {
   return new bibdkReservationUserInput($response);
 }
 
+/**
+ * Parse json response from ServiceRequest
+ * @param json $response
+ * @return array
+ */
 function _parse_agency_service_response($response) {
   $result = array();
   if (isset($response->userParameter)) {
@@ -80,7 +98,11 @@ function _parse_agency_service_response($response) {
   return $result;
 }
 
-
+/**
+ * Handle settings for Agency specific form fields
+ * 
+ * This function is prepared to manifestation specific userinput
+ */
 class bibdkReservationUserInput {
 
   private $userParameters, $userIdTxt, $orderParameters;
