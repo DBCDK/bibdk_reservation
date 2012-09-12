@@ -23,7 +23,7 @@ class BibdkReservationButtonTestCase extends DrupalWebTestCase {
     // TODO: Change link to muckup URL 
     variable_set('ting_search_url', 'http://lakiseks.dbc.dk/hive/'); 
   }
-  
+   
   public function testButtonsExists(){
      $this->drupalGet('/work/870970-basis%3A28960115');
      $this->assertFieldByName("op", "Order any edition","Manifestation Reservation Button Exists");
@@ -52,11 +52,11 @@ class BibdkReservationButtonTestCase extends DrupalWebTestCase {
 }
 
 
-class BibdkReservationStep3 extends DrupalWebTestCase {
+class BibdkReservationFlow extends DrupalWebTestCase {
   
   public static function getInfo() {
     return array(
-      'name' => 'Step 3 : User input',
+      'name' => 'Step 1 - 6 : User input and reservation',
       'description' => t('Test OpenAgency ServiceRequest & form submission'),
       'group' => 'Reservation',
     );
@@ -80,13 +80,21 @@ class BibdkReservationStep3 extends DrupalWebTestCase {
   
   public function testStep3FormFields (){
     /* STEP 1 */
-    $this->drupalPost("reservation", NULL, "Next");
+    $this->drupalPost('reservation', NULL, t('Next'));
+    $this->assertField('openagency_city', "Field \"city\" exists");
+    $this->assertField('openagency_zip', "Field \"zip\" exists");
+    $this->assertField('openagency_name', "Field \"name\" exists");
+    $this->assertText('At least one kind of information should be provided', t('"No input" Error message appears correctly'));
     
     /* STEP 2 */
-    $this->drupalPost(NULL, NULL, "Next");
+    $this->drupalPost('reservation', array('openagency_city' => 'københavn'), t('Next'));
+    $this->assertText('Hovedbiblioteket, Krystalgade', t('Agency search result correctly shown'));
+    $this->assertFieldById('edit-button', t('Select'), 'Select button is present');
     
     /* STEP 3 */
     //Check if fields exist
+    $this->drupalPost(NULL, NULL, t('Select'));
+    
     $this->assertField("userId", "Field userId exists");
     $this->assertField("pincode", "Field pincode exists");
     $this->assertField("userName", "Field userName exists");
