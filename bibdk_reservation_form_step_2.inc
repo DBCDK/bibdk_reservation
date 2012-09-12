@@ -12,8 +12,6 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
   $resp = $client->do_agency_search(array('agencyName' => $name, 'postalCode' => $zip, 'city' => $city));
   $result = bibdk_vejviser_handle_response($resp);
   
-  dpm($form_state);
-  
   foreach ($result['libraries'] as $agency) {
     foreach ($agency->pickUpAgencies as $branch) {
       $form[$branch->branchId] = array(
