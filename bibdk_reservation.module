@@ -156,9 +156,8 @@ function bibdk_reservation_create_wizard_form($form, &$form_state){
 
   // Include each validation function defined for the different steps.
   if (function_exists($form_state['step_information'][$step]['form'] . '_validate')) {
-    $form['next']['#validate'] = array($form_state['step_information'][$step]['form'] . '_validate');
+    $form['#validate'] = array($form_state['step_information'][$step]['form'] . '_validate');
   }
-  
   return $form;
 }
 

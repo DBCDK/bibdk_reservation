@@ -64,26 +64,52 @@ class BibdkReservationStep3 extends DrupalWebTestCase {
   
   public function setUp() {
     $this->profile = 'bibdk';
-    parent::setup(array('bibdk_reservation', 'openagency_webservice_mockup', 'ting'));
+    parent::setup(array('bibdk_reservation', 'bibdk_vejviser', 'openagency_webservice_mockup', 'ting'));
+    global $base_url;
+    variable_set('agency_search_url', $base_url.'/openagency_webservice/'); 
   }
 
 
   public function testServiceRequest() {
-    $url = variable_get('agency_search_url');
-    $this->assertNull($url, 'No URL set for Open Agency yet');
-    global $base_url;
-    variable_set('agency_search_url', $base_url.'/openagency_webservice/');
     $newUrl = variable_get('agency_search_url');
     $this->assertNotNull($newUrl, 'URL to mockup set: ' . $newUrl);
-
     $xml = '<?xml version="1.0" encoding="UTF-8"?><SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"><SOAP-ENV:Body><serviceRequest><agencyId>DK-810010</agencyId><service>userOrderParameters</service><outputType>xml</outputType></serviceRequest></SOAP-ENV:Body></SOAP-ENV:Envelope>';
     $this->drupalPost('openagency_webservice_test', array('xml' => $xml), t('submit'));
     $this->assertText('userId', t('Mockup Agency serviceRequest passes'));
   }
   
   public function testStep3FormFields (){
+    /* STEP 1 */
     $this->drupalPost("reservation", NULL, "Next");
-    $this->drupalPost("reservation", NULL, "Next");
-    $this->drupalPost('reservation', NULL, "Next");
+    
+    /* STEP 2 */
+    $this->drupalPost(NULL, NULL, "Next");
+    
+    /* STEP 3 */
+    //Check if fields exist
+    $this->assertField("userId", "Field userId exists");
+    $this->assertField("pincode", "Field pincode exists");
+    $this->assertField("userName", "Field userName exists");
+    
+    $this->drupalPost(NULL, NULL, "Finish");
+    
+    //Check if required elements is set
+    $this->assertText('Name field is required');
+    $this->assertText('User ID field is required');
+    $this->assertText('Pincode field is required');
+    $this->assertText('Adress, postal code, town/city field is required');
+    
+    //Check custom validation
+    $this->drupalPost(NULL, array('pincode' => '123123123'), "Finish");
+    $this->assertText('Pincode needs to be a four diggit number');
+
+    $this->drupalPost(NULL, array('userId' => '123123', 'pincode' => '1231', 'userName' => 'Test Testersen', 'userAddress' => 'testing 5'), "Finish");
+    
+    //Check if validation passes  
+    $this->assertNoText('Name field is required');
+    $this->assertNoText('User ID field is required');
+    $this->assertNoText('Pincode field is required');
+    $this->assertNoText('Adress, postal code, town/city field is required');
+    $this->assertNoText('Pincode needs to be a four diggit number');
   }
 }
