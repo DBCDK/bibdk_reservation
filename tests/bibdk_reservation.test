@@ -52,12 +52,12 @@ class BibdkReservationButtonTestCase extends DrupalWebTestCase {
 }
 
 
-class BibdkReservationOpenagencyWebservice extends DrupalWebTestCase {
+class BibdkReservationStep3 extends DrupalWebTestCase {
   
   public static function getInfo() {
     return array(
-      'name' => 'Webservice',
-      'description' => t('Test OpenAgency ServiceRequest'),
+      'name' => 'Step 3 : User input',
+      'description' => t('Test OpenAgency ServiceRequest & form submission'),
       'group' => 'Reservation',
     );
   }
@@ -79,5 +79,11 @@ class BibdkReservationOpenagencyWebservice extends DrupalWebTestCase {
     $xml = '<?xml version="1.0" encoding="UTF-8"?><SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"><SOAP-ENV:Body><serviceRequest><agencyId>DK-810010</agencyId><service>userOrderParameters</service><outputType>xml</outputType></serviceRequest></SOAP-ENV:Body></SOAP-ENV:Envelope>';
     $this->drupalPost('openagency_webservice_test', array('xml' => $xml), t('submit'));
     $this->assertText('userId', t('Mockup Agency serviceRequest passes'));
+  }
+  
+  public function testStep3FormFields (){
+    $this->drupalPost("reservation", NULL, "Next");
+    $this->drupalPost("reservation", NULL, "Next");
+    $this->drupalPost('reservation', NULL, "Next");
   }
 }
