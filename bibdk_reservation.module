@@ -110,6 +110,8 @@ function bibdk_reservation_create_wizard_form($form, &$form_state){
     // relevant form elements. It will also store state information for each
     // step.
     $form_state['step_information'] = _bibdk_reservation_steps();
+    
+    $_SESSION['orderobject'] = new BibdkReservationOrderObject();
   }
   $step = &$form_state['step'];
   drupal_set_title(t('Reservation: Step @step of ' . count($form_state['step_information']), array('@step' => $step)));
