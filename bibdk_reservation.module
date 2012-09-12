@@ -134,7 +134,7 @@ function bibdk_reservation_create_wizard_form($form, &$form_state){
   }
 
   // Show the Next button only if there are more steps defined.
-  if ($step < count($form_state['step_information'])) {
+  if ($step < count($form_state['step_information']) && $step != 2) {
     // The Next button should be included on every step
     $form['next'] = array(
       '#type' => 'submit',
@@ -143,7 +143,7 @@ function bibdk_reservation_create_wizard_form($form, &$form_state){
       '#submit' => array('bibdk_reservation_wizard_next_submit'),
     );
   }
-  else {
+  else if($step != 2){
     // Just in case there are no more steps, we use the default submit handler
     // of the form wizard. Call this button Finish, Submit, or whatever you
     // want to show. When this button is clicked, the
