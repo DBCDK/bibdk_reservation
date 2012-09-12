@@ -1,7 +1,7 @@
 <?php
 
-function bibdk_reservation_form_step_1($form) {
-  drupal_set_message('step 1');
+function bibdk_reservation_form_step_1($form, &$form_state) {
+  dpm($form_state);
   $form['openagency_name'] = array(
     '#type' => 'textfield',
     '#title' => t('Name'),
@@ -17,11 +17,6 @@ function bibdk_reservation_form_step_1($form) {
     '#title' => t('City'),
     '#size' => 5,
   );
-/*
-  $form['openagency_submit'] = array(
-    '#type' => 'submit',
-    '#value' => t('Search'),
-    '#executes_submit_callback' => TRUE,
-  );*/
+  
   return $form;
 }

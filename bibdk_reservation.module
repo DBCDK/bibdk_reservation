@@ -63,6 +63,18 @@ function bibdk_reservation_menu() {
 }
 
 /**
+ * Implements hook_theme();
+ */
+function bibdk_reservation_theme(){
+  return array(
+    'bibdk_reservation_agency' => array(
+      'variables' => array('agency' => array()),
+      'template' => 'template/bibdk_reservation_agency',
+    ),
+  );
+}
+
+/**
  * Defines the steps in the reservation process
  * The file representing the step, should be written without .inc as it will be appended automatically
  * @return Array
@@ -146,7 +158,7 @@ function bibdk_reservation_create_wizard_form($form, &$form_state){
   if (function_exists($form_state['step_information'][$step]['form'] . '_validate')) {
     $form['next']['#validate'] = array($form_state['step_information'][$step]['form'] . '_validate');
   }
-
+  
   return $form;
 }
 
@@ -202,3 +214,5 @@ function bibdk_reservation_wizard_next_submit($form, &$form_state) {
     return;
   }
 }
+
+
