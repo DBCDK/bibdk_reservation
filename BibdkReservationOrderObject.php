@@ -1,8 +1,8 @@
 <?php
 
 class BibdkReservationOrderObject {
-  public $agencyId;
-  public $manifestationIds;
+  private $agencyId;
+  private $manifestationIds;
   
   public function setManifestationIds(array $ids){
     $this->manifestationIds = $ids;
