@@ -10,6 +10,7 @@ module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_button');
 module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_form_step_1');
 module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_form_step_2');
 module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_form_step_3');
+module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_form_step_4');
 
 
 
@@ -37,6 +38,10 @@ function bibdk_reservation_theme(){
       'variables' => array('agency' => array()),
       'template' => 'template/bibdk_reservation_agency',
     ),
+    'bibdk_reservation_resume' => array(
+      'variables' => array('resume' => array()),
+      'template' => 'template/bibdk_reservation_resume',
+    ),
   );
 }
 
@@ -55,6 +60,9 @@ function _bibdk_reservation_steps() {
       ),
       3 => array(
         'form' => 'bibdk_reservation_form_step_3',
+      ),
+      4 => array(
+        'form' => 'bibdk_reservation_form_step_4',
       ),
       
     );

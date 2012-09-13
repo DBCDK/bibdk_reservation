@@ -14,13 +14,15 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
 
   foreach ($result['libraries'] as $agency) {
     foreach ($agency->pickUpAgencies as $branch) {
+      #dpm($branch);
       $form[$branch->branchId]['button'] = array(
         '#value' => t('Select'),
-        '#name' => $branch->branchId,
+        '#name' => $branch->branchId, 
         '#prefix' => theme('bibdk_reservation_agency', array('agency' => $branch)),
         '#suffix' => '<hr/></div>',
         '#type' => 'submit',
         '#submit' => array('bibdk_reservation_wizard_next_submit', 'bibdk_reservation_form_step_2_update_orderinfo'),
+        '#branch' => $branch,
       );
     }
   }
@@ -29,7 +31,8 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
 }
 
 function bibdk_reservation_form_step_2_update_orderinfo($form, $form_state) {
-  if(!isset($_SESSION['orderobject'])){
+  dpm($form_state);
+  if (!isset($_SESSION['orderobject'])) {
     $_SESSION['orderobject'] = new BibdkReservationOrderObject();
   }
   $orderObj = $_SESSION['orderobject'];
