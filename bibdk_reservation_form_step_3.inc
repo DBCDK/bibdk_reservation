@@ -50,7 +50,7 @@ function bibdk_reservation_form_step_3_submit($form, &$form_state) {
   foreach ($userParameters as $key => $userParameter) {
     $type = $userParameter['type'];
     $name = $userParameter['field_name'];
-    $value = ($userParameter['field_type'] != 'password') ? $form_state['values'][$type] : preg_replace("/./", "*", $form_state['values'][$type]);
+    $value = (isset($userParameter['field_type']) && $userParameter['field_type'] == 'password') ? preg_replace("/./", "*", $form_state['values'][$type]) : $form_state['values'][$type];
     if (!empty($value)) {
       $userData[$name] = $value;
     }
