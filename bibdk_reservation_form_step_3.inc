@@ -28,13 +28,49 @@ function bibdk_reservation_form_step_3_validate($form, &$form_state) {
     form_set_error('pincode', t('Pincode needs to be a four diggit number'));
   }
   
-  if (!empty($form_state['values']['userMail']) && !is_numeric($form_state['values']['cpr'])) {
+  if (!empty($form_state['values']['cpr']) && !is_numeric($form_state['values']['cpr'])) {
     form_set_error('cpr', t('CPR-number needs to be a valid CPR-number'));
   }
   
   if (!empty($form_state['values']['userMail']) && !valid_email_address($form_state['values']['userMail'])) {
     form_set_error('cpr', t('email needs to be a valid email'));
   }
+  if (!form_get_errors()){
+    bibdk_reservation_borchk($form_state);
+  }
+}
+function bibdk_reservation_form_step_3_submit($form, &$form_state){ 
+  foreach($form_state['values'] as $key => $value){
+    if($form[$key]['#type'] != 'password'){
+      $userData[$key] = $value;
+    }
+  }
+  BibdkReservationOrderObject::GetObject()->setUserData($userData);
+}
+
+
+function bibdk_reservation_borchk($form_state){
+  $response = bibdk_reservation_execute_borchk_service($form_state);
+  switch($response->borrowerCheckResponse->requestStatus){
+    case 'ok' :
+      return;
+      break;
+    case 'borrower_not_found' :
+      form_set_error("Library User", "Userid and/or pincode is wrong");
+      break;
+    case 'error_in_request' :
+      form_set_error("Library User", "Unknown Error has happened");
+      break;
+  }
+}
+
+
+function bibdk_reservation_execute_borchk_service($form_state){
+  $libraryCode = BibdkReservationOrderObject::GetObject()->getAgencyId();
+  $userId = $form_state['values']['userId'];
+  $userPincode = $form_state['values']['pincode'];
+  $responce = bibdk_borchk_request($userId, $userPincode, $libraryCode);
+  return $responce;
 }
 
 /**
