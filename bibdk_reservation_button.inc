@@ -25,6 +25,7 @@ function bibdk_reservation_button_form($form, &$form_state, $entity_ids, $type, 
     '#type' => 'submit',
     '#value' => ($entity_type == "bibdkSubwork") ? t("Order any edition") : t("Order this @type", array("@type" => $type)),
     '#executes_submit_callback' => TRUE,
+    '#manifestaions' => "test"
   );
 
   return $form;

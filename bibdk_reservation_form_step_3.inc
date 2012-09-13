@@ -3,19 +3,20 @@
 /*
  * Form for user input on Step 3
  */
+
 function bibdk_reservation_form_step_3($form, &$form_state) {
-  $userData = bibdk_reservation_execute_agency_service("DK-810010");
-  foreach($userData->getUserParameters() as $userParameter){
+
+  $fields = bibdk_reservation_get_agency_fields();
+  foreach ($fields->getUserParameters() as $userParameter) {
     $type = $userParameter['type'];
-    $required = $userParameter['required'];
     $form[$type] = array(
       '#type' => isset($userParameter['field_type']) ? $userParameter['field_type'] : 'textfield',
       '#title' => $userParameter['field_name'],
       '#description' => isset($userParameter['field_description']) ? $userParameter['field_description'] : NULL,
-      '#required' => $required,
+      '#required' => $userParameter['required'],
       '#default_value' => (isset($form_state['values'][$type])) ? $form_state['values'][$type] : "",
     );
-  } 
+  }
   return $form;
 }
 
@@ -23,38 +24,46 @@ function bibdk_reservation_form_step_3($form, &$form_state) {
  * Implements hook_form_validate
  * Validate user input
  */
-/*
 function bibdk_reservation_form_step_3_validate($form, &$form_state) {
   if (!empty($form_state['values']['pincode']) && (!is_numeric($form_state['values']['pincode']) || strlen($form_state['values']['pincode']) != 4)) {
     form_set_error('pincode', t('Pincode needs to be a four diggit number'));
   }
-  
+
   if (!empty($form_state['values']['cpr']) && !is_numeric($form_state['values']['cpr'])) {
     form_set_error('cpr', t('CPR-number needs to be a valid CPR-number'));
   }
-  
+
   if (!empty($form_state['values']['userMail']) && !valid_email_address($form_state['values']['userMail'])) {
     form_set_error('cpr', t('email needs to be a valid email'));
   }
-  if (!form_get_errors()){
-    bibdk_reservation_borchk($form_state);
+  if (!form_get_errors()) {
+    bibdk_reservation_borchk_validate($form_state);
   }
 }
- * 
+/*
+ * Implements hook_form_submit
  */
-function bibdk_reservation_form_step_3_submit($form, &$form_state){ 
-  foreach($form_state['values'] as $key => $value){
-    if($form[$key]['#type'] != 'password'){
-      $userData[$key] = $value;
+
+function bibdk_reservation_form_step_3_submit($form, &$form_state) {
+  $userParameters = BibdkReservationOrderObject::GetObject()->getFields()->getUserParameters();
+
+  foreach ($userParameters as $key => $userParameter) {
+    $type = $userParameter['type'];
+    $name = $userParameter['field_name'];
+    $value = ($userParameter['field_type'] != 'password') ? $form_state['values'][$type] : preg_replace("/./", "*", $form_state['values'][$type]);
+    if (!empty($value)) {
+      $userData[$name] = $value;
     }
   }
   BibdkReservationOrderObject::GetObject()->setUserData($userData);
 }
 
-
-function bibdk_reservation_borchk($form_state){
+/**
+ * Validate up against Borchk
+ */
+function bibdk_reservation_borchk_validate($form_state) {
   $response = bibdk_reservation_execute_borchk_service($form_state);
-  switch($response->borrowerCheckResponse->requestStatus){
+  switch ($response->borrowerCheckResponse->requestStatus) {
     case 'ok' :
       return;
       break;
@@ -67,32 +76,49 @@ function bibdk_reservation_borchk($form_state){
   }
 }
 
-
-function bibdk_reservation_execute_borchk_service($form_state){
+/**
+ * Execute service request to borchk
+ */
+function bibdk_reservation_execute_borchk_service($form_state) {
   $libraryCode = BibdkReservationOrderObject::GetObject()->getAgencyId();
-  $userId = $form_state['values']['userId'];
-  $userPincode = $form_state['values']['pincode'];
-  $responce = bibdk_borchk_request($userId, $userPincode, $libraryCode);
-  return $responce;
+  $userIdKey = BibdkReservationOrderObject::GetObject()->getFields()->getUserIdKey();
+  $userId = isset($form_state['values'][$userIdKey]) ? $form_state['values'][$userIdKey] : NULL;
+  $userPincode = isset($form_state['values']['pincode']) ? $form_state['values']['pincode'] : NULL;
+
+  return bibdk_borchk_request($userId, $userPincode, $libraryCode);
+}
+
+/**
+ * Get fields required by Agency
+ * @return \bibdkReservationUserInput
+ */
+function bibdk_reservation_get_agency_fields() {
+
+  $agencyId = BibdkReservationOrderObject::GetObject()->getAgencyId();
+
+  $response = bibdk_reservation_execute_agency_service($agencyId);
+
+  $fields = new bibdkReservationAgencyFields($response);
+
+  BibdkReservationOrderObject::GetObject()->setFields($fields);
+
+  return $fields;
 }
 
 /**
  * Get result from OpenAgency ServiceRequest
  * 
  * @param string $agencyId
- * @return \bibdkReservationUserInput
+ * @return array
  */
 function bibdk_reservation_execute_agency_service($agencyId) {
 
-  module_load_include('inc', 'ting_openformat', 'ting_openformat.search_client');
   $client = new ting_client_class();
-
   $service = 'userOrderParameters';
-  
+
   $response = $client->do_agency_service(array('agencyId' => $agencyId, 'service' => $service));
-  $response = _parse_agency_service_response($response);
-  
-  return new bibdkReservationUserInput($response);
+
+  return parse_agency_service_response($response);
 }
 
 /**
@@ -100,7 +126,7 @@ function bibdk_reservation_execute_agency_service($agencyId) {
  * @param json $response
  * @return array
  */
-function _parse_agency_service_response($response) {
+function parse_agency_service_response($response) {
   $result = array();
   if (isset($response->userParameter)) {
     foreach ($response->userParameter as $userParameter) {
@@ -135,99 +161,4 @@ function _parse_agency_service_response($response) {
     }
   }
   return $result;
-}
-
-/**
- * Handle settings for Agency specific form fields
- * 
- * This function is prepared to manifestation specific userinput
- */
-class bibdkReservationUserInput {
-
-  private $userParameters, $userIdTxt, $orderParameters;
-
-  public function __construct($response) {
-    foreach($response as $key => $value){
-      $this->$key = $value;
-    }
-    foreach($this->userParameters as $key => $element)
-      $this->userParameters[$key] += $this->_getSettingsFromType ($element['type']);
-  }
-  
-  public function getUserParameters(){
-    return $this->userParameters;
-  }
-  
-private function _getSettingsFromType($type){
-  $settings = array();
-  switch ($type) {
-    case 'cpr':
-      $settings = array(
-        'field_name' => t('CPR-number'),
-        'field_type' => 'password',
-      );
-      break;
-    case 'userId':
-      $settings = array(
-        'field_name' => t('User ID'),
-        'field_description' => isset($this->userIdTxt) ? implode(", ", $this->userIdTxt) : NULL,
-      );
-      break;
-    case 'barcode':
-      $settings = array(
-        'field_name' => t('Barcode'),
-        'field_type' => 'password',
-      );
-      break;
-    case 'cardno':
-      $settings = array(
-        'field_name' => t('Card number'),
-        'field_type' => 'password',
-      );
-      break;
-    case 'pincode':
-      $settings = array(
-        'field_name' => t('Pincode'),
-        'field_type' => 'password',
-      );
-      break;
-    case 'customId':
-      $settings = array(
-        'field_name' => t('Custom ID'),
-        'field_type' => 'password',
-      );
-      break;
-    case 'userDateOfBirth':
-      $settings = array(
-        'field_name' => t('Date of birth'),
-      );
-      break;
-    case 'userName':
-      $settings = array(
-        'field_name' => t('Name'),
-      );
-      break;
-    case 'userAddress':
-      $settings = array(
-        'field_name' => t('Adress, postal code, town/city'),
-      );
-      break;
-    case 'userMail':
-      $settings = array(
-        'field_name' => t('E-mail'),
-      );
-      break;
-    case 'userTelephone':
-      $settings = array(
-        'field_name' => t('Phone number'),
-      );
-      break;
-
-    default:
-      break;
-  }
-  
-  return $settings;
-  
-}
 }

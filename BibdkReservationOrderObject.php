@@ -5,7 +5,9 @@ class BibdkReservationOrderObject {
   private $branch;
   private $manifestationIds;
   private $userData;
-  
+  private $fields;
+
+
   public function setManifestationIds(array $ids){
     $this->manifestationIds = $ids;
   }
@@ -37,6 +39,17 @@ class BibdkReservationOrderObject {
 
   public function getUserData(){
     return $this->userData;
+  }
+   
+  public function setFields($fields){
+    $this->fields = $fields;
+  }
+  
+  /**
+   * @return bibdkReservationAgencyFields
+   */
+  public function getFields(){
+    return $this->fields;
   }
    
   /**
