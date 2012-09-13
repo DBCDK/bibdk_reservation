@@ -1,7 +1,8 @@
 <?php
 
 class BibdkReservationOrderObject {
-  private $agencyId;
+  private $branchId;
+  private $branch;
   private $manifestationIds;
   private $userData;
   
@@ -13,12 +14,21 @@ class BibdkReservationOrderObject {
     return $this->manifestationIds;
   }
   
-  public function setAgencyId($id){
-    $this->agencyId = "DK-".$id;
+  public function setBranchId($id){
+    $this->branchId = "DK-".$id;
   }
   
-  public function getAgencyId(){
-    return $this->agencyId;
+  public function getBranchId(){
+    return $this->branchId;
+  }
+  
+  public function setBranch($branch) {
+    $this->branch = $branch;
+    $this->setBranchId($branch->branchId);
+  }
+  
+  public function getBranch() {
+    return $this->branch;
   }
   
   public function setUserData($userData){

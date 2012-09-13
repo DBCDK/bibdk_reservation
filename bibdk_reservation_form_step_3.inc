@@ -23,6 +23,7 @@ function bibdk_reservation_form_step_3($form, &$form_state) {
  * Implements hook_form_validate
  * Validate user input
  */
+/*
 function bibdk_reservation_form_step_3_validate($form, &$form_state) {
   if (!empty($form_state['values']['pincode']) && (!is_numeric($form_state['values']['pincode']) || strlen($form_state['values']['pincode']) != 4)) {
     form_set_error('pincode', t('Pincode needs to be a four diggit number'));
@@ -39,6 +40,8 @@ function bibdk_reservation_form_step_3_validate($form, &$form_state) {
     bibdk_reservation_borchk($form_state);
   }
 }
+ * 
+ */
 function bibdk_reservation_form_step_3_submit($form, &$form_state){ 
   foreach($form_state['values'] as $key => $value){
     if($form[$key]['#type'] != 'password'){
