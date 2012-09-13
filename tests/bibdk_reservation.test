@@ -78,7 +78,7 @@ class BibdkReservationFlow extends DrupalWebTestCase {
     $this->assertText('userId', t('Mockup Agency serviceRequest passes'));
   }
   
-  public function testStep3FormFields (){
+  public function testMultiStepReservationForm (){
     /* STEP 1 */
     $this->drupalPost('reservation', NULL, t('Next'));
     $this->assertField('openagency_city', "Field \"city\" exists");
