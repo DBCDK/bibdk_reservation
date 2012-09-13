@@ -7,6 +7,11 @@ php = 5.2.4
 ;no version yet
 ;version = 7.x-0.0
 
+dependencies[] = ting_openformat
+dependencies[] = ting_client
+dependencies[] = bibdk_borchk
+dependencies[] = bibdk_vejviser
+
 files[] = bibdk_reservation.field.inc
 files[] = bibdk_reservation_form_step_1.inc
 files[] = bibdk_reservation_form_step_2.inc
