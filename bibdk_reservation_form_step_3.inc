@@ -80,7 +80,7 @@ function bibdk_reservation_borchk_validate($form_state) {
  * Execute service request to borchk
  */
 function bibdk_reservation_execute_borchk_service($form_state) {
-  $libraryCode = BibdkReservationOrderObject::GetObject()->getAgencyId();
+  $libraryCode = BibdkReservationOrderObject::GetObject()->getBranchId();
   $userIdKey = BibdkReservationOrderObject::GetObject()->getFields()->getUserIdKey();
   $userId = isset($form_state['values'][$userIdKey]) ? $form_state['values'][$userIdKey] : NULL;
   $userPincode = isset($form_state['values']['pincode']) ? $form_state['values']['pincode'] : NULL;
@@ -94,7 +94,7 @@ function bibdk_reservation_execute_borchk_service($form_state) {
  */
 function bibdk_reservation_get_agency_fields() {
 
-  $agencyId = BibdkReservationOrderObject::GetObject()->getAgencyId();
+  $agencyId = BibdkReservationOrderObject::GetObject()->getBranchId();
 
   $response = bibdk_reservation_execute_agency_service($agencyId);
 
