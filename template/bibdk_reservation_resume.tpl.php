@@ -12,5 +12,4 @@
         <?php if (isset($branch->postalAddress) && $branch->postalAddress) : ?>
           <?php print $branch->postalAddress; ?><br/>
             <?php print $branch->postalCode; ?> <?php print $branch->city; ?><br/>
-            <?php $findVej = $branch->postalAddress.','.$branch->postalCode;?></p>
         <?php endif; ?>
