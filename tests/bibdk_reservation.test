@@ -108,7 +108,7 @@ class BibdkReservationFlow extends DrupalWebTestCase {
     $this->assertText('Adress, postal code, town/city field is required');
     
     //Check custom validation
-    $this->drupalPost(NULL, array('pincode' => '123123123'), "Next");
+    $this->drupalPost(NULL, array('pincode' => '123123123'), t('Next'));
     $this->assertText('Pincode needs to be a four diggit number');
 
     $this->drupalPost(NULL, array('userId' => '123123', 'pincode' => '1231', 'userName' => 'Test Testersen', 'userAddress' => 'testing 5'), "Next");
@@ -121,6 +121,6 @@ class BibdkReservationFlow extends DrupalWebTestCase {
     $this->assertNoText('Pincode needs to be a four diggit number');
     
     /* STEP 4 */
-    
+   //Awaits testuser 
   }
 }

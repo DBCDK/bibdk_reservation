@@ -61,11 +61,15 @@ function _bibdk_reservation_steps() {
       ),
       3 => array(
         'form' => 'bibdk_reservation_form_step_3',
+        'previous step' => 1, //if the previous button is pressed on step 3, step 2 will be skipped and jump tp step 1
       ),
       4 => array(
         'form' => 'bibdk_reservation_form_step_4',
+        'next button text' => 'Confirm', //overriding the default "Next" text on buttons
       ),
-      
+      5 => array(
+        'form' => 'bibdk_reservation_form_step_5',
+      ),
     );
   return $steps;
 }
@@ -115,7 +119,7 @@ function bibdk_reservation_create_wizard_form($form, &$form_state){
     // The Next button should be included on every step
     $form['next'] = array(
       '#type' => 'submit',
-      '#value' => t('Next'),
+      '#value' => t(isset($form_state['step_information'][$step]['next button text']) ? $form_state['step_information'][$step]['next button text'] : 'Next'),
       '#name' => 'next',
       '#submit' => array('bibdk_reservation_wizard_next_submit'),
     );
@@ -153,7 +157,7 @@ function bibdk_reservation_wizard_previous_submit($form, &$form_state) {
   $current_step = &$form_state['step'];
   $form_state['step_information'][$current_step]['stored_values'] = $form_state['values'];
   if ($current_step > 1) {
-    $current_step--;
+    isset($form_state['step_information'][$current_step]['previous step']) ? $current_step = $form_state['step_information'][$current_step]['previous step'] : $current_step--;
     $form_state['values'] = $form_state['step_information'][$current_step]['stored_values'];
   }
   $form_state['rebuild'] = TRUE;
