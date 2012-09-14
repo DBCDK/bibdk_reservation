@@ -119,6 +119,9 @@ class BibdkReservationFlow extends DrupalWebTestCase {
     $this->assertNoText('Pincode field is required');
     $this->assertNoText('Adress, postal code, town/city field is required');
     $this->assertNoText('Pincode needs to be a four diggit number');
+    $this->assertText('Pincode needs to be a four diggit number');
+    
+    
     
     /* STEP 4 */
    //Awaits testuser 
