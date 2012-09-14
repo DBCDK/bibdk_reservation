@@ -10,7 +10,6 @@ php = 5.2.4
 dependencies[] = ting_openformat
 dependencies[] = ting_client
 dependencies[] = bibdk_borchk
-dependencies[] = bibdk_vejviser
 
 files[] = bibdk_reservation.field.inc
 files[] = bibdk_reservation_form_step_1.inc
