@@ -3,6 +3,9 @@
 /*
  * Form for user input on Step 3
  */
+global $base_url;
+variable_set('bibdk_borchk_url', $base_url.'/bibdk_borchk_webservice/'); 
+variable_set('bibdk_borchk_servicerequester', 'bibliotek.dk');
 
 function bibdk_reservation_form_step_3($form, &$form_state) {
 
@@ -34,7 +37,7 @@ function bibdk_reservation_form_step_3_validate($form, &$form_state) {
   }
 
   if (!empty($form_state['values']['userMail']) && !valid_email_address($form_state['values']['userMail'])) {
-    form_set_error('cpr', t('email needs to be a valid email'));
+    form_set_error('userEmail', t('Email needs to be a valid email'));
   }
   if (!form_get_errors()) {
     bibdk_reservation_borchk_validate($form_state);
@@ -73,6 +76,8 @@ function bibdk_reservation_borchk_validate($form_state) {
     case 'error_in_request' :
       form_set_error("Library User", "Unknown Error has happened");
       break;
+    default :
+      form_set_error("Service", "service unavailable");
   }
 }
 
@@ -84,7 +89,6 @@ function bibdk_reservation_execute_borchk_service($form_state) {
   $userIdKey = BibdkReservationOrderObject::GetObject()->getFields()->getUserIdKey();
   $userId = isset($form_state['values'][$userIdKey]) ? $form_state['values'][$userIdKey] : NULL;
   $userPincode = isset($form_state['values']['pincode']) ? $form_state['values']['pincode'] : NULL;
-
   return bibdk_borchk_request($userId, $userPincode, $libraryCode);
 }
 

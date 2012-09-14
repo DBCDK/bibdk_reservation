@@ -64,9 +64,11 @@ class BibdkReservationFlow extends DrupalWebTestCase {
   
   public function setUp() {
     $this->profile = 'bibdk';
-    parent::setup(array('bibdk_reservation', 'bibdk_vejviser', 'openagency_webservice_mockup', 'ting'));
+    parent::setup(array('bibdk_reservation', 'bibdk_vejviser', 'openagency_webservice_mockup','bibdk_borchk_webservice_mockup', 'ting'));
     global $base_url;
     variable_set('agency_search_url', $base_url.'/openagency_webservice/'); 
+    variable_set('bibdk_borchk_url', $base_url.'/bibdk_borchk_webservice/'); 
+    variable_set('bibdk_borchk_servicerequester', 'bibliotek.dk');
   }
 
 
@@ -95,7 +97,7 @@ class BibdkReservationFlow extends DrupalWebTestCase {
     //Check if fields exist
     $this->drupalPost(NULL, NULL, t('Select'));
     
-    $this->assertField("userId", "Field userId exists");
+    $this->assertField("cpr", "Field CPR-number exists");
     $this->assertField("pincode", "Field pincode exists");
     $this->assertField("userName", "Field userName exists");
     
@@ -103,15 +105,15 @@ class BibdkReservationFlow extends DrupalWebTestCase {
     
     //Check if required elements is set
     $this->assertText('Name field is required');
-    $this->assertText('User ID field is required');
+    $this->assertText('CPR-number field is required');
     $this->assertText('Pincode field is required');
     $this->assertText('Adress, postal code, town/city field is required');
     
     //Check custom validation
-    $this->drupalPost(NULL, array('pincode' => '123123123'), t('Next'));
+    $this->drupalPost(NULL, array('pincode' => '123123123', 'userMail' => "qwqwqw@weewewe"), t('Next'));
     $this->assertText('Pincode needs to be a four diggit number');
-
-    $this->drupalPost(NULL, array('userId' => '123123', 'pincode' => '1231', 'userName' => 'Test Testersen', 'userAddress' => 'testing 5'), "Next");
+    $this->assertText('Email needs to be a valid email');
+    $this->drupalPost(NULL, array('cpr' => '1234561234', 'pincode' => '1231', 'userMail' => 'test@test.dk','userName' => 'Test Testersen', 'userAddress' => 'testing 5'), "Next");
     
     //Check if validation passes  
     $this->assertNoText('Name field is required');
@@ -119,7 +121,16 @@ class BibdkReservationFlow extends DrupalWebTestCase {
     $this->assertNoText('Pincode field is required');
     $this->assertNoText('Adress, postal code, town/city field is required');
     $this->assertNoText('Pincode needs to be a four diggit number');
-    $this->assertText('Pincode needs to be a four diggit number');
+    $this->assertNoText('CPR-number needs to be a valid CPR-number');
+    $this->assertNoText('Email needs to be a valid email');
+    
+    //Test Bad user
+    $this->assertText('Userid and/or pincode is wrong');
+    
+    //Test Good user
+    $this->drupalPost(NULL, array('cpr' => '0019', 'pincode' => '0019', 'userName' => 'Test Testersen', 'userAddress' => 'testing 5'), "Next");
+    $this->assertNoText('Userid and/or pincode is wrong');
+    
     
     
     
