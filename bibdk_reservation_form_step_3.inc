@@ -8,7 +8,7 @@ variable_set('bibdk_borchk_url', $base_url.'/bibdk_borchk_webservice/');
 variable_set('bibdk_borchk_servicerequester', 'bibliotek.dk');
 
 function bibdk_reservation_form_step_3($form, &$form_state) {
-
+  
   $fields = bibdk_reservation_get_agency_fields();
   foreach ($fields->getUserParameters() as $userParameter) {
     $type = $userParameter['type'];

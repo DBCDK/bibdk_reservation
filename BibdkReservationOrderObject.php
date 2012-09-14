@@ -8,11 +8,11 @@ class BibdkReservationOrderObject {
   private $fields;
 
 
-  public function setManifestationIds(array $ids){
+  public function setManifestationIds($ids){
     $this->manifestationIds = $ids;
   }
   
-  public function getManifestationIds(array $ids){
+  public function getManifestationIds(){
     return $this->manifestationIds;
   }
   
