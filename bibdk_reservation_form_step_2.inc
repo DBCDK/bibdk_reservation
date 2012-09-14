@@ -33,5 +33,9 @@ function bibdk_reservation_form_step_2_do_policycheck(){
   $pid = BibdkReservationOrderObject::GetObject()->getManifestationIds();
   drupal_load('module', 'bibdk_openorder');
   $res = bibdk_openorder_do_checkOrderPolicy($pickUpAgencyId, $pid[0]);
-  dpm($res);
+
+  $orderPossible = $res->checkOrderPolicyResponse->orderPossible->{'$'};
+  $reason = $res->checkOrderPolicyResponse->orderPossibleReason->{'$'};
+  drupal_set_message(t('Order possible: ') . $orderPossible, 'status');
+  drupal_set_message(t('Reason: ') . $reason, 'status');
 }
