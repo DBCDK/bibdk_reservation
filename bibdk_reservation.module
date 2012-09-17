@@ -41,6 +41,10 @@ function bibdk_reservation_theme(){
       'variables' => array('resume' => array()),
       'template' => 'template/bibdk_reservation_resume',
     ),
+    'bibdk_reservation_orderpolicy' => array(
+      'variables' => array('orderpolicy' => array()),
+      'template' => 'template/bibdk_reservation_orderpolicy',
+    ),
   );
 }
 

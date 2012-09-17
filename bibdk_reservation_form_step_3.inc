@@ -4,11 +4,16 @@
  * Form for user input on Step 3
  */
 global $base_url;
-variable_set('bibdk_borchk_url', $base_url.'/bibdk_borchk_webservice/'); 
+variable_set('bibdk_borchk_url', $base_url . '/bibdk_borchk_webservice/');
 variable_set('bibdk_borchk_servicerequester', 'bibliotek.dk');
 
 function bibdk_reservation_form_step_3($form, &$form_state) {
-  
+  $orderpolicy = bibdk_reservation_form_step_3_do_policycheck();
+  $form['policy'] = array(
+    '#type' => 'markup',
+    '#markup' => theme('bibdk_reservation_orderpolicy', array('orderpolicy' => $orderpolicy)),
+  );
+
   $fields = bibdk_reservation_get_agency_fields();
   foreach ($fields->getUserParameters() as $userParameter) {
     $type = $userParameter['type'];
@@ -23,10 +28,57 @@ function bibdk_reservation_form_step_3($form, &$form_state) {
   return $form;
 }
 
+function bibdk_reservation_form_step_3_do_policycheck() {
+  $pickUpAgencyId = BibdkReservationOrderObject::GetObject()->getBranchId();
+  $pid = BibdkReservationOrderObject::GetObject()->getManifestationIds();
+  drupal_load('module', 'bibdk_openorder');
+  $res = bibdk_openorder_do_checkOrderPolicy($pickUpAgencyId, $pid[0]);
+  
+  try {
+    $orderPossible = $res->checkOrderPolicyResponse->orderPossible->{'$'};
+    $reason = $res->checkOrderPolicyResponse->orderPossibleReason->{'$'};
+  } catch (Exception $exc) {
+    drupal_set_message($exc->getTraceAsString(), 'error');
+    return;
+  }
+  
+  if($orderPossible){
+    $orderPossibleTxt = t('Order is possible');
+  } else {
+    $orderPossibleTxt = t('Order is not possible');
+  }
+  
+  switch ($reason) {
+      case 'not_owned_ILL_loc': //Example 1
+        $reson_place_holder = t('not_owned_ILL_loc');
+        return array('orderpossible' => $orderPossibleTxt, 'reason' => $reson_place_holder);
+        break;
+      case 'owned_wrong_mediumType': //Example 2
+        $url = $res->checkOrderPolicyResponse->agencyCatalogueUrl->{'$'};
+        $reson_place_holder = t('owned_wrong_mediumType');
+        return array('orderpossible' => $orderPossibleTxt, 'reason' => $reson_place_holder, 'agencyCatalogueUrl' => t('Agency catalogue URL: ') . l($url, $url));
+        break;
+      case 'owned_accepted': //Example 3
+        $url = $res->checkOrderPolicyResponse->lookUpUrl->{'$'};
+        $reson_place_holder = t('owned_accepted');
+        return array('orderpossible' => $orderPossibleTxt, 'reason' => $reson_place_holder, 'lookUpUrl' => t('Lookup URL: ') . l($url, $url));
+        break;
+      case 'not_owned_ILL_loc': //Example 4
+        $reson_place_holder = t('not_owned_ILL_loc');
+        return array('orderpossible' => $orderPossibleTxt, 'reason' => $reson_place_holder);
+        break;
+      default: //TODO Implement exaample 5 when openOrder/openSearch os ready
+        drupal_set_message('Unknown response. Watchdog\'ed', 'error');
+        watchdog(WATCHDOG_ERROR, 'Unknown response from openOrder', array('response' => $res));
+        break;
+    }
+}
+
 /*
  * Implements hook_form_validate
  * Validate user input
  */
+
 function bibdk_reservation_form_step_3_validate($form, &$form_state) {
   if (!empty($form_state['values']['pincode']) && (!is_numeric($form_state['values']['pincode']) || strlen($form_state['values']['pincode']) != 4)) {
     form_set_error('pincode', t('Pincode needs to be a four diggit number'));
@@ -43,6 +95,7 @@ function bibdk_reservation_form_step_3_validate($form, &$form_state) {
     bibdk_reservation_borchk_validate($form_state);
   }
 }
+
 /*
  * Implements hook_form_submit
  */

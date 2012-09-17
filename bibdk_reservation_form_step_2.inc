@@ -25,17 +25,4 @@ function _bibdk_reservation_form_step_2_generate_form($form, $result){
 
 function bibdk_reservation_form_step_2_submit($form, $form_state) {
   BibdkReservationOrderObject::GetObject()->setBranch($form_state['clicked_button']['#branch']);
-  bibdk_reservation_form_step_2_do_policycheck();
-}
-
-function bibdk_reservation_form_step_2_do_policycheck(){
-  $pickUpAgencyId = BibdkReservationOrderObject::GetObject()->getBranchId();
-  $pid = BibdkReservationOrderObject::GetObject()->getManifestationIds();
-  drupal_load('module', 'bibdk_openorder');
-  $res = bibdk_openorder_do_checkOrderPolicy($pickUpAgencyId, $pid[0]);
-
-  $orderPossible = $res->checkOrderPolicyResponse->orderPossible->{'$'};
-  $reason = $res->checkOrderPolicyResponse->orderPossibleReason->{'$'};
-  drupal_set_message(t('Order possible: ') . $orderPossible, 'status');
-  drupal_set_message(t('Reason: ') . $reason, 'status');
 }
