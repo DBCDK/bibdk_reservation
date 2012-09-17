@@ -100,7 +100,7 @@ function bibdk_reservation_create_wizard_form($form, &$form_state){
   // Call the function named in $form_state['step_information'] to get the
   // form elements to display for this step.
   $form = $form_state['step_information'][$step]['form']($form, $form_state);
-
+  
   // Show the 'previous' button if appropriate. Note that #submit is set to
   // a special submit handler, and that we use #limit_validation_errors to
   // skip all complaints about validation when using the back button. The
@@ -211,13 +211,31 @@ function bibdk_reservation_wizard_next_submit($form, &$form_state) {
 function bibdk_reservation_new_order_object(){
   if(!isset($_GET['ids'])){
     drupal_set_message("No objects have been chosen", 'error');
-    return false;
+    return;
   }
   $ids = explode(",", $_GET['ids']);
+  
   $order = BibdkReservationOrderObject::SetObject();
   $order->setManifestationIds($ids);
+  
+  $manifestation = bibdk_reservation_get_manifestation($ids);
+  $order->setManifestation($manifestation);
 }
 
 function bibdk_reservation_get_order_object(){
   return $_SESSION['orderobject'];
+}
+
+function bibdk_reservation_get_manifestation($id){
+  if (is_array($id))
+    $id = reset($id);
+  
+  $result = ting_openformat_get_single($id);
+  $work = reset($result)->getManifestations();
+  
+  return reset($work);
+}
+
+function bibdk_reservation_manifestation_view($manifestation){
+  return ting_openformat_manifestation_view($manifestation, 'reservation');
 }

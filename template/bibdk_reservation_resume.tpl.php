@@ -1,5 +1,6 @@
     <div class="agency-container">
       <h4>Du bestiller:</h4>
+        <?php print $variables['manifestation']; ?>
       <h3>Personlige oplysninger</h3>
       <?php $user = $variables['user']; ?>
       <?php foreach ($user as $key => $value) : ?>

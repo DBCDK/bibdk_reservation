@@ -4,9 +4,11 @@
  * Form for user input on Step 3
  */
 global $base_url;
-variable_set('bibdk_borchk_url', $base_url . '/bibdk_borchk_webservice/');
-variable_set('bibdk_borchk_servicerequester', 'bibliotek.dk');
 
+
+/**
+ * implements hook_form
+ */
 function bibdk_reservation_form_step_3($form, &$form_state) {
   $orderpolicy = bibdk_reservation_form_step_3_do_policycheck();
   $form['policy'] = array(
@@ -14,6 +16,19 @@ function bibdk_reservation_form_step_3($form, &$form_state) {
     '#markup' => theme('bibdk_reservation_orderpolicy', array('orderpolicy' => $orderpolicy)),
   );
 
+  $manifestation = BibdkReservationOrderObject::GetObject()->getManifestation();
+  $form['manifestation'] = array(
+    '#markup' => bibdk_reservation_manifestation_view($manifestation),
+  );
+  
+  $form = bibdk_reservation_step3_form_fields($form);
+  return $form;
+}
+
+/**
+ * Render user fields;
+ */
+function bibdk_reservation_step3_form_fields($form){
   $fields = bibdk_reservation_get_agency_fields();
   foreach ($fields->getUserParameters() as $userParameter) {
     $type = $userParameter['type'];
@@ -130,7 +145,8 @@ function bibdk_reservation_borchk_validate($form_state) {
       form_set_error("Library User", "Unknown Error has happened");
       break;
     default :
-      form_set_error("Service", "service unavailable");
+      return;
+      //form_set_error("Service", "service unavailable");
   }
 }
 

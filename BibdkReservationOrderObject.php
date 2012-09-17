@@ -4,6 +4,7 @@ class BibdkReservationOrderObject {
   private $branchId;
   private $branch;
   private $manifestationIds;
+  private $manifestation;
   private $userData;
   private $fields;
 
@@ -14,6 +15,14 @@ class BibdkReservationOrderObject {
   
   public function getManifestationIds(){
     return $this->manifestationIds;
+  }
+  
+  public function setManifestation($manifestation){
+    $this->manifestation = $manifestation;
+  }
+  
+  public function getManifestation(){
+    return $this->manifestation;
   }
   
   public function setBranchId($id){
