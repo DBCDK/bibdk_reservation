@@ -129,15 +129,24 @@ function bibdk_reservation_form_step_3_validate($form, &$form_state) {
 
 function bibdk_reservation_form_step_3_submit($form, &$form_state) {
   $userParameters = BibdkReservationOrderObject::GetObject()->getFields()->getUserParameters();
-
+  $idKey = BibdkReservationOrderObject::GetObject()->getFields()->getUserIdKey();
+  
   foreach ($userParameters as $key => $userParameter) {
     $type = $userParameter['type'];
     $name = $userParameter['field_name'];
     $value = (isset($userParameter['field_type']) && $userParameter['field_type'] == 'password') ? preg_replace("/./", "*", $form_state['values'][$type]) : $form_state['values'][$type];
     if (!empty($value)) {
       $userData[$name] = $value;
-      $userOrderData[$type] = $form_state['values'][$type];
+      if($type == $idKey){
+        $userOrderData['userId'] = $form_state['values'][$type];
+      } else {
+        $userOrderData[$type] = $form_state['values'][$type];
+      }
     }
+  }
+  
+  if(isset($userOrderData['pincode'])){
+    unset($userOrderData['pincode']);
   }
   
   $year = $form_state['values']['needBeforeDate']['year'];
