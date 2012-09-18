@@ -96,7 +96,7 @@ function bibdk_reservation_form_step_3_do_policycheck() {
         break;
       default: //TODO Implement exaample 5 when openOrder/openSearch os ready
         drupal_set_message('Unknown response. Watchdog\'ed', 'error');
-        watchdog(WATCHDOG_ERROR, 'Unknown response from openOrder', array('response' => $res));
+        watchdog('bibdk_reservation_form_step_3', 'Unknown response from openOrder', array('response' => $res), WATCHDOG_ERROR);
         break;
     }
 }
@@ -136,6 +136,7 @@ function bibdk_reservation_form_step_3_submit($form, &$form_state) {
     $value = (isset($userParameter['field_type']) && $userParameter['field_type'] == 'password') ? preg_replace("/./", "*", $form_state['values'][$type]) : $form_state['values'][$type];
     if (!empty($value)) {
       $userData[$name] = $value;
+      $userOrderData[$type] = $form_state['values'][$type];
     }
   }
   
@@ -147,6 +148,7 @@ function bibdk_reservation_form_step_3_submit($form, &$form_state) {
   $userData['Need before Date'] = "$day/$month/$year";
   
   BibdkReservationOrderObject::GetObject()->setUserData($userData);
+  BibdkReservationOrderObject::GetObject()->setUserOrderData($userOrderData);
   BibdkReservationOrderObject::GetObject()->setNeedBeforeDate($date);
 }
 

@@ -6,7 +6,7 @@
  * 
  * This function is prepared to manifestation specific userinput
  */
-class bibdkReservationAgencyFields {
+class BibdkReservationAgencyFields {
 
   private $userParameters, $userIdTxt, $orderParameters;
   

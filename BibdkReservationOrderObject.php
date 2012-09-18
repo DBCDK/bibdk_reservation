@@ -7,6 +7,7 @@ class BibdkReservationOrderObject {
   private $manifestationIds;
   private $manifestation;
   private $userData;
+  private $userOrderData;
   private $fields;
   private $needBeforeDate;
 
@@ -50,6 +51,14 @@ class BibdkReservationOrderObject {
 
   public function getUserData(){
     return $this->userData;
+  }
+  
+  public function setUserOrderData($userOrderData){
+    $this->userOrderData = $userOrderData;
+  }
+  
+  public function getUserOrderData() {
+    return $this->userOrderData;
   }
    
   public function setNeedBeforeDate($needBeforeDate){
