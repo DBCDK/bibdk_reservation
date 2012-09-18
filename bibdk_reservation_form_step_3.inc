@@ -22,6 +22,7 @@ function bibdk_reservation_form_step_3($form, &$form_state) {
   );
   
   $form = bibdk_reservation_step3_form_fields($form);
+  $form = bibdk_reservation_step3_permanent_fields($form);
   return $form;
 }
 
@@ -41,6 +42,17 @@ function bibdk_reservation_step3_form_fields($form){
     );
   }
   return $form;
+}
+
+function bibdk_reservation_step3_permanent_fields($form){
+  $date = strtotime(date("Y-m-d") . " +3 month");
+  $form['needBeforeDate'] = array(
+      '#type' => 'date',
+      '#title' => t('Is of no interest after'),
+      '#required' => FALSE,
+      '#default_value' => array('year' => date('Y', $date), 'month' => date('m', $date), 'day'=> date('d', $date)),
+    );
+    return $form;
 }
 
 function bibdk_reservation_form_step_3_do_policycheck() {
@@ -126,7 +138,16 @@ function bibdk_reservation_form_step_3_submit($form, &$form_state) {
       $userData[$name] = $value;
     }
   }
+  
+  $year = $form_state['values']['needBeforeDate']['year'];
+  $month = $form_state['values']['needBeforeDate']['month'];
+  $day = $form_state['values']['needBeforeDate']['day'];
+  $date = date(DATE_ISO8601, strtotime("$year-$month-$day"));
+  
+  $userData['Need before Date'] = "$day/$month/$year";
+  
   BibdkReservationOrderObject::GetObject()->setUserData($userData);
+  BibdkReservationOrderObject::GetObject()->setNeedBeforeDate($date);
 }
 
 /**
@@ -139,14 +160,22 @@ function bibdk_reservation_borchk_validate($form_state) {
       return;
       break;
     case 'borrower_not_found' :
-      form_set_error("Library User", "Userid and/or pincode is wrong");
+      form_set_error("Library User", t("Userid and/or pincode is wrong"));
       break;
     case 'error_in_request' :
-      form_set_error("Library User", "Unknown Error has happened");
+      form_set_error("Library User", t("Unknown Error has happened"));
       break;
+    case 'service unavailable' :
+      form_set_error("Library User", t("Service Unavailable"));
+      break; 
     default :
+    case 'borrowercheck_not_allowed' :
+      //form_set_error("Library User", t("Service Unavailable"));
+      break; 
+    default :
+      form_set_error("Library User", t("Unknown response. Watchdog\'ed"));
+      watchdog(WATCHDOG_ERROR, 'Unknown response from openOrder', array('response' => $response->borrowerCheckResponse->requestStatus));
       return;
-      //form_set_error("Service", "service unavailable");
   }
 }
 
