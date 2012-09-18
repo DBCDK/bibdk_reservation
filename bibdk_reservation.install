@@ -4,6 +4,15 @@
  * Implements hook_ding_entity_fields
  **/
 function bibdk_reservation_ding_entity_fields() {
+  $display_full = array(
+          'reservation' => array(
+            'type' => 'hidden',
+          ),
+          'full' => array(
+            'type' => 'default',
+          ),
+        );
+  
   $fields = array();
   
   $fields['bibdk_mani_reservation_button'] = array(
@@ -17,7 +26,8 @@ function bibdk_reservation_ding_entity_fields() {
         'ding_entity_type' => 'bibdkManifestation',
         'label' => t('Reservation Button'),
         'bundle' => 'bibdkManifestation',
-        'entity_type' => 'bibdkManifestation'
+        'entity_type' => 'bibdkManifestation',
+        'display' => $display_full,
       ),
     );
   
@@ -32,7 +42,8 @@ function bibdk_reservation_ding_entity_fields() {
         'ding_entity_type' => 'bibdkSubwork',
         'label' => t('Reservation Button'),
         'bundle' => 'bibdkSubwork',
-        'entity_type' => 'bibdkSubwork'
+        'entity_type' => 'bibdkSubwork',
+        'display' => $display_full,
       ),
     );
   
@@ -47,10 +58,24 @@ function bibdk_reservation_ding_entity_fields() {
         'ding_entity_type' => 'bibdkManifestation',
         'label' => t('Infotext'),
         'bundle' => 'bibdkManifestation',
-        'entity_type' => 'bibdkManifestation'
+        'entity_type' => 'bibdkManifestation',
+        'display' => $display_full,
       ),
     );
 
 return $fields;
   
 }
+
+/**
+ * Implements hook_update_N;
+ * Update all field information
+ * */
+function bibdk_reservation_update_7002() {
+  $fields = bibdk_reservation_ding_entity_fields();
+  foreach ($fields as $field_name => $field) {
+        field_delete_field($field_name);
+      }
+  ding_entity_modules_enabled(array('bibdk_reservation'));
+}
+
