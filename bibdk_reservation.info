@@ -17,6 +17,7 @@ files[] = bibdk_reservation_form_step_1.inc
 files[] = bibdk_reservation_form_step_2.inc
 files[] = bibdk_reservation_form_step_3.inc
 files[] = bibdk_reservation_form_step_4.inc
+files[] = bibdk_reservation_form_step_5.inc
 files[] = BibdkReservationOrderObject.php
 files[] = BibdkReservationAgencyFields.php
 files[] = tests/bibdk_reservation.test

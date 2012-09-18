@@ -116,7 +116,7 @@ function bibdk_reservation_form_step_3_validate($form, &$form_state) {
   }
 
   if (!empty($form_state['values']['userMail']) && !valid_email_address($form_state['values']['userMail'])) {
-    form_set_error('userEmail', t('Email needs to be a valid email'));
+  form_set_error('userEmail', t('Email needs to be a valid email'));
   }
   if (!form_get_errors()) {
     bibdk_reservation_borchk_validate($form_state);

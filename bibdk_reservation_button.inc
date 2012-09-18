@@ -39,7 +39,7 @@ function bibdk_reservation_link($entity_ids, $type, $entity_type) {
   $path = 'reservation';
   $query = array('ids' => implode(',', $entity_ids));
   $attributes = array('class' => 'bibdk-popup-link', 'rel' => 'userhelp');
-  return l($text, $path, array('query' => $query, 'attributes' => $attributes)); 
+  #return l($text, $path, array('query' => $query, 'attributes' => $attributes)); 
 }
 
 /*

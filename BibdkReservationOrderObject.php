@@ -1,6 +1,7 @@
 <?php
 
 class BibdkReservationOrderObject {
+
   private $branchId;
   private $branch;
   private $manifestationIds;
