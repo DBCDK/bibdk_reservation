@@ -210,11 +210,11 @@ function bibdk_reservation_wizard_next_submit($form, &$form_state) {
  * Creates the BibdkReservationOrderObject and saves the manifestation IDs to it
  */
 function bibdk_reservation_new_order_object(){
-  if(!isset($_GET['ids'])){
+  if(!isset($_REQUEST['ids'])){
     drupal_set_message("No objects have been chosen", 'error');
     return;
   }
-  $ids = explode(",", $_GET['ids']);
+  $ids = explode(",", $_REQUEST['ids']);
   
   $order = BibdkReservationOrderObject::SetObject();
   $order->setManifestationIds($ids);
