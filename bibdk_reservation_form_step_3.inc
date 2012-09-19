@@ -22,7 +22,7 @@ function bibdk_reservation_form_step_3($form, &$form_state) {
   );
   
   if($orderpolicy['orderpossible'] == TRUE){
-    $form = bibdk_reservation_step3_form_fields($form);
+    $form = bibdk_reservation_step3_form_fields($form, $form_state);
     $form = bibdk_reservation_step3_permanent_fields($form);
   }
   return $form;
@@ -31,7 +31,7 @@ function bibdk_reservation_form_step_3($form, &$form_state) {
 /**
  * Render user fields;
  */
-function bibdk_reservation_step3_form_fields($form){
+function bibdk_reservation_step3_form_fields($form, $form_state){
   $fields = bibdk_reservation_get_agency_fields();
   foreach ($fields->getUserParameters() as $userParameter) {
     $type = $userParameter['type'];
