@@ -21,10 +21,12 @@ function bibdk_reservation_form_step_5_form($form, $id) {
   $needBeforeDate = t('Is not needed after: ') . BibdkReservationOrderObject::GetObject()->getNeedBeforDate();
   $orderId = t('Your order ID: ') . $id;
   
-  $arr = array('user' => $user, 'branch' => $branch, 'manifestation' => $manifestation_view, 'orderId' => $orderId, 'needBeforeDate' => $needBeforeDate);
-  
   $form['resume'] = array(
-    '#markup' => theme('bibdk_reservation_receipt', $arr),
+    '#markup' => theme('bibdk_reservation_receipt', array('user' => $user, 'branch' => $branch, 'manifestation' => $manifestation_view, 'orderId' => $orderId, 'needBeforeDate' => $needBeforeDate)),
+  );
+  $form['print'] = array(
+    '#type' => 'button',
+    '#value' => t('Print'),
   );
   return $form;
 }

@@ -98,7 +98,7 @@ function bibdk_reservation_form_step_3_do_policycheck() {
         break;
       default: //TODO Implement exaample 5 when openOrder/openSearch os ready
         drupal_set_message('Unknown response. Watchdog\'ed', 'error');
-        watchdog('bibdk_reservation_form_step_3', 'Unknown response from openOrder', array('response' => $res), WATCHDOG_ERROR);
+        watchdog('bibdk_reservation_form_step_3', 'Unknown response from openOrder', array('pickupAgencyId' => $pickUpAgencyId), WATCHDOG_ERROR);
         break;
     }
 }

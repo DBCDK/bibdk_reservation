@@ -76,6 +76,8 @@ function _bibdk_reservation_steps() {
       ),
       5 => array(
         'form' => 'bibdk_reservation_form_step_5',
+        'ads' => 'asd',
+        'next button text' => t('Close'), //overriding the default "Next" text on buttons
       ),
     );
   return $steps;
@@ -111,7 +113,7 @@ function bibdk_reservation_create_wizard_form($form, &$form_state){
   // skip all complaints about validation when using the back button. The
   // values entered will be discarded, but they will not be validated, which
   // would be annoying in a "back" button.
-  if ($step > 1) {
+  if ($step > 1 && $step < count($form_state['step_information'])) {
     $form['prev'] = array(
       '#type' => 'submit',
       '#value' => t('Previous'),
@@ -138,7 +140,7 @@ function bibdk_reservation_create_wizard_form($form, &$form_state){
     // form_example_wizard_submit handler will be called.
     $form['finish'] = array(
       '#type' => 'submit',
-      '#value' => t('Finish'),
+      '#value' => isset($form_state['step_information'][$step]['next button text']) ? $form_state['step_information'][$step]['next button text'] : t('Finish'),
     );
   }
 
