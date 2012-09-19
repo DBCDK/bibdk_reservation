@@ -9,6 +9,7 @@
       <br />
       <h4>Du bestiller:</h4>
       <p><?php print $variables['manifestation']; ?></p>
+      <p><?php print $variables['needBeforeDate']; ?></p>
       <h3>Bibliotek</h3>
        <?php $branch = $variables['branch']; ?>
         <p><?php print $branch->branchName; ?><br/>
