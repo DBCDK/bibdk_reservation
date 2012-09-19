@@ -138,10 +138,10 @@ function bibdk_reservation_create_wizard_form($form, &$form_state){
     // of the form wizard. Call this button Finish, Submit, or whatever you
     // want to show. When this button is clicked, the
     // form_example_wizard_submit handler will be called.
+    $button_text = isset($form_state['step_information'][$step]['next button text']) ? $form_state['step_information'][$step]['next button text'] : t('Finish');
     $form['finish'] = array(
-      '#type' => 'submit',
-      '#value' => isset($form_state['step_information'][$step]['next button text']) ? $form_state['step_information'][$step]['next button text'] : t('Finish'),
-      '#name' => 'close',
+      '#type' => 'markup',
+      '#markup' => '<a href="JavaScript:window.close();" />' . $button_text . '</a>',
     );
   }
 
