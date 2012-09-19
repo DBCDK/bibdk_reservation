@@ -141,6 +141,7 @@ function bibdk_reservation_create_wizard_form($form, &$form_state){
     $form['finish'] = array(
       '#type' => 'submit',
       '#value' => isset($form_state['step_information'][$step]['next button text']) ? $form_state['step_information'][$step]['next button text'] : t('Finish'),
+      '#name' => 'close',
     );
   }
 

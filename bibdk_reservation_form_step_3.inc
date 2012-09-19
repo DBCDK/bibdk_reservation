@@ -20,7 +20,7 @@ function bibdk_reservation_form_step_3($form, &$form_state) {
   $form['manifestation'] = array(
     '#markup' => bibdk_reservation_manifestation_view($manifestation),
   );
-  
+
   if($orderpolicy['orderpossible'] == TRUE){
     $form = bibdk_reservation_step3_form_fields($form, $form_state);
     $form = bibdk_reservation_step3_permanent_fields($form);
@@ -98,7 +98,7 @@ function bibdk_reservation_form_step_3_do_policycheck() {
         break;
       default: //TODO Implement exaample 5 when openOrder/openSearch os ready
         drupal_set_message('Unknown response. Watchdog\'ed', 'error');
-        watchdog('bibdk_reservation_form_step_3', 'Unknown response from openOrder', array('pickupAgencyId' => $pickUpAgencyId), WATCHDOG_ERROR);
+        watchdog('bibdk_reservation_form_step_3', 'Unknown response from openOrder', array('pickupAgencyId' => $pickUpAgencyId, 'reason' => $reson_place_holder), WATCHDOG_ERROR);
         break;
     }
 }
