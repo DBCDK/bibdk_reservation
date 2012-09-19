@@ -8,19 +8,34 @@ function bibdk_reservation_form_step_5($form, &$form_state) {
   else {
     $id = $result['orderId'];
     drupal_set_message(t('Success! ') . $id, 'status');
+    return bibdk_reservation_form_step_5_form($form, $id);
   }
+}
+
+function bibdk_reservation_form_step_5_form($form, $id) {
+  $manifestation_object = BibdkReservationOrderObject::GetObject()->getManifestation();
+  $manifestation_view = bibdk_reservation_manifestation_view($manifestation_object);
+  $user = BibdkReservationOrderObject::GetObject()->getUserData();
+  $branch = BibdkReservationOrderObject::GetObject()->getBranch();
+  
+  $arr = array('user' => $user, 'branch' => $branch, 'manifestation' => $manifestation_view, 'orderId' => $id);
+  
+  $form['resume'] = array(
+    '#markup' => theme('bibdk_reservation_receipt', $arr),
+  );
+  return $form;
 }
 
 function bibdk_reservation_form_step_5_do_order() {
   drupal_load('module', 'bibdk_openorder');
-  
+
   $pid = BibdkReservationOrderObject::GetObject()->getManifestationIds();
   $pickUpAgencyId = BibdkReservationOrderObject::GetObject()->getBranchId();
   $userData = BibdkReservationOrderObject::GetObject()->getUserOrderData();
   $userId = $userData['userId'];
 
   $response = bibdk_openorder_do_placeOrder($pid, $pickUpAgencyId, $userId);
-  
+
   if (isset($response->placeOrderResponse->orderNotPlaced)) {
     $error = $response->placeOrderResponse->orderNotPlaced->placeOrderError->{'$'};
     watchdog('bibdk_reservation_form_step_5', 'openOrder responded with an error: ' . $error . '. pid: #pid agencyId: #agency', array('#pid' => $pid, '#agency' => $pickUpAgencyId), WATCHDOG_ERROR);

@@ -21,8 +21,10 @@ function bibdk_reservation_form_step_3($form, &$form_state) {
     '#markup' => bibdk_reservation_manifestation_view($manifestation),
   );
   
-  $form = bibdk_reservation_step3_form_fields($form);
-  $form = bibdk_reservation_step3_permanent_fields($form);
+  if($orderpolicy['orderpossible'] == TRUE){
+    $form = bibdk_reservation_step3_form_fields($form);
+    $form = bibdk_reservation_step3_permanent_fields($form);
+  }
   return $form;
 }
 
