@@ -275,5 +275,10 @@ function parse_agency_service_response($response) {
       }
     }
   }
+  if (isset($response->agencyParameters)) {
+    foreach($response->agencyParameters as $key => $agencyParameter){
+      $result['agencyParameters'][$key] = array();
+    }
+  }
   return $result;
 }

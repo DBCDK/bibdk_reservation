@@ -8,15 +8,18 @@
  */
 class BibdkReservationAgencyFields {
 
-  private $userParameters, $userIdTxt, $orderParameters;
+  public $userParameters, $userIdTxt, $orderParameters, $agencyParameters, $response;
   
 
   public function __construct($response) {
     foreach($response as $key => $value){
       $this->$key = $value;
     }
+    $this->response = $response;
+    
     foreach($this->userParameters as $key => $element)
       $this->userParameters[$key] += $this->_getSettingsFromType ($element['type']);
+    dpm($this);
   }
   
   public function getUserParameters(){
@@ -30,6 +33,18 @@ class BibdkReservationAgencyFields {
       }
     }
   }
+  
+  private function borrowerCheckRequired(){
+  }
+  
+  private function acceptOrderFromUnknownUser(){
+    
+  }
+  
+  private function acceptOrderAgencyOffline(){
+    
+  }
+  
   
 private function _getSettingsFromType($type){
   $settings = array();
