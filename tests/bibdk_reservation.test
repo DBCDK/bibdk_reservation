@@ -1,59 +1,60 @@
 <?php
 
 /**
-* Test validation of fields and form submission
-*/
+ * Test validation of fields and form submission
+ */
 class BibdkReservationButtonTestCase extends DrupalWebTestCase {
- 
-/**
+
+  /**
    * Implements getInfo().
    */
   public static function getInfo() {
-    return array (
+    return array(
       'name' => t('Reservation button and infotexts'),
       'description' => t('Test if button is present on the right manifistations'),
       'group' => t('Reservation'),
     );
   }
+
   public function setUp() {
     $this->profile = 'bibdk';
     parent::setUp('bibdk_reservation', 'ting', 'ding_entity', 'ting_openformat');
     variable_set('clean_url', 1);
     variable_set('ting_agency', '100200');
-    // TODO: Change link to muckup URL 
-    variable_set('ting_search_url', 'http://lakiseks.dbc.dk/hive/'); 
+    
+// TODO: Change link to muckup URL 
+    variable_set('ting_search_url', 'http://lakiseks.dbc.dk/hive/');
   }
-   
-  public function testButtonsExists(){
-     $this->drupalGet('/work/870970-basis%3A28960115');
-     $this->assertFieldByName("op", "Order any edition","Manifestation Reservation Button Exists");
-     $this->assertFieldByName("op", "Order this Lydbog (cd-mp3)","SubWork Reservation Button Exists");
+
+  public function testButtonsExists() {
+    $this->drupalGet('/work/870970-basis%3A28960115');
+    $this->assertFieldByName("op", "Order any edition", "Manifestation Reservation Button Exists");
+    $this->assertFieldByName("op", "Order this Lydbog (cd-mp3)", "SubWork Reservation Button Exists");
   }
-   
-  public function testButtonIsMissing(){
+
+  public function testButtonIsMissing() {
     $this->drupalGet('/work/870970-basis:04727061');
     $this->assertText('870970-basis:04727061', "Page could be found");
     $this->assertTrue('Order this', "No Button Present on Manifestation");
     $this->assertTrue('Order any edition', "No Button Present on Subwork");
   }
-  
-  public function infoTextIsPresent(){
+
+  public function infoTextIsPresent() {
     $this->drupalGet('/work/870970-basis:25699815');
     $this->assertText('870970-basis:25699815', "Page could be found");
     $this->assertTrue('drupal_text_oldSBTB', "Infotext is present");
   }
-  
-  public function LinkIsPresent(){
+
+  public function LinkIsPresent() {
     $this->drupalGet('/work/870970-basis:23108283');
     $this->assertText('870970-basis:23108283', "Page could be found");
     $this->assertTrue('Insert link here', "Link is present");
   }
-  
+
 }
 
-
 class BibdkReservationFlow extends DrupalWebTestCase {
-  
+
   public static function getInfo() {
     return array(
       'name' => 'Step 1 - 6 : User input and reservation',
@@ -61,20 +62,34 @@ class BibdkReservationFlow extends DrupalWebTestCase {
       'group' => 'Reservation',
     );
   }
-  
+
   public function setUp() {
     $this->profile = 'bibdk';
-    parent::setup(array('bibdk_reservation', 'bibdk_vejviser', 'bibdk_openorder', 'ting_openformat', 'openagency_webservice_mockup','bibdk_borchk_webservice_mockup', 'ting'));
-    global $base_url;
-    variable_set('agency_search_url', $base_url.'/openagency_webservice/'); 
-    variable_set('bibdk_borchk_url', $base_url.'/bibdk_borchk_webservice/'); 
-    variable_set('bibdk_borchk_servicerequester', 'bibliotek.dk');
-    variable_set('bibdk_openorder_url', 'http://guesstimate.dbc.dk/~fvs/OpenLibrary/OpenOrder/trunk/server.php/');
-    variable_set('ting_agency', '100200');
-    // TODO: Change link to muckup URL 
-    variable_set('ting_search_url', 'http://lakiseks.dbc.dk/hive/'); 
-  }
+    parent::setup(array('bibdk_reservation', 'bibdk_vejviser', 'bibdk_openorder', 'ting_openformat', 'openagency_webservice_mockup', 'bibdk_borchk_webservice_mockup', 'ting', 'devel'));
+    $user = $this->drupalCreateUser(array('access devel information'));
+    $this->drupalLogin($user);
 
+    global $base_url;
+    variable_set('agency_search_url', $base_url . '/openagency_webservice/');
+    #variable_set('agency_search_url', 'http://guesstimate.dbc.dk/~fvs/OpenLibrary/OpenAgency/trunk/'); //Live service
+
+    variable_set('bibdk_borchk_url', $base_url . '/bibdk_borchk_webservice/');
+    variable_set('bibdk_borchk_servicerequester', 'bibliotek.dk');
+
+    variable_set('bibdk_openorder_url', 'http://guesstimate.dbc.dk/~fvs/OpenLibrary/OpenOrder/trunk/server.php/');
+    variable_set('bibdk_openorder_groupIdAut', '010100');
+    variable_set('bibdk_openorder_passwordAut', '20Koster');
+    variable_set('bibdk_openorder_userIdAut', 'netpunkt');
+    variable_set('bibdk_openorder_serviceRequester', '190101');
+    variable_set('bibdk_openorder_verification_reference_source', 'dbcdatawell');
+
+    variable_set('ting_agency', '100200');
+    variable_set('ting_search_profile', 'test');
+    variable_set('ting_search_openformat', 'bibliotekdkWorkDisplay');
+    
+    // TODO: Change link to muckup URL 
+    variable_set('ting_search_url', 'http://lakiseks.dbc.dk/hive/');
+  }
 
   public function testServiceRequest() {
     $newUrl = variable_get('agency_search_url');
@@ -83,46 +98,48 @@ class BibdkReservationFlow extends DrupalWebTestCase {
     $this->drupalPost('openagency_webservice_test', array('xml' => $xml), t('submit'));
     $this->assertText('userId', t('Mockup Agency serviceRequest passes'));
   }
-  
-  public function testMultiStepReservationForm (){
-    
-    /*STEP 0*/
-    $this->drupalGet('reservation', array('query' => array('ids' => '870970-basis%253A29294941')));
+
+  public function testMultiStepReservationForm() {
+
+    /* STEP 0 */
+    #$this->drupalGet('reservation', array('query' => array('ids' => '870970-basis%253A29294941')));
+    $this->drupalGet('reservation', array('query' => array('ids' => '870970-basis%3A28050917')));
     /* STEP 1 */
     $this->assertField('openagency_city', "Field \"city\" exists");
     $this->assertField('openagency_zip', "Field \"zip\" exists");
     $this->assertField('openagency_name', "Field \"name\" exists");
     $this->drupalPost(NULL, NULL, t('Next'));
     $this->assertText('At least one kind of information should be provided', t('"No input" Error message appears correctly'));
-    
+
     /* STEP 2 */
     $this->drupalPost(NULL, array('openagency_city' => 'københavn'), t('Next'));
     $this->assertText('Hovedbiblioteket, Krystalgade', t('Agency search result correctly shown'));
     $this->assertFieldById('edit-button', t('Select'), 'Select button is present');
-    
+
     /* STEP 3 */
     //Check if fields exist
     $this->drupalPost(NULL, NULL, t('Select'));
-    
+    $this->assertText('Reservation: Step 3 of 5', 'We are on step 3!');
+
     $this->assertField("cpr", "Field CPR-number exists");
     $this->assertField("pincode", "Field pincode exists");
     $this->assertField("userName", "Field userName exists");
-    
+
     $this->drupalPost(NULL, NULL, "Next");
-    
+
     //Check if required elements is set
     $this->assertText('Name field is required');
     $this->assertText('CPR-number field is required');
     $this->assertText('Pincode field is required');
     $this->assertText('Adress, postal code, town/city field is required');
-    
+
     //Check custom validation
     $this->drupalPost(NULL, array('pincode' => '123123123', 'userMail' => "qwqwqw@weewewe"), t('Next'));
     $this->assertText('Pincode needs to be a four diggit number');
     $this->assertText('Email needs to be a valid email');
-    $this->drupalPost(NULL, array('cpr' => '1234561234', 'pincode' => '1231', 'userMail' => 'test@test.dk','userName' => 'Test Testersen', 'userAddress' => 'testing 5'), "Next");
-    
-    //Check if validation passes  
+    $this->drupalPost(NULL, array('cpr' => '1234561234', 'pincode' => '1231', 'userMail' => 'test@test.dk', 'userName' => 'Test Testersen', 'userAddress' => 'testing 5'), "Next");
+
+    //Check if validation passes
     $this->assertNoText('Name field is required');
     $this->assertNoText('User ID field is required');
     $this->assertNoText('Pincode field is required');
@@ -130,24 +147,24 @@ class BibdkReservationFlow extends DrupalWebTestCase {
     $this->assertNoText('Pincode needs to be a four diggit number');
     $this->assertNoText('CPR-number needs to be a valid CPR-number');
     $this->assertNoText('Email needs to be a valid email');
-    
+
     //Test Bad user
     $this->assertText('Userid and/or pincode is wrong');
-    
+
     //Test Good user
     $this->drupalPost(NULL, array(
-      'cpr' => '0019', 
-      'pincode' => '0019', 
-      'userName' => 'Test Testersen', 
-      'userAddress' => 'testing 5', 
+      'cpr' => '0019',
+      'pincode' => '0019',
+      'userName' => 'Test Testersen',
+      'userAddress' => 'testing 5',
       'userMail' => 'test@test.dk',
       'needBeforeDate[month]' => 12,
       'needBeforeDate[year]' => 2012,
       'needBeforeDate[day]' => 10,
-      ), "Next");
+        ), "Next");
     $this->assertNoText('Userid and/or pincode is wrong');
-    /* STEP 4 */
 
+    /* STEP 4 */
     $this->assertText('CPR-number: ****');
     $this->assertText('Name: Test Testersen');
     $this->assertText('Adress, postal code, town/city: testing 5');
@@ -155,6 +172,6 @@ class BibdkReservationFlow extends DrupalWebTestCase {
     $this->assertText('Need before Date: 10/12/2012');
     $this->assertText('Trafikselskabet Movia, Biblioteket');
     $this->assertText('Min kamp : roman. 5. bog');
-
   }
+
 }
