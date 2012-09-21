@@ -75,7 +75,7 @@ function _bibdk_reservation_steps() {
       ),
       3 => array(
         'form' => 'bibdk_reservation_form_step_3',
-        'previous step' => 1, //if the previous button is pressed on step 3, step 2 will be skipped and jump tp step 1
+        'previous step' => 1, //if the previous button is pressed on step 3, step 2 will be skipped and jump to step 1
       ),
       4 => array(
         'form' => 'bibdk_reservation_form_step_4',
@@ -131,7 +131,7 @@ function bibdk_reservation_create_wizard_form($form, &$form_state){
   }
 
   // Show the Next button only if there are more steps defined.
-  if ($step < count($form_state['step_information']) && $step != 2) {
+  if ($step < count($form_state['step_information'])){# && $step != 2) {
     // The Next button should be included on every step
     $form['next'] = array(
       '#type' => 'submit',
@@ -145,9 +145,10 @@ function bibdk_reservation_create_wizard_form($form, &$form_state){
     // of the form wizard. Call this button Finish, Submit, or whatever you
     // want to show. When this button is clicked, the
     // form_example_wizard_submit handler will be called.
+    $button_text = isset($form_state['step_information'][$step]['next button text']) ? $form_state['step_information'][$step]['next button text'] : t('Finish');
     $form['finish'] = array(
-      '#type' => 'submit',
-      '#value' => isset($form_state['step_information'][$step]['next button text']) ? $form_state['step_information'][$step]['next button text'] : t('Finish'),
+      '#type' => 'markup',
+      '#markup' => '<a href="JavaScript:window.close();" />' . $button_text . '</a>',
     );
   }
 

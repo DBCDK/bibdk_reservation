@@ -7,7 +7,6 @@ function bibdk_reservation_form_step_5($form, &$form_state) {
   }
   else {
     $id = $result['orderId'];
-    drupal_set_message(t('Success! ') . $id, 'status');
     return bibdk_reservation_form_step_5_form($form, $id);
   }
 }
@@ -19,7 +18,7 @@ function bibdk_reservation_form_step_5_form($form, $id) {
   $branch = BibdkReservationOrderObject::GetObject()->getBranch();
   
   $needBeforeDate = t('Is not needed after: ') . BibdkReservationOrderObject::GetObject()->getNeedBeforDate();
-  $orderId = t('Your order ID: ') . $id;
+  $orderId = $id;
   
   $form['resume'] = array(
     '#markup' => theme('bibdk_reservation_receipt', array('user' => $user, 'branch' => $branch, 'manifestation' => $manifestation_view, 'orderId' => $orderId, 'needBeforeDate' => $needBeforeDate)),
