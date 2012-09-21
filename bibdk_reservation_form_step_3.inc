@@ -77,7 +77,6 @@ function bibdk_reservation_form_step_3_do_policycheck() {
     $reason = $res->checkOrderPolicyResponse->checkOrderPolicyError->{'$'};
     $orderPossibleTxt = t('Order is not possible');
   }
-
   switch ($reason) {
     case 'not_owned_ILL_loc': //Example 1
       $reason_place_holder = t('not_owned_ILL_loc');

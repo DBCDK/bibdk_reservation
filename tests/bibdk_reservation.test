@@ -65,7 +65,15 @@ class BibdkReservationFlow extends DrupalWebTestCase {
 
   public function setUp() {
     $this->profile = 'bibdk';
-    parent::setup(array('bibdk_reservation', 'bibdk_vejviser', 'bibdk_openorder', 'ting_openformat', 'openagency_webservice_mockup', 'bibdk_borchk_webservice_mockup', 'ting', 'devel'));
+    parent::setup(array('bibdk_reservation',
+                        'bibdk_vejviser',
+                        'bibdk_openorder',
+                        'bibdk_openorder_webservice_mockup',
+                        'ting_openformat',
+                        'openagency_webservice_mockup',
+                        'bibdk_borchk_webservice_mockup',
+                        'ting',
+                        'devel'));
     $user = $this->drupalCreateUser(array('access devel information'));
     $this->drupalLogin($user);
 
@@ -77,6 +85,7 @@ class BibdkReservationFlow extends DrupalWebTestCase {
     variable_set('bibdk_borchk_servicerequester', 'bibliotek.dk');
 
     variable_set('bibdk_openorder_url', 'http://guesstimate.dbc.dk/~fvs/OpenLibrary/OpenOrder/trunk/server.php/');
+    #variable_set('bibdk_openorder_url', $base_url . '/bibdk_openorder_webservice/');
     variable_set('bibdk_openorder_groupIdAut', '010100');
     variable_set('bibdk_openorder_passwordAut', '20Koster');
     variable_set('bibdk_openorder_userIdAut', 'netpunkt');
@@ -102,8 +111,8 @@ class BibdkReservationFlow extends DrupalWebTestCase {
   public function testMultiStepReservationForm() {
 
     /* STEP 0 */
-    #$this->drupalGet('reservation', array('query' => array('ids' => '870970-basis%253A29294941')));
-    $this->drupalGet('reservation', array('query' => array('ids' => '870970-basis%3A28050917')));
+    $this->drupalGet('reservation', array('query' => array('ids' => '870970-basis%253A29294941')));
+    #$this->drupalGet('reservation', array('query' => array('ids' => '870970-basis%3A28050917')));
     /* STEP 1 */
     $this->assertField('openagency_city', "Field \"city\" exists");
     $this->assertField('openagency_zip', "Field \"zip\" exists");
@@ -125,7 +134,7 @@ class BibdkReservationFlow extends DrupalWebTestCase {
     $this->assertField("pincode", "Field pincode exists");
     $this->assertField("userName", "Field userName exists");
 
-    $this->drupalPost(NULL, NULL, "Next");
+    $this->drupalPost(NULL, NULL, t('Next'));
 
     //Check if required elements is set
     $this->assertText('Name field is required');
@@ -135,8 +144,8 @@ class BibdkReservationFlow extends DrupalWebTestCase {
 
     //Check custom validation
     $this->drupalPost(NULL, array('pincode' => '123123123', 'userMail' => "qwqwqw@weewewe"), t('Next'));
-    $this->assertText('Pincode needs to be a four diggit number');
-    $this->assertText('Email needs to be a valid email');
+    $this->assertText(t('Pincode needs to be a four diggit number'));
+    $this->assertText(t('Email needs to be a valid email'));
     $this->drupalPost(NULL, array('cpr' => '1234561234', 'pincode' => '1231', 'userMail' => 'test@test.dk', 'userName' => 'Test Testersen', 'userAddress' => 'testing 5'), "Next");
 
     //Check if validation passes
@@ -161,7 +170,7 @@ class BibdkReservationFlow extends DrupalWebTestCase {
       'needBeforeDate[month]' => 12,
       'needBeforeDate[year]' => 2012,
       'needBeforeDate[day]' => 10,
-        ), "Next");
+        ), t('Next'));
     $this->assertNoText('Userid and/or pincode is wrong');
 
     /* STEP 4 */
@@ -172,6 +181,10 @@ class BibdkReservationFlow extends DrupalWebTestCase {
     $this->assertText('Need before Date: 10/12/2012');
     $this->assertText('Trafikselskabet Movia, Biblioteket');
     $this->assertText('Min kamp : roman. 5. bog');
+    
+    //Proceeding to step 5:
+    $this->drupalPost(NULL, NULL, t('Order'));
+    /* STEP 5 */
   }
 
 }
