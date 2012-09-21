@@ -98,7 +98,7 @@ class BibdkReservationFlow extends DrupalWebTestCase {
     $this->drupalPost('openagency_webservice_test', array('xml' => $xml), t('submit'));
     $this->assertText('userId', t('Mockup Agency serviceRequest passes'));
   }
-
+  
   public function testMultiStepReservationForm() {
 
     /* STEP 0 */

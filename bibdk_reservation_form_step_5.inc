@@ -26,6 +26,7 @@ function bibdk_reservation_form_step_5_form($form, $id) {
   $form['print'] = array(
     '#type' => 'button',
     '#value' => t('Print'),
+    '#markup' => '<a href="#" />b</a>',
   );
   return $form;
 }
