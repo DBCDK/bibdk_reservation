@@ -12,15 +12,6 @@ module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_form_step_3')
 module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_form_step_4');
 module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_form_step_5');
 
-global $base_url;
-    variable_set('agency_search_url', 'http://guesstimate.dbc.dk/~fvs/OpenLibrary/OpenAgency/trunk/'); 
-    variable_set('bibdk_borchk_url', $base_url.'/bibdk_borchk_webservice/'); 
-    variable_set('bibdk_borchk_servicerequester', 'bibliotek.dk');
-    variable_set('bibdk_openorder_url', 'http://guesstimate.dbc.dk/~fvs/OpenLibrary/OpenOrder/trunk/server.php/');
-    variable_set('ting_agency', '100200');
-    // TODO: Change link to muckup URL 
-    variable_set('ting_search_url', 'http://lakiseks.dbc.dk/hive/'); 
-    
 /**
  * Implements hook_menu();
  */

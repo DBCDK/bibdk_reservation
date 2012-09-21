@@ -19,7 +19,6 @@ class BibdkReservationAgencyFields {
     
     foreach($this->userParameters as $key => $element)
       $this->userParameters[$key] += $this->_getSettingsFromType ($element['type']);
-    dpm($this);
   }
   
   public function getUserParameters(){
