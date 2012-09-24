@@ -188,3 +188,45 @@ class BibdkReservationFlow extends DrupalWebTestCase {
   }
 
 }
+
+class BibdkReservationBorrowerCheckTestCase extends DrupalUnitTestCase{
+   /**
+   * Implements getInfo().
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Borrower check unit test'),
+      'description' => t('Check if borrower check returns the right messages'),
+      'group' => t('Reservation'),
+    );
+  }
+
+  public function setUp() {
+    parent::setUp();
+  }
+  
+  public function testBorchkParseResponse(){
+    
+    /*  borrower_not_found  */
+    $response = "borrower_not_found";
+    // Borrower not found and unknown not acceptet
+    $messages = bibdk_reservation_borchk_parse_response($response, FALSE, FALSE);
+    $this->assert($messages['error'] == 'User not found', $messages['error']);
+    // Borrower not found and unknown is acceptet
+    $messages = bibdk_reservation_borchk_parse_response($response, TRUE, FALSE);
+    $this->assertNull($messages['error'], "No error messages");
+    $this->assert($messages['status'] == 'Borrower not found, but Library accepts reservations from unknown users', $messages['status']);
+    /*  ok  */
+    $response = 'ok';
+    $messages = bibdk_reservation_borchk_parse_response($response, FALSE, FALSE);
+    $this->assertNull($messages, "No messages");
+    
+    $messages = bibdk_reservation_borchk_parse_response($response, TRUE, TRUE);
+    $this->assertNull($messages, "No messages");
+    
+    
+    /*  service unavailable */
+    $response = 'service unavailable';
+    
+  }
+}

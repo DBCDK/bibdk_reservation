@@ -33,15 +33,16 @@ class BibdkReservationAgencyFields {
     }
   }
   
-  private function borrowerCheckRequired(){
+  public function isBorrowerCheckRequired(){
+    return $this->agencyParameters->borrowerCheckParameters['bibliotek.dk'];
   }
   
-  private function acceptOrderFromUnknownUser(){
-    
+  public function acceptOrderFromUnknownUser(){
+    return $this->agencyParameters->acceptOrderFromUnknownUser;
   }
   
-  private function acceptOrderAgencyOffline(){
-    
+  public function acceptOrderAgencyOffline(){
+    return $this->agencyParameters->acceptOrderAgencyOffline;
   }
   
   

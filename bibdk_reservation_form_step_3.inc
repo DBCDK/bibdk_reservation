@@ -11,10 +11,10 @@ global $base_url;
 function bibdk_reservation_form_step_3($form, &$form_state) {
   $orderpolicy = bibdk_reservation_form_step_3_do_policycheck();
   /* Not needed information - apparently
-  $form['policy'] = array(
+    $form['policy'] = array(
     '#type' => 'markup',
     '#markup' => theme('bibdk_reservation_orderpolicy', array('orderpolicy' => $orderpolicy)),
-  );
+    );
    * 
    */
 
@@ -64,7 +64,6 @@ function bibdk_reservation_step3_permanent_fields($form) {
 function bibdk_reservation_form_step_3_do_policycheck() {
   $pickUpAgencyId = BibdkReservationOrderObject::GetObject()->getBranchId();
   $pid = BibdkReservationOrderObject::GetObject()->getManifestationIds();
-  drupal_load('module', 'bibdk_openorder');
   $res = bibdk_openorder_do_checkOrderPolicy($pickUpAgencyId, $pid[0]);
 
   if (isset($res->checkOrderPolicyResponse->orderPossible)) {
@@ -108,6 +107,7 @@ function bibdk_reservation_form_step_3_do_policycheck() {
  * Implements hook_form_validate
  * Validate user input
  */
+
 function bibdk_reservation_form_step_3_validate($form, &$form_state) {
   if (!empty($form_state['values']['pincode']) && (!is_numeric($form_state['values']['pincode']) || strlen($form_state['values']['pincode']) != 4)) {
     form_set_error('pincode', t('Pincode needs to be a four diggit number'));
@@ -128,6 +128,7 @@ function bibdk_reservation_form_step_3_validate($form, &$form_state) {
 /*
  * Implements hook_form_submit
  */
+
 function bibdk_reservation_form_step_3_submit($form, &$form_state) {
   $userParameters = BibdkReservationOrderObject::GetObject()->getFields()->getUserParameters();
   $idKey = BibdkReservationOrderObject::GetObject()->getFields()->getUserIdKey();
@@ -167,40 +168,76 @@ function bibdk_reservation_form_step_3_submit($form, &$form_state) {
  * Validate up against Borchk
  */
 function bibdk_reservation_borchk_validate($form_state) {
-  $response = bibdk_reservation_execute_borchk_service($form_state);
-  switch ($response->borrowerCheckResponse->requestStatus) {
-    case 'ok' :
+  
+    $messages = bibdk_reservation_borchk_execute($form_state);
+
+    if (!isset($messages))
       return;
-      break;
-    case 'borrower_not_found' :
-      form_set_error("Library User", t("Userid and/or pincode is wrong"));
-      break;
-    case 'error_in_request' :
-      form_set_error("Library User", t("Unknown Error has happened"));
-      break;
-    case 'service unavailable' :
-      form_set_error("Library User", t("Service Unavailable"));
-      break;
-    default :
-    case 'borrowercheck_not_allowed' :
-      //form_set_error("Library User", t("Service Unavailable"));
-      break;
-    default :
-      form_set_error("Library User", t("Unknown response. Watchdog\'ed"));
-      watchdog(WATCHDOG_ERROR, 'Unknown response from openOrder', array('response' => $response->borrowerCheckResponse->requestStatus));
-      return;
-  }
+    if(isset($messages['status']))
+      drupal_set_message ($messages['status']);
+    if(isset($messages['error']))
+      form_set_error ("borchk", $messages['error']);
 }
 
 /**
  * Execute service request to borchk
  */
-function bibdk_reservation_execute_borchk_service($form_state) {
-  $libraryCode = BibdkReservationOrderObject::GetObject()->getBranchId();
-  $userIdKey = BibdkReservationOrderObject::GetObject()->getFields()->getUserIdKey();
-  $userId = isset($form_state['values'][$userIdKey]) ? $form_state['values'][$userIdKey] : NULL;
-  $userPincode = isset($form_state['values']['pincode']) ? $form_state['values']['pincode'] : NULL;
-  return bibdk_borchk_request($userId, $userPincode, $libraryCode);
+function bibdk_reservation_borchk_execute($form_state) {
+  $messages = array(
+    'error' => NULL,
+    'status' => NULL
+  );
+  $agencySettings = BibdkReservationOrderObject::GetObject()->getFields();
+  if (!$agencySettings->isBorrowerCheckRequired()) {
+    if (!$agencySettings->acceptOrderFromUnknownUser())
+      $messages['status'] = t("Library does not accept reservations form unknown users");
+  }
+  else {
+    $libraryCode = BibdkReservationOrderObject::GetObject()->getBranchId();
+    $userIdKey = BibdkReservationOrderObject::GetObject()->getFields()->getUserIdKey();
+    $userId = isset($form_state['values'][$userIdKey]) ? $form_state['values'][$userIdKey] : NULL;
+    $userPincode = isset($form_state['values']['pincode']) ? $form_state['values']['pincode'] : NULL;
+    $response = bibdk_borchk_request($userId, $userPincode, $libraryCode);
+    $messages += bibdk_reservation_borchk_parse_response($response->borrowerCheckResponse->requestStatus);
+  }
+  return $messages;
+}
+
+
+/**
+ * Parse response from borchk and return messages
+ * @param string $response
+ * @param string $acceptOrderFromUnknownUser
+ * @param string $acceptOrderAgencyOffline
+ * @return array
+ */
+function bibdk_reservation_borchk_parse_response($response, $acceptOrderFromUnknownUser, $acceptOrderAgencyOffline) {
+  $message = array(
+    'error' => NULL,
+    'status' => NULL
+  );
+  switch ($response) {
+    case 'ok' :
+      return;
+      break;
+    case 'borrower_not_found' :
+      if ($acceptOrderFromUnknownUser)
+        $message['status'] = t("Borrower not found, but Library accepts reservations from unknown users");
+      else
+        $message['error'] = t("User not found");
+      break;
+    case 'error_in_request' :
+    case 'service unavailable' :
+    case 'borrowercheck_not_allowed' :
+    default :
+      watchdog(WATCHDOG_ERROR, 'Unknown response from openOrder', array('response' => $response));
+      if ($acceptOrderAgencyOffline)
+        $message['status'] = t("We could not check your status");
+      else
+        $message['error'] = t("Service Unavailable. We can not make reservation right know");
+      break;
+  }
+    return $message;
 }
 
 /**
@@ -276,9 +313,12 @@ function parse_agency_service_response($response) {
     }
   }
   if (isset($response->agencyParameters)) {
-    foreach($response->agencyParameters as $key => $agencyParameter){
-      $result['agencyParameters'][$key] = array();
+    foreach ($response->agencyParameters->borrowerCheckParameters as $key => $borrowerCheckParamerters) {
+      $result['agencyParameters']['borrowerCheckParameters'][$borrowerCheckParamerters->borrowerCheckSystem->{'$'}] = $borrowerCheckParamerters->borrowerCheck->{'$'};
     }
+    $result['agencyParameters']['acceptOrderFromUnknownUser'] = $response->agencyParameters->acceptOrderFromUnknownUser->{'$'};
+    $result['agencyParameters']['acceptOrderAgencyOffline'] = $response->agencyParameters->acceptOrderAgencyOffline->{'$'};
   }
   return $result;
 }
+
