@@ -158,7 +158,7 @@ class BibdkReservationFlow extends DrupalWebTestCase {
     $this->assertNoText('Email needs to be a valid email');
 
     //Test Bad user
-    $this->assertText('Userid and/or pincode is wrong');
+    $this->assertText('User not found');
 
     //Test Good user
     $this->drupalPost(NULL, array(
@@ -171,7 +171,7 @@ class BibdkReservationFlow extends DrupalWebTestCase {
       'needBeforeDate[year]' => 2012,
       'needBeforeDate[day]' => 10,
         ), t('Next'));
-    $this->assertNoText('Userid and/or pincode is wrong');
+    $this->assertNoText('User not found');
 
     /* STEP 4 */
     $this->assertText('CPR-number: ****');
@@ -233,6 +233,7 @@ class BibdkReservationBorrowerCheckTestCase extends DrupalUnitTestCase{
   }
   
   public function testBorchkExecute(){
+    
     
   }
 }

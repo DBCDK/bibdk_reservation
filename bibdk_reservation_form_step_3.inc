@@ -182,12 +182,16 @@ function bibdk_reservation_borchk_validate($form_state) {
  * Execute service request to borchk
  */
 function bibdk_reservation_borchk_execute($form_state, $agencySettings) {
+  $acceptOrderFromUnknownUser = $agencySettings->acceptOrderFromUnknownUser();
+  $acceptOrderAgencyOffline = $agencySettings->acceptOrderAgencyOffline();
+  $isBorrowerCheckRequired = $agencySettings->isBorrowerCheckRequired();
+  
   $messages = array(
     'error' => NULL,
     'status' => NULL
   );
-  if (!$agencySettings->isBorrowerCheckRequired()) {
-    if (!$agencySettings->acceptOrderFromUnknownUser())
+  if (!$isBorrowerCheckRequired) {
+    if (!$acceptOrderFromUnknownUser)
       $messages['status'] = t("Library does not accept reservations form unknown users");
   }
   else {
@@ -196,7 +200,7 @@ function bibdk_reservation_borchk_execute($form_state, $agencySettings) {
     $userId = isset($form_state['values'][$userIdKey]) ? $form_state['values'][$userIdKey] : NULL;
     $userPincode = isset($form_state['values']['pincode']) ? $form_state['values']['pincode'] : NULL;
     $response = bibdk_borchk_request($userId, $userPincode, $libraryCode);
-    $messages += bibdk_reservation_borchk_parse_response($response->borrowerCheckResponse->requestStatus);
+    $messages += bibdk_reservation_borchk_parse_response($response->borrowerCheckResponse->requestStatus, $acceptOrderFromUnknownUser, $acceptOrderAgencyOffline);
   }
   return $messages;
 }
