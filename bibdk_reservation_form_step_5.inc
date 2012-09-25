@@ -37,9 +37,8 @@ function bibdk_reservation_form_step_5_do_order() {
   $pickUpAgencyId = BibdkReservationOrderObject::GetObject()->getBranchId();
   $userData = BibdkReservationOrderObject::GetObject()->getUserOrderData();
   $userId = $userData['userId'];
-
+  bibdk_reservation_form_step_5_register_pid();
   $response = bibdk_openorder_do_placeOrder($pid, $pickUpAgencyId, $userId);
-  
   if (isset($response->placeOrderResponse->orderNotPlaced)) {
     $error = $response->placeOrderResponse->orderNotPlaced->placeOrderError->{'$'};
     watchdog('bibdk_reservation_form_step_5', 'openOrder responded with an error: ' . $error . '. pid: #pid agencyId: #agency', array('#pid' => $pid, '#agency' => $pickUpAgencyId), WATCHDOG_ERROR);
@@ -55,6 +54,19 @@ function bibdk_reservation_form_step_5_handle_response($response) {
   if (isset($response->placeOrderResponse->orderPlaced)) {
     $orderId = $response->placeOrderResponse->orderPlaced->orderId->{'$'};
     $result = array('orderId' => $orderId);
+    $type = BibdkReservationOrderObject::GetObject()->getManifestation()->getType();
+    if(strtolower($type) != 'avis' && strtolower($type) != 'tidsskrift'){
+      bibdk_reservation_form_step_5_register_pid();
+    }
   }
   return $result;
+}
+
+function bibdk_reservation_form_step_5_register_pid(){
+  $pid = BibdkReservationOrderObject::GetObject()->getManifestationIds();
+  if(array_key_exists('orderedPids', $_SESSION)){
+    $_SESSION['orderedPids'] = array_merge($_SESSION['orderedPids'], $pid);
+  } else {
+    $_SESSION['orderedPids'] = $pid;
+  }
 }

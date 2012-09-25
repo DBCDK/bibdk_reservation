@@ -1,6 +1,7 @@
 <?php
 
 function bibdk_reservation_form_step_1($form, &$form_state) {
+  bibdk_reservation_form_step_1_check_session();
   $form['openagency_name'] = array(
     '#type' => 'textfield',
     '#title' => t('Name'),
@@ -57,8 +58,24 @@ function bibdk_reservation_form_step_1_handle_response($response) {
         form_set_error('bibdk_reservation_form_step_1', 'Error: ' . $response['error']);
         break;
     }
-  } else if (isset($response['libraries'])) {
+  }
+  else if (isset($response['libraries'])) {
     $result = $response;
     return $result;
+  }
+}
+
+/**
+ * Checks session for already ordered materials
+ */
+function bibdk_reservation_form_step_1_check_session() {
+  if (isset($_SESSION['orderedPids'])) {
+    $pids = BibdkReservationOrderObject::GetObject()->getManifestationIds();
+    foreach ($pids as $pid) {
+      if (in_array($pid, $_SESSION['orderedPids'])) {
+        drupal_set_message(t('You have already ordered this material once in this session'), 'warning');
+        break;
+      }
+    }
   }
 }

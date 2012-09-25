@@ -76,6 +76,7 @@ function bibdk_reservation_form_step_3_do_policycheck() {
     $reason = $res->checkOrderPolicyResponse->checkOrderPolicyError->{'$'};
     $orderPossibleTxt = t('Order is not possible');
   }
+
   switch ($reason) {
     case 'not_owned_ILL_loc': //Example 1
       $reason_place_holder = t('not_owned_ILL_loc');
@@ -95,7 +96,7 @@ function bibdk_reservation_form_step_3_do_policycheck() {
       $reason_place_holder = t('not_owned_ILL_loc');
       return array('orderpossible' => $orderPossibleTxt, 'reason' => $reason_place_holder);
       break;
-    default: //TODO Implement exaample 5 when openOrder/openSearch is ready
+    default: //TODO Implement exaample 5 when openOrder/openSearch is ready - US
       drupal_set_message('Unknown response: \'' . $reason . '\' Watchdog\'ed', 'error');
       watchdog('bibdk_reservation_form_step_3', 'Unknown response from openOrder: ' . $reason, array('pickupAgencyId' => $pickUpAgencyId, 'reason' => $reason), WATCHDOG_ERROR);
       return array('orderpossible' => $orderPossibleTxt, 'reason' => $reason);
