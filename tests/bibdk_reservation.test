@@ -224,9 +224,15 @@ class BibdkReservationBorrowerCheckTestCase extends DrupalUnitTestCase{
     $messages = bibdk_reservation_borchk_parse_response($response, TRUE, TRUE);
     $this->assertNull($messages, "No messages");
     
-    
     /*  service unavailable */
     $response = 'service unavailable';
+    $messages = bibdk_reservation_borchk_parse_response($response, TRUE, FALSE);
+    $this->assertNotNull($messages['error'], $messages['error']);
+    $messages = bibdk_reservation_borchk_parse_response($response, TRUE, TRUE);
+    $this->assertNotNull($messages['status'], $messages['status']);
+  }
+  
+  public function testBorchkExecute(){
     
   }
 }

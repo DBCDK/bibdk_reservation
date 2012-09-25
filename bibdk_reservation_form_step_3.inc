@@ -168,9 +168,8 @@ function bibdk_reservation_form_step_3_submit($form, &$form_state) {
  * Validate up against Borchk
  */
 function bibdk_reservation_borchk_validate($form_state) {
-  
-    $messages = bibdk_reservation_borchk_execute($form_state);
-
+    $agencySettings = BibdkReservationOrderObject::GetObject()->getFields();
+    $messages = bibdk_reservation_borchk_execute($form_state, $agencySettings);
     if (!isset($messages))
       return;
     if(isset($messages['status']))
@@ -182,12 +181,11 @@ function bibdk_reservation_borchk_validate($form_state) {
 /**
  * Execute service request to borchk
  */
-function bibdk_reservation_borchk_execute($form_state) {
+function bibdk_reservation_borchk_execute($form_state, $agencySettings) {
   $messages = array(
     'error' => NULL,
     'status' => NULL
   );
-  $agencySettings = BibdkReservationOrderObject::GetObject()->getFields();
   if (!$agencySettings->isBorrowerCheckRequired()) {
     if (!$agencySettings->acceptOrderFromUnknownUser())
       $messages['status'] = t("Library does not accept reservations form unknown users");
@@ -230,7 +228,7 @@ function bibdk_reservation_borchk_parse_response($response, $acceptOrderFromUnkn
     case 'service unavailable' :
     case 'borrowercheck_not_allowed' :
     default :
-      watchdog(WATCHDOG_ERROR, 'Unknown response from openOrder', array('response' => $response));
+      //watchdog(WATCHDOG_ERROR, 'Unknown response from openOrder', array('response' => $response));
       if ($acceptOrderAgencyOffline)
         $message['status'] = t("We could not check your status");
       else
