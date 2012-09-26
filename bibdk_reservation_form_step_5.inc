@@ -41,7 +41,7 @@ function bibdk_reservation_form_step_5_do_order() {
   $response = bibdk_openorder_do_placeOrder($pid, $pickUpAgencyId, $userId);
   if (isset($response->placeOrderResponse->orderNotPlaced)) {
     $error = $response->placeOrderResponse->orderNotPlaced->placeOrderError->{'$'};
-    watchdog('bibdk_reservation_form_step_5', 'openOrder responded with an error: ' . $error . '. pid: #pid agencyId: #agency', array('#pid' => $pid, '#agency' => $pickUpAgencyId), WATCHDOG_ERROR);
+    watchdog('bibdk_reservation_form_step_5', 'openOrder responded with an error: ' . $error . '. pid[0]: #pid agencyId: #agency', array('#pid' => $pid[0], '#agency' => $pickUpAgencyId), WATCHDOG_ERROR);
     $result = array('error' => t('An error happened and the order could not be completed.'));
   }
   else {
