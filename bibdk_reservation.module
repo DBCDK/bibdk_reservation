@@ -2,26 +2,6 @@
 /**
  * TODO: Implement submit function (Cannot be done until next step is ready)
  */
-global $base_url;
-// Load Field module hooks.
-variable_set('agency_search_url', $base_url . '/openagency_webservice/');
-    #variable_set('agency_search_url', 'http://guesstimate.dbc.dk/~fvs/OpenLibrary/OpenAgency/trunk/'); //Live service
-
-    variable_set('bibdk_borchk_url', $base_url . '/bibdk_borchk_webservice/');
-    variable_set('bibdk_borchk_servicerequester', 'bibliotek.dk');
-
-    variable_set('bibdk_openorder_url', 'http://guesstimate.dbc.dk/~fvs/OpenLibrary/OpenOrder/trunk/server.php/');
-    #variable_set('bibdk_openorder_url', $base_url . '/bibdk_openorder_webservice/');
-    variable_set('bibdk_openorder_groupIdAut', '010100');
-    variable_set('bibdk_openorder_passwordAut', '20Koster');
-    variable_set('bibdk_openorder_userIdAut', 'netpunkt');
-    variable_set('bibdk_openorder_serviceRequester', '190101');
-    variable_set('bibdk_openorder_verification_reference_source', 'dbcdatawell');
-
-    variable_set('ting_agency', '100200');
-    variable_set('ting_search_profile', 'test');
-    variable_set('ting_search_openformat', 'bibliotekdkWorkDisplay');
-
 module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_button');
 module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_form_step_1');
 module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_form_step_2');
