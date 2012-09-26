@@ -18,7 +18,7 @@ class BibdkReservationButtonTestCase extends DrupalWebTestCase {
 
   public function setUp() {
     $this->profile = 'bibdk';
-    parent::setUp('bibdk_reservation', 'ting', 'ding_entity', 'ting_openformat');
+    parent::setUp('bibdk_reservation', 'ting', 'ding_entity', 'ting_openformat', 'devel');
     variable_set('clean_url', 1);
     variable_set('ting_agency', '100200');
     
@@ -216,6 +216,8 @@ class BibdkReservationBorrowerCheckTestCase extends DrupalUnitTestCase{
     $messages = bibdk_reservation_borchk_parse_response($response, TRUE, FALSE);
     $this->assertNull($messages['error'], "No error messages");
     $this->assert($messages['status'] == 'Borrower not found, but Library accepts reservations from unknown users', $messages['status']);
+    $messages = bibdk_reservation_borchk_parse_response($response, 0, 1);
+    $this->assert($messages['error'] == 'User not found', $messages['error']);
     /*  ok  */
     $response = 'ok';
     $messages = bibdk_reservation_borchk_parse_response($response, FALSE, FALSE);
