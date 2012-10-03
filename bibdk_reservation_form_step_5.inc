@@ -32,16 +32,19 @@ function bibdk_reservation_form_step_5_form($form, $id) {
 
 function bibdk_reservation_form_step_5_do_order() {
   drupal_load('module', 'bibdk_openorder');
-
-  $pid = BibdkReservationOrderObject::GetObject()->getManifestationIds();
-  $pickUpAgencyId = BibdkReservationOrderObject::GetObject()->getBranchId();
-  $userData = BibdkReservationOrderObject::GetObject()->getUserOrderData();
-  $userId = $userData['userId'];
+  $params = BibdkReservationOrderObject::GetObject()->getUserOrderData();
+  $params += array(
+    'pid' => BibdkReservationOrderObject::GetObject()->getManifestationIds(),
+    'pickUpAgencyId' => BibdkReservationOrderObject::GetObject()->getBranchId(), 
+    'needBeforeDate' => BibdkReservationOrderObject::GetObject()->getNeedBeforDate(),
+  );
   bibdk_reservation_form_step_5_register_pid();
-  $response = bibdk_openorder_do_placeOrder($pid, $pickUpAgencyId, $userId);
+  $response = bibdk_openorder_do_placeOrder($params);
   if (isset($response->placeOrderResponse->orderNotPlaced)) {
     $error = $response->placeOrderResponse->orderNotPlaced->placeOrderError->{'$'};
-    watchdog('bibdk_reservation_form_step_5', 'openOrder responded with an error: ' . $error . '. pid[0]: #pid agencyId: #agency', array('#pid' => $pid[0], '#agency' => $pickUpAgencyId), WATCHDOG_ERROR);
+    $pid = BibdkReservationOrderObject::GetObject()->getManifestationIds();
+    $pickUpAgencyId = BibdkReservationOrderObject::GetObject()->getBranchId();
+    watchdog('bibdk_reservation_form_step_5', 'openOrder responded with an error: ' . $error . '. pid: #pid agencyId: #agency', array('#pid' => $pid[0], '#agency' => $pickUpAgencyId), WATCHDOG_ERROR);
     $result = array('error' => t('An error happened and the order could not be completed.'));
   }
   else {
