@@ -23,7 +23,8 @@ function bibdk_reservation_form_step_3($form, &$form_state) {
     '#markup' => bibdk_reservation_manifestation_view($manifestation),
   );
   if ($orderpolicy['orderpossible'] == TRUE) {
-    $form = bibdk_reservation_step3_form_fields($form, $form_state);
+    $form = bibdk_reservation_step3_user_form_fields($form, $form_state);
+    //$form = bibdk_reservation_step3_order_form_fields($form, $form_state);
     $form = bibdk_reservation_step3_permanent_fields($form);
   }
   else {
@@ -35,7 +36,7 @@ function bibdk_reservation_form_step_3($form, &$form_state) {
 /**
  * Render user fields;
  */
-function bibdk_reservation_step3_form_fields($form, $form_state) {
+function bibdk_reservation_step3_user_form_fields($form, $form_state) {
   $fields = bibdk_reservation_get_agency_fields();
   foreach ($fields->getUserParameters() as $userParameter) {
     $type = $userParameter['type'];
@@ -44,6 +45,24 @@ function bibdk_reservation_step3_form_fields($form, $form_state) {
       '#title' => $userParameter['field_name'],
       '#description' => isset($userParameter['field_description']) ? $userParameter['field_description'] : NULL,
       '#required' => $userParameter['required'],
+      '#default_value' => (isset($form_state['values'][$type])) ? $form_state['values'][$type] : "",
+    );
+  }
+  return $form;
+}
+
+/**
+ * Render order fields;
+ */
+function bibdk_reservation_step3_order_form_fields($form, $form_state) {
+  $fields = bibdk_reservation_get_agency_fields();
+  foreach ($fields->getOrderParameters() as $orderParameter) {
+    $type = $orderParameter['type'];
+    $form[$type] = array(
+      '#type' => isset($orderParameter['field_type']) ? $orderParameter['field_type'] : 'textfield',
+      '#title' => $orderParameter['field_name'],
+      '#description' => isset($orderParameter['field_description']) ? $orderParameter['field_description'] : NULL,
+      '#required' => $orderParameter['required'],
       '#default_value' => (isset($form_state['values'][$type])) ? $form_state['values'][$type] : "",
     );
   }
@@ -156,7 +175,7 @@ function bibdk_reservation_form_step_3_submit($form, &$form_state) {
   $year = $form_state['values']['needBeforeDate']['year'];
   $month = $form_state['values']['needBeforeDate']['month'];
   $day = $form_state['values']['needBeforeDate']['day'];
-  $date = date(DATE_ISO8601, strtotime("$year-$month-$day"));
+  $date = date("Y-m-d\TH:i:s", strtotime("$year-$month-$day"));
 
   $userData['Need before Date'] = "$day/$month/$year";
 
