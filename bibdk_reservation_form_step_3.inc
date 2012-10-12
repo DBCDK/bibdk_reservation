@@ -291,7 +291,7 @@ function bibdk_reservation_execute_agency_service($agencyId) {
 
   $response = $client->do_agency_service(array('agencyId' => $agencyId, 'service' => $service));
 
-  return parse_agency_service_response($response);
+  return bibdk_reservation_parse_agency_service_response($response);
 }
 
 /**
@@ -299,7 +299,7 @@ function bibdk_reservation_execute_agency_service($agencyId) {
  * @param json $response
  * @return array
  */
-function parse_agency_service_response($response) {
+function bibdk_reservation_parse_agency_service_response($response) {
   $result = array();
   if (isset($response->userParameter)) {
     foreach ($response->userParameter as $userParameter) {
