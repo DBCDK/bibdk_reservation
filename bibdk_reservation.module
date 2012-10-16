@@ -46,7 +46,7 @@ function bibdk_reservation_theme(){
       'template' => 'template/bibdk_reservation_receipt',
     ),
     'bibdk_reservation_button' => array(
-      'variables' => array('link_text' => '', 'path' => '', 'query' => '', 'link_attributes' => array()),
+      'variables' => array('link_text' => '', 'path' => '', 'query' => '', 'link_attributes' => array(), 'entity_type' => ''),
       'template' => 'template/bibdk_reservation_button',
     ),
   );
