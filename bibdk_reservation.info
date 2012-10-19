@@ -2,10 +2,9 @@ name = Bibdk Reservation
 description = Implementation of reservation functionality on bibdk entities 
 package = DBCDK
 ; configure = admin/config/...
-core = "7.x"
+core = 7.x
+version = 0.1
 php = 5.2.4
-;no version yet
-;version = 7.x-0.0
 
 dependencies[] = bibdk_borchk
 dependencies[] = bibdk_openorder
