@@ -1,0 +1,71 @@
+{
+    "manifestation":[
+        {
+        "adminData":{
+            "pid":{
+                "$":"870970-basis:23108283"
+            },
+            "requestMethod":{
+                "$":"none"
+            },
+            "sortKey":{
+                "$":"P71  A  999  2000"
+            }
+        },
+        "type":{
+            "$":"Punktskrift"
+        },
+        "details":{}
+    },
+    {
+        "adminData":{
+            "pid":{
+                "$":"870970-basis:23108283"
+            },
+            "requestMethod":{
+                "$":"link"
+            },
+            "sortKey":{
+                "$":"P71  A  999  2000"
+            }
+        },
+        "type":{
+            "$":"Punktskrift"
+        },
+        "details":{}
+    },
+    {
+        "adminData":{
+            "pid":{
+                "$":"870970-basis:23108283"
+            },
+            "sortKey":{
+                "$":"P71  A  999  2000"
+            }
+        },
+        "type":{
+            "$":"Punktskrift"
+        },
+        "details":{}
+    },
+    {
+        "adminData":{
+            "pid":{
+                "$":"870970-basis:23108283"
+            },
+            "sortKey":{
+                "$":"P71  A  999  2000"
+            },
+            "restrictedUse":{
+                "$":"linkE17"
+            }
+        },
+        "type":{
+            "$":"Punktskrift"
+        },
+        "details":{}
+    }
+
+    ]
+
+}

@@ -1,0 +1,22 @@
+name = Bibdk Reservation
+description = Implementation of reservation functionality on bibdk entities 
+package = DBCDK
+; configure = admin/config/...
+core = 7.x
+version = 0.1
+php = 5.2.4
+
+dependencies[] = bibdk_borchk
+dependencies[] = bibdk_openorder
+dependencies[] = ting_client
+dependencies[] = ting_openformat
+
+files[] = bibdk_reservation.field.inc
+files[] = bibdk_reservation_form_step_1.inc
+files[] = bibdk_reservation_form_step_2.inc
+files[] = bibdk_reservation_form_step_3.inc
+files[] = bibdk_reservation_form_step_4.inc
+files[] = bibdk_reservation_form_step_5.inc
+files[] = BibdkReservationOrderObject.php
+files[] = BibdkReservationAgencyFields.php
+files[] = tests/bibdk_reservation.test

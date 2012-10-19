@@ -1,0 +1,248 @@
+<?php
+/**
+ * TODO: Implement submit function (Cannot be done until next step is ready)
+ */
+module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_button');
+module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_form_step_1');
+module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_form_step_2');
+module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_form_step_3');
+module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_form_step_4');
+module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_form_step_5');
+
+/**
+ * Implements hook_menu();
+ */
+function bibdk_reservation_menu() {
+  $items['reservation'] = array(
+    'title' => t('Make reservation'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('bibdk_reservation_create_wizard_form'),
+    'access callback' => TRUE,
+    'description' => t('Make reservation in six steps'),
+  );
+  
+  return $items;
+}
+
+/**
+ * Implements hook_theme();
+ */
+function bibdk_reservation_theme(){
+  return array(
+    'bibdk_reservation_agency' => array(
+      'variables' => array('agency' => array()),
+      'template' => 'template/bibdk_reservation_agency',
+    ),
+    'bibdk_reservation_resume' => array(
+      'variables' => array('resume' => array()),
+      'template' => 'template/bibdk_reservation_resume',
+    ),
+    'bibdk_reservation_orderpolicy' => array(
+      'variables' => array('orderpolicy' => array()),
+      'template' => 'template/bibdk_reservation_orderpolicy',
+    ),
+    'bibdk_reservation_receipt' => array(
+      'variables' => array('resume' => array()),
+      'template' => 'template/bibdk_reservation_receipt',
+    ),
+    'bibdk_reservation_button' => array(
+      'variables' => array('link_text' => '', 'path' => '', 'query' => '', 'link_attributes' => array(), 'entity_type' => ''),
+      'template' => 'template/bibdk_reservation_button',
+    ),
+  );
+}
+
+/**
+ * Defines the steps in the reservation process
+ * The file representing the step, should be written without .inc as it will be appended automatically
+ * @return Array
+ */
+function _bibdk_reservation_steps() {
+  $steps = array(
+      1 => array(
+        'form' => 'bibdk_reservation_form_step_1',
+      ),
+      2 => array(
+        'form' => 'bibdk_reservation_form_step_2',
+      ),
+      3 => array(
+        'form' => 'bibdk_reservation_form_step_3',
+        'previous step' => 1, //if the previous button is pressed on step 3, step 2 will be skipped and jump to step 1
+      ),
+      4 => array(
+        'form' => 'bibdk_reservation_form_step_4',
+        'next button text' => t('Order'), //overriding the default "Next" text on buttons
+      ),
+      5 => array(
+        'form' => 'bibdk_reservation_form_step_5',
+        'ads' => 'asd',
+        'next button text' => t('Close'), //overriding the default "Next" text on buttons
+      ),
+    );
+  return $steps;
+}
+
+/**
+ * Initializes the form when a reservation button is clicked
+ * @param type $form
+ * @param type $form_state
+ * @return array $form
+ */
+function bibdk_reservation_create_wizard_form($form, &$form_state){
+  // Initialize a description of the steps for the wizard.
+  if (empty($form_state['step'])) {
+    $form_state['step'] = 1;
+
+    // This array contains the function to be called at each step to get the
+    // relevant form elements. It will also store state information for each
+    // step.
+    $form_state['step_information'] = _bibdk_reservation_steps();
+    
+    bibdk_reservation_new_order_object();
+  }
+  $step = &$form_state['step'];
+  drupal_set_title(t('Reservation: Step @step of ' . count($form_state['step_information']), array('@step' => $step)));
+
+  // Call the function named in $form_state['step_information'] to get the
+  // form elements to display for this step.
+  $form = $form_state['step_information'][$step]['form']($form, $form_state);
+  
+  // Show the 'previous' button if appropriate. Note that #submit is set to
+  // a special submit handler, and that we use #limit_validation_errors to
+  // skip all complaints about validation when using the back button. The
+  // values entered will be discarded, but they will not be validated, which
+  // would be annoying in a "back" button.
+  if ($step > 1 && $step < count($form_state['step_information'])) {
+    $form['prev'] = array(
+      '#type' => 'submit',
+      '#value' => t('Previous'),
+      '#name' => 'prev',
+      '#submit' => array('bibdk_reservation_wizard_previous_submit'),
+      '#limit_validation_errors' => array(),
+    );
+  }
+
+  // Show the Next button only if there are more steps defined.
+  if ($step < count($form_state['step_information'])){# && $step != 2) {
+    // The Next button should be included on every step
+    $form['next'] = array(
+      '#type' => 'submit',
+      '#value' => isset($form_state['step_information'][$step]['next button text']) ? $form_state['step_information'][$step]['next button text'] : t('Next'),
+      '#name' => 'next',
+      '#submit' => array('bibdk_reservation_wizard_next_submit'),
+    );
+  }
+  else if($step != 2){
+    // Just in case there are no more steps, we use the default submit handler
+    // of the form wizard. Call this button Finish, Submit, or whatever you
+    // want to show. When this button is clicked, the
+    // form_example_wizard_submit handler will be called.
+    $button_text = isset($form_state['step_information'][$step]['next button text']) ? $form_state['step_information'][$step]['next button text'] : t('Finish');
+    $form['finish'] = array(
+      '#type' => 'markup',
+      '#markup' => '<a href="JavaScript:window.close();" />' . $button_text . '</a>',
+    );
+  }
+
+  // Include each validation function defined for the different steps.
+  if (function_exists($form_state['step_information'][$step]['form'] . '_validate')) {
+    $form['#validate'] = array($form_state['step_information'][$step]['form'] . '_validate');
+  }
+  return $form;
+}
+
+/**
+ * Submit handler for the "previous" button.
+ * - Stores away $form_state['values']
+ * - Decrements the step counter
+ * - Replaces $form_state['values'] with the values from the previous state.
+ * - Forces form rebuild.
+ *
+ * You are not required to change this function.
+ *
+ * @ingroup form_example
+ */
+function bibdk_reservation_wizard_previous_submit($form, &$form_state) {
+  $current_step = &$form_state['step'];
+  $form_state['step_information'][$current_step]['stored_values'] = $form_state['values'];
+  if ($current_step > 1) {
+    isset($form_state['step_information'][$current_step]['previous step']) ? $current_step = $form_state['step_information'][$current_step]['previous step'] : $current_step--;
+    $form_state['values'] = $form_state['step_information'][$current_step]['stored_values'];
+  }
+  $form_state['rebuild'] = TRUE;
+}
+
+/**
+ * Submit handler for the 'next' button.
+ * - Saves away $form_state['values']
+ * - Increments the step count.
+ * - Replace $form_state['values'] from the last time we were at this page
+ *   or with array() if we haven't been here before.
+ * - Force form rebuild.
+ *
+ * You are not required to change this function.
+ *
+ * @param $form
+ * @param $form_state
+ *
+ * @ingroup form_example
+ */
+function bibdk_reservation_wizard_next_submit($form, &$form_state) {
+  $current_step = &$form_state['step'];
+  
+  /* Call custom submit function for current step */
+  $current_submit_function = $form_state['step_information'][$current_step]['form'] . '_submit';
+  
+  if (function_exists($current_submit_function)) {
+    call_user_func_array($current_submit_function, array($form, $form_state));
+  }
+  /* End custom submit */
+  $form_state['step_information'][$current_step]['stored_values'] = $form_state['values'];
+
+  if ($current_step < count($form_state['step_information'])) {
+    $current_step++;
+    if (!empty($form_state['step_information'][$current_step]['stored_values'])) {
+      $form_state['values'] = $form_state['step_information'][$current_step]['stored_values'];
+    }
+    else {
+      $form_state['values'] = array();
+    }
+    $form_state['rebuild'] = TRUE;  // Force rebuild with next step.
+    return;
+  }
+}
+
+/**
+ * Creates the BibdkReservationOrderObject and saves the manifestation IDs to it
+ */
+function bibdk_reservation_new_order_object(){
+  if(!isset($_REQUEST['ids'])){
+    drupal_set_message("No objects have been chosen", 'error');
+    return;
+  }
+  $ids = explode(",", $_REQUEST['ids']);
+  
+  $order = BibdkReservationOrderObject::SetObject();
+  $order->setManifestationIds($ids);
+  
+  $manifestation = bibdk_reservation_get_manifestation($ids);
+  $order->setManifestation($manifestation);
+}
+
+function bibdk_reservation_get_order_object(){
+  return $_SESSION['orderobject'];
+}
+
+function bibdk_reservation_get_manifestation($id){
+  if (is_array($id))
+    $id = reset($id);
+  
+  $result = ting_openformat_get_single($id);
+  $work = reset($result)->getManifestations();
+  
+  return reset($work);
+}
+
+function bibdk_reservation_manifestation_view($manifestation){
+  return ting_openformat_manifestation_view($manifestation, 'reservation');
+}
