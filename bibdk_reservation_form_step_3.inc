@@ -1,10 +1,5 @@
 <?php
 
-/*
- * Form for user input on Step 3
- */
-global $base_url;
-
 /**
  * implements hook_form
  */
@@ -24,11 +19,11 @@ function bibdk_reservation_form_step_3($form, &$form_state) {
   );
   if ($orderpolicy['orderpossible'] == TRUE) {
     $form = bibdk_reservation_step3_user_form_fields($form, $form_state);
-    //$form = bibdk_reservation_step3_order_form_fields($form, $form_state);
+    $form = bibdk_reservation_step3_order_form_fields($form, $form_state);
     $form = bibdk_reservation_step3_permanent_fields($form);
   }
   else {
-    form_set_error('bibdk_reservation_form_step_3', 'The material is not allowed to be borrowed');
+    form_set_error('bibdk_reservation_form_step_3', 'The material cannot be borrowed');
   }
   return $form;
 }
@@ -37,10 +32,19 @@ function bibdk_reservation_form_step_3($form, &$form_state) {
  * Render user fields;
  */
 function bibdk_reservation_step3_user_form_fields($form, $form_state) {
-  $fields = bibdk_reservation_get_agency_fields();
-  foreach ($fields->getUserParameters() as $userParameter) {
+  $fields = bibdk_reservation_get_agency_fields()->getUserParameters();
+  if(!isset($fields))
+    return;
+  $form['userParameters'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('User Parameters'),
+  );
+  $form['userParameters']['description'] = array(
+    '#markup' => t('Description for user parameters'),
+  );
+  foreach ($fields as $userParameter) {
     $type = $userParameter['type'];
-    $form[$type] = array(
+    $form['userParameters'][$type] = array(
       '#type' => isset($userParameter['field_type']) ? $userParameter['field_type'] : 'textfield',
       '#title' => $userParameter['field_name'],
       '#description' => isset($userParameter['field_description']) ? $userParameter['field_description'] : NULL,
@@ -55,14 +59,25 @@ function bibdk_reservation_step3_user_form_fields($form, $form_state) {
  * Render order fields;
  */
 function bibdk_reservation_step3_order_form_fields($form, $form_state) {
-  $fields = bibdk_reservation_get_agency_fields();
-  foreach ($fields->getOrderParameters() as $orderParameter) {
-    $type = $orderParameter['type'];
-    $form[$type] = array(
-      '#type' => isset($orderParameter['field_type']) ? $orderParameter['field_type'] : 'textfield',
-      '#title' => $orderParameter['field_name'],
-      '#description' => isset($orderParameter['field_description']) ? $orderParameter['field_description'] : NULL,
-      '#required' => $orderParameter['required'],
+  $manifestation = BibdkReservationOrderObject::GetObject()->getManifestation();
+  $fields = bibdk_reservation_get_agency_fields()->getOrderParametersForType($manifestation->getOrsOrderMaterialType());
+  if(!isset($fields))
+    return $form;
+  $form['orderParameters'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Order Parameters'),
+  );
+  $form['orderParameters']['description'] = array(
+    '#type' => 'markup',
+    '#markup' => t('Description for Order Parameters'),
+  );
+  foreach ($fields as $itemParameter) {
+    $type = $itemParameter['type'];
+    $form['orderParameters'][$type] = array(
+      '#type' => isset($itemParameter['field_type']) ? $itemParameter['field_type'] : 'textfield',
+      '#title' => bibdk_reservation_get_agency_fields()->getOrderLabelFromType($type),
+      //'#description' => isset($orderParameter['field_description']) ? $orderParameter['field_description'] : NULL,
+      '#required' => $itemParameter['required'],
       '#default_value' => (isset($form_state['values'][$type])) ? $form_state['values'][$type] : "",
     );
   }
@@ -152,7 +167,7 @@ function bibdk_reservation_form_step_3_validate($form, &$form_state) {
 function bibdk_reservation_form_step_3_submit($form, &$form_state) {
   $userParameters = BibdkReservationOrderObject::GetObject()->getFields()->getUserParameters();
   $idKey = BibdkReservationOrderObject::GetObject()->getFields()->getUserIdKey();
-
+  
   foreach ($userParameters as $key => $userParameter) {
     $type = $userParameter['type'];
     $name = $userParameter['field_name'];
@@ -168,10 +183,21 @@ function bibdk_reservation_form_step_3_submit($form, &$form_state) {
     }
   }
 
+  $manifestation = BibdkReservationOrderObject::GetObject()->getManifestation();
+  $fields = bibdk_reservation_get_agency_fields()->getOrderParametersForType($manifestation->getOrsOrderMaterialType());
+  
+  foreach ($fields as $itemParameter) {
+    $type = $itemParameter['type'];
+    if (isset($form_state['values'][$type]))
+      $orderParameters[$type] = $form_state['values'][$type];
+  }
+  
   if (isset($userOrderData['pincode'])) {
     unset($userOrderData['pincode']);
   }
-
+  
+  
+  
   $year = $form_state['values']['needBeforeDate']['year'];
   $month = $form_state['values']['needBeforeDate']['month'];
   $day = $form_state['values']['needBeforeDate']['day'];
@@ -182,6 +208,7 @@ function bibdk_reservation_form_step_3_submit($form, &$form_state) {
   BibdkReservationOrderObject::GetObject()->setUserData($userData);
   BibdkReservationOrderObject::GetObject()->setUserOrderData($userOrderData);
   BibdkReservationOrderObject::GetObject()->setNeedBeforeDate($date);
+  BibdkReservationOrderObject::GetObject()->setOrderParameters($orderParameters);
 }
 
 /**

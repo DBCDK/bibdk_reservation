@@ -72,7 +72,6 @@ class BibdkReservationFlow extends DrupalWebTestCase {
                         'ting_openformat',
                         'openagency_webservice_mockup',
                         'bibdk_borchk_webservice_mockup',
-                        'ting',
                         'devel'));
     $user = $this->drupalCreateUser(array('access devel information'));
     $this->drupalLogin($user);
@@ -83,7 +82,8 @@ class BibdkReservationFlow extends DrupalWebTestCase {
 
     variable_set('bibdk_borchk_url', $base_url . '/bibdk_borchk_webservice/');
     variable_set('bibdk_borchk_servicerequester', 'bibliotek.dk');
-
+    
+    // TODO: Change link to muckup URL
     variable_set('bibdk_openorder_url', 'http://guesstimate.dbc.dk/~fvs/OpenLibrary/OpenOrder/trunk/server.php/');
     #variable_set('bibdk_openorder_url', $base_url . '/bibdk_openorder_webservice/');
     variable_set('bibdk_openorder_groupIdAut', '010100');
@@ -99,37 +99,28 @@ class BibdkReservationFlow extends DrupalWebTestCase {
     // TODO: Change link to muckup URL 
     variable_set('ting_search_url', 'http://lakiseks.dbc.dk/hive/');
   }
-
-  public function testServiceRequest() {
-    $newUrl = variable_get('agency_search_url');
-    $this->assertNotNull($newUrl, 'URL to mockup set: ' . $newUrl);
-    $xml = '<?xml version="1.0" encoding="UTF-8"?><SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"><SOAP-ENV:Body><serviceRequest><agencyId>DK-810010</agencyId><service>userOrderParameters</service><outputType>xml</outputType></serviceRequest></SOAP-ENV:Body></SOAP-ENV:Envelope>';
-    $this->drupalPost('openagency_webservice_test', array('xml' => $xml), t('submit'));
-    $this->assertText('userId', t('Mockup Agency serviceRequest passes'));
-  }
   
   public function testMultiStepReservationForm() {
 
     /* STEP 0 */
-    $this->drupalGet('reservation', array('query' => array('ids' => '870970-basis%253A29294941')));
+    //$this->drupalGet('reservation', array('query' => array('ids' => '870970-basis%253A29294941')));
+    $this->drupalGet('reservation', array('query' => array('ids' => '870971-tsart%3A86167743')));
     #$this->drupalGet('reservation', array('query' => array('ids' => '870970-basis%3A28050917')));
     /* STEP 1 */
-    $this->assertField('openagency_city', "Field \"city\" exists");
-    $this->assertField('openagency_zip', "Field \"zip\" exists");
-    $this->assertField('openagency_name', "Field \"name\" exists");
+    $this->assertField('anyField', "Agency Field \"anyField\" exists");
     $this->drupalPost(NULL, NULL, t('Next'));
-    $this->assertText('At least one kind of information should be provided', t('"No input" Error message appears correctly'));
+    $this->assertText(t('You haven\'t entered any search criteria.'), t('"No input" Error message appears correctly'));
 
     /* STEP 2 */
-    $this->drupalPost(NULL, array('openagency_city' => 'københavn'), t('Next'));
-    $this->assertText('Hovedbiblioteket, Krystalgade', t('Agency search result correctly shown'));
+    $this->drupalPost(NULL, array('anyField' => 'als'), t('Next'));
+    $this->assertText('Als Bibliotek', t('Agency search result correctly shown'));
     $this->assertFieldById('edit-button', t('Select'), 'Select button is present');
 
     /* STEP 3 */
     //Check if fields exist
     $this->drupalPost(NULL, NULL, t('Select'));
     $this->assertText('Reservation: Step 3 of 5', 'We are on step 3!');
-
+    
     $this->assertField("cpr", "Field CPR-number exists");
     $this->assertField("pincode", "Field pincode exists");
     $this->assertField("userName", "Field userName exists");
@@ -141,12 +132,24 @@ class BibdkReservationFlow extends DrupalWebTestCase {
     $this->assertText('CPR-number field is required');
     $this->assertText('Pincode field is required');
     $this->assertText('Adress, postal code, town/city field is required');
-
+    
+    // Check if OrderParameters are required
+    $this->assertText('issue field is required.');
+    $this->assertText('publicationDateOfComponent field is required.');
+    
     //Check custom validation
     $this->drupalPost(NULL, array('pincode' => '123123123', 'userMail' => "qwqwqw@weewewe"), t('Next'));
     $this->assertText(t('Pincode needs to be a four diggit number'));
     $this->assertText(t('Email needs to be a valid email'));
-    $this->drupalPost(NULL, array('cpr' => '1234561234', 'pincode' => '1231', 'userMail' => 'test@test.dk', 'userName' => 'Test Testersen', 'userAddress' => 'testing 5'), "Next");
+    $this->drupalPost(NULL, array(
+      'cpr' => '1234561234', 
+      'pincode' => '1231', 
+      'userMail' => 'test@test.dk', 
+      'userName' => 'Test Testersen', 
+      'userAddress' => 'testing 5', 
+      'issue' => 'test Issue', 
+      'publicationDateOfComponent' => 'test publicationDateOfComponent'
+      ), "Next");
 
     //Check if validation passes
     $this->assertNoText('Name field is required');
@@ -156,7 +159,9 @@ class BibdkReservationFlow extends DrupalWebTestCase {
     $this->assertNoText('Pincode needs to be a four diggit number');
     $this->assertNoText('CPR-number needs to be a valid CPR-number');
     $this->assertNoText('Email needs to be a valid email');
-
+    $this->assertNoText('issue field is required.');
+    $this->assertNoText('publicationDateOfComponent field is required.');
+    
     //Test Bad user
     $this->assertText('User not found');
 
@@ -170,6 +175,8 @@ class BibdkReservationFlow extends DrupalWebTestCase {
       'needBeforeDate[month]' => 12,
       'needBeforeDate[year]' => 2012,
       'needBeforeDate[day]' => 10,
+      'issue' => 'test Issue', 
+      'publicationDateOfComponent' => 'test publicationDateOfComponent'
         ), t('Next'));
     $this->assertNoText('User not found');
 
@@ -179,8 +186,10 @@ class BibdkReservationFlow extends DrupalWebTestCase {
     $this->assertText('Adress, postal code, town/city: testing 5');
     $this->assertText('E-mail: test@test.dk');
     $this->assertText('Need before Date: 10/12/2012');
-    $this->assertText('Trafikselskabet Movia, Biblioteket');
-    $this->assertText('Min kamp : roman. 5. bog');
+    $this->assertText('test Issue');
+    $this->assertText('test publicationDateOfComponent');
+    $this->assertText('Als Bibliotek');
+    $this->assertText('Danske økologer vil dyrke sojabønner.');
     
     //Proceeding to step 5:
     $this->drupalPost(NULL, NULL, t('Order'));

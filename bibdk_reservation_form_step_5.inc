@@ -16,12 +16,18 @@ function bibdk_reservation_form_step_5_form($form, $id) {
   $manifestation_view = bibdk_reservation_manifestation_view($manifestation_object);
   $user = BibdkReservationOrderObject::GetObject()->getUserData();
   $branch = BibdkReservationOrderObject::GetObject()->getBranch();
-  
+  $orderParamWithLabel = null;
+  $orderParameters = BibdkReservationOrderObject::GetObject()->getOrderParameters();
+  if (isset($orderParameters)){
+  foreach ($orderParameters as $type => $orderParameter){
+    $orderParamWithLabel[bibdk_reservation_get_agency_fields()->getOrderLabelFromType($type)] = $orderParameter;
+  }
+  }
   $needBeforeDate = t('Is not needed after: ') . BibdkReservationOrderObject::GetObject()->getNeedBeforDate();
   $orderId = $id;
   
   $form['resume'] = array(
-    '#markup' => theme('bibdk_reservation_receipt', array('user' => $user, 'branch' => $branch, 'manifestation' => $manifestation_view, 'orderId' => $orderId, 'needBeforeDate' => $needBeforeDate)),
+    '#markup' => theme('bibdk_reservation_receipt', array('user' => $user, 'orderParameters' => $orderParamWithLabel, 'branch' => $branch, 'manifestation' => $manifestation_view, 'orderId' => $orderId, 'needBeforeDate' => $needBeforeDate)),
   );
   $form['print'] = array(
     '#type' => 'button',
@@ -32,7 +38,11 @@ function bibdk_reservation_form_step_5_form($form, $id) {
 
 function bibdk_reservation_form_step_5_do_order() {
   drupal_load('module', 'bibdk_openorder');
-  $params = BibdkReservationOrderObject::GetObject()->getUserOrderData();
+  $params = array();
+  $userdata = BibdkReservationOrderObject::GetObject()->getUserOrderData();
+  $orderdata = BibdkReservationOrderObject::GetObject()->getOrderParameters();
+  $params += (isset($userdata)) ? $userdata : array();
+  $params += (isset($orderdata)) ? $orderdata : array();
   $params += array(
     'pid' => BibdkReservationOrderObject::GetObject()->getManifestationIds(),
     'pickUpAgencyId' => BibdkReservationOrderObject::GetObject()->getBranchId(), 

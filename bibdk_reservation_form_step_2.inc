@@ -7,8 +7,7 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
 }
 
 function _bibdk_reservation_form_step_2_generate_form($form, $result){
-  foreach ($result['libraries'] as $agency) {
-    foreach ($agency->pickUpAgencies as $branch) {
+  foreach ($result['libraries'] as $branch) {
       $form[$branch->branchId]['button'] = array(
         '#value' => t('Select'),
         '#name' => $branch->branchId, 
@@ -18,7 +17,6 @@ function _bibdk_reservation_form_step_2_generate_form($form, $result){
         '#submit' => array('bibdk_reservation_wizard_next_submit'),
         '#branch' => $branch,
       );
-    }
   }
   return $form;
 }

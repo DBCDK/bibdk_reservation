@@ -5,9 +5,12 @@ function bibdk_reservation_form_step_4($form, &$form_state) {
   $manifestation_view = bibdk_reservation_manifestation_view($manifestation_object);
   $user = BibdkReservationOrderObject::GetObject()->getUserData();
   $branch = BibdkReservationOrderObject::GetObject()->getBranch();
-  
+  $orderParameters = BibdkReservationOrderObject::GetObject()->getOrderParameters();
+  foreach ($orderParameters as $type => $orderParameter){
+    $orderParamWithLabel[bibdk_reservation_get_agency_fields()->getOrderLabelFromType($type)] = $orderParameter;
+  }
   $form['resume'] = array(
-    '#markup' => theme('bibdk_reservation_resume', array('user' => $user, 'branch' => $branch, 'manifestation' => $manifestation_view)),
+    '#markup' => theme('bibdk_reservation_resume', array('user' => $user, 'orderParameters' => $orderParamWithLabel, 'branch' => $branch, 'manifestation' => $manifestation_view)),
   );
   return $form;
 }
