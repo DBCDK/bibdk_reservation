@@ -4,25 +4,23 @@
  * implements hook_form
  */
 function bibdk_reservation_form_step_3($form, &$form_state) {
-  $orderpolicy = bibdk_reservation_form_step_3_do_policycheck();
-  /* Not needed information - apparently
-    $form['policy'] = array(
-    '#type' => 'markup',
-    '#markup' => theme('bibdk_reservation_orderpolicy', array('orderpolicy' => $orderpolicy)),
-    );
-   * 
-   */
+  
 
   $manifestation = BibdkReservationOrderObject::GetObject()->getManifestation();
   $form['manifestation'] = array(
     '#markup' => bibdk_reservation_manifestation_view($manifestation),
   );
-  if ($orderpolicy['orderpossible'] == TRUE) {
+  $orderpolicy = bibdk_reservation_form_step_3_do_policycheck();
+  if ($orderpolicy->orderIsPossible()) {
     $form = bibdk_reservation_step3_user_form_fields($form, $form_state);
     $form = bibdk_reservation_step3_order_form_fields($form, $form_state);
     $form = bibdk_reservation_step3_permanent_fields($form);
   }
   else {
+      $form['policy'] = array(
+    '#type' => 'markup',
+    '#markup' => theme('bibdk_reservation_orderpolicy', array('orderpolicy' => $orderpolicy->getMessages())),
+    );
     form_set_error('bibdk_reservation_form_step_3', 'The material cannot be borrowed');
   }
   return $form;
@@ -95,12 +93,15 @@ function bibdk_reservation_step3_permanent_fields($form) {
   return $form;
 }
 
+
+
 function bibdk_reservation_form_step_3_do_policycheck() {
   $pickUpAgencyId = BibdkReservationOrderObject::GetObject()->getBranchId();
   $pid = BibdkReservationOrderObject::GetObject()->getManifestationIds();
-  $res = bibdk_openorder_do_checkOrderPolicy($pickUpAgencyId, $pid[0]);
-
-  if (isset($res->checkOrderPolicyResponse->orderPossible)) {
+  return bibdk_openorder_do_checkOrderPolicy($pickUpAgencyId, $pid[0]);
+  
+  // MOVED TO ORDERPOLICY OBJECT
+  /*if (isset($res->checkOrderPolicyResponse->orderPossible)) {
     $orderPossible = $res->checkOrderPolicyResponse->orderPossible->{'$'};
     $reason = $res->checkOrderPolicyResponse->orderPossibleReason->{'$'};
     $orderPossibleTxt = t('Order is possible');
@@ -114,29 +115,30 @@ function bibdk_reservation_form_step_3_do_policycheck() {
   switch ($reason) {
     case 'not_owned_ILL_loc': //Example 1
       $reason_place_holder = t('not_owned_ILL_loc');
-      return array('orderpossible' => $orderPossibleTxt, 'reason' => $reason_place_holder);
+      return array('orderPossible' => FALSE, 'orderpossibleTxt' => $orderPossibleTxt, 'reason' => $reason_place_holder);
       break;
     case 'owned_wrong_mediumType': //Example 2
       $url = $res->checkOrderPolicyResponse->agencyCatalogueUrl->{'$'};
       $reason_place_holder = t('owned_wrong_mediumType');
-      return array('orderpossible' => $orderPossibleTxt, 'reason' => $reason_place_holder, 'agencyCatalogueUrl' => t('Agency catalogue URL: ') . l($url, $url));
+      return array('orderPossible' => FALSE, 'orderpossibleTxt' => $orderPossibleTxt, 'reason' => $reason_place_holder, 'agencyCatalogueUrl' => $url);
       break;
     case 'owned_accepted': //Example 3
       $url = $res->checkOrderPolicyResponse->lookUpUrl->{'$'};
       $reason_place_holder = t('owned_accepted');
-      return array('orderpossible' => $orderPossibleTxt, 'reason' => $reason_place_holder, 'lookUpUrl' => t('Lookup URL: ') . l($url, $url));
+      return array('orderPossible' => FALSE, 'orderpossibleTxt' => $orderPossibleTxt, 'reason' => $reason_place_holder, 'lookUpUrl' => $url);
       break;
     case 'not_owned_ILL_loc': //Example 4
       $reason_place_holder = t('not_owned_ILL_loc');
-      return array('orderpossible' => $orderPossibleTxt, 'reason' => $reason_place_holder);
+      return array('orderPossible' => FALSE, 'orderpossibleTxt' => $orderPossibleTxt, 'reason' => $reason_place_holder);
       break;
     default: //TODO Implement exaample 5 when openOrder/openSearch is ready - US
       drupal_set_message('Unknown response: \'' . $reason . '\' Watchdog\'ed', 'error');
       watchdog('bibdk_reservation_form_step_3', 'Unknown response from openOrder: ' . $reason, array('pickupAgencyId' => $pickUpAgencyId, 'reason' => $reason), WATCHDOG_ERROR);
-      return array('orderpossible' => $orderPossibleTxt, 'reason' => $reason);
+      return array('orderPossible' => FALSE, 'orderpossibleTxt' => $orderPossibleTxt, 'reason' => $reason);
       break;
-  }
+  }*/
 }
+
 
 /*
  * Implements hook_form_validate
@@ -168,6 +170,7 @@ function bibdk_reservation_form_step_3_submit($form, &$form_state) {
   $userParameters = BibdkReservationOrderObject::GetObject()->getFields()->getUserParameters();
   $idKey = BibdkReservationOrderObject::GetObject()->getFields()->getUserIdKey();
   
+  // Parse userParameters
   foreach ($userParameters as $key => $userParameter) {
     $type = $userParameter['type'];
     $name = $userParameter['field_name'];
@@ -184,8 +187,9 @@ function bibdk_reservation_form_step_3_submit($form, &$form_state) {
   }
 
   $manifestation = BibdkReservationOrderObject::GetObject()->getManifestation();
-  $fields = bibdk_reservation_get_agency_fields()->getOrderParametersForType($manifestation->getOrsOrderMaterialType());
   
+  // Parse itemParameters
+  $fields = bibdk_reservation_get_agency_fields()->getOrderParametersForType($manifestation->getOrsOrderMaterialType());
   foreach ($fields as $itemParameter) {
     $type = $itemParameter['type'];
     if (isset($form_state['values'][$type]))
@@ -195,16 +199,15 @@ function bibdk_reservation_form_step_3_submit($form, &$form_state) {
   if (isset($userOrderData['pincode'])) {
     unset($userOrderData['pincode']);
   }
-  
-  
-  
+
+  // Parse static fields
   $year = $form_state['values']['needBeforeDate']['year'];
   $month = $form_state['values']['needBeforeDate']['month'];
   $day = $form_state['values']['needBeforeDate']['day'];
   $date = date("Y-m-d\TH:i:s", strtotime("$year-$month-$day"));
-
   $userData['Need before Date'] = "$day/$month/$year";
 
+  // Save all user input
   BibdkReservationOrderObject::GetObject()->setUserData($userData);
   BibdkReservationOrderObject::GetObject()->setUserOrderData($userOrderData);
   BibdkReservationOrderObject::GetObject()->setNeedBeforeDate($date);
@@ -294,79 +297,11 @@ function bibdk_reservation_borchk_parse_response($response, $acceptOrderFromUnkn
  */
 function bibdk_reservation_get_agency_fields() {
 
-  $agencyId = BibdkReservationOrderObject::GetObject()->getBranchId();
+  $branch = BibdkReservationOrderObject::GetObject()->getBranch();
 
-  $response = bibdk_reservation_execute_agency_service($agencyId);
-
-  $fields = new bibdkReservationAgencyFields($response);
-
+  $fields = $branch->getAgencyFields();
+  
   BibdkReservationOrderObject::GetObject()->setFields($fields);
 
   return $fields;
 }
-
-/**
- * Get result from OpenAgency ServiceRequest
- * 
- * @param string $agencyId
- * @return array
- */
-function bibdk_reservation_execute_agency_service($agencyId) {
-
-  $client = new ting_client_class();
-  $service = 'userOrderParameters';
-
-  $response = $client->do_agency_service(array('agencyId' => $agencyId, 'service' => $service));
-
-  return bibdk_reservation_parse_agency_service_response($response);
-}
-
-/**
- * Parse json response from ServiceRequest
- * @param json $response
- * @return array
- */
-function bibdk_reservation_parse_agency_service_response($response) {
-  $result = array();
-  if (isset($response->userParameter)) {
-    foreach ($response->userParameter as $userParameter) {
-
-      $result['userParameters'][] = array(
-        'type' => $userParameter->userParameterType->{'$'},
-        'required' => $userParameter->parameterRequired->{'$'},
-      );
-    }
-  }
-  if (isset($response->userIdTxt)) {
-    foreach ($response->userIdTxt as $txt) {
-      $result['userIdTxt'][$txt->{'@language'}->{'$'}] = $txt->{'$'};
-    }
-  }
-  if (isset($response->orderParameters)) {
-    foreach ($response->orderParameters as $key => $orderParameter) {
-      $result['orderParameters'][$key] = array(
-        'materialType' => $orderParameter->orderMaterialType->{'$'},
-        'orderType' => $orderParameter->orderType->{'$'},
-      );
-      if (isset($orderParameter->itemParameter)) {
-        $itemParameters = array();
-        foreach ($orderParameter->itemParameter as $itemParameter) {
-          $itemParameters[] = array(
-            'type' => $itemParameter->itemParameterType->{'$'},
-            'required' => $itemParameter->parameterRequired->{'$'},
-          );
-        }
-        $result['orderParameters'][$key]['itemParameters'] = $itemParameters;
-      }
-    }
-  }
-  if (isset($response->agencyParameters)) {
-    foreach ($response->agencyParameters->borrowerCheckParameters as $key => $borrowerCheckParamerters) {
-      $result['agencyParameters']['borrowerCheckParameters'][$borrowerCheckParamerters->borrowerCheckSystem->{'$'}] = $borrowerCheckParamerters->borrowerCheck->{'$'};
-    }
-    $result['agencyParameters']['acceptOrderFromUnknownUser'] = $response->agencyParameters->acceptOrderFromUnknownUser->{'$'};
-    $result['agencyParameters']['acceptOrderAgencyOffline'] = $response->agencyParameters->acceptOrderAgencyOffline->{'$'};
-  }
-  return $result;
-}
-
