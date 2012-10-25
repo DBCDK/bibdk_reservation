@@ -7,7 +7,7 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
 }
 
 function _bibdk_reservation_form_step_2_generate_form($form, $result){
-  foreach ($result['libraries'] as $branch) {
+  foreach ($result as $branch) {
       $form[$branch->branchId]['button'] = array(
         '#value' => t('Select'),
         '#name' => $branch->branchId, 

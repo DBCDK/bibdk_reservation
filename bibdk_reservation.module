@@ -99,6 +99,11 @@ function bibdk_reservation_create_wizard_form($form, &$form_state){
     $form_state['step_information'] = _bibdk_reservation_steps();
     
     bibdk_reservation_new_order_object();
+    if (isset($_SESSION['bibdk_favourites'])){
+      $branch = unserialize(current($_SESSION['bibdk_favourites']));
+      BibdkReservationOrderObject::GetObject()->setBranch($branch);
+      $form_state['step'] = 3;
+    }
   }
   $step = &$form_state['step'];
   drupal_set_title(t('Reservation: Step @step of ' . count($form_state['step_information']), array('@step' => $step)));

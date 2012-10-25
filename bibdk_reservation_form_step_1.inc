@@ -16,17 +16,14 @@ function bibdk_reservation_form_step_1_validate($form, &$form_state) {
     form_set_error('bibdk_reservation_form_step_1', t('You haven\'t entered any search criteria.'));
   }
   else {
-    $params = array('anyField' => $query);
-    $result = bibdk_reservation_form_step_1_execute_search($params);
+    $result = bibdk_reservation_form_step_1_execute_search($query);
     $form_state['values']['result'] = $result;
   }
 }
 
-function bibdk_reservation_form_step_1_execute_search($params) {
-  $client = new ting_client_class();
-  $resp = $client->do_agency_search($params);
-  $result = bibdk_reservation_form_step_1_handle_response($resp);
-  return $result;
+function bibdk_reservation_form_step_1_execute_search($query) {
+  return bibdk_vejviser_execute_agency_search($query);
+  
 }
 
 /**
