@@ -4,7 +4,7 @@ function bibdk_reservation_form_step_1($form, &$form_state) {
    $form['anyField'] = array(
     '#type' => 'textfield',
     '#attributes' => array('placeholder' => t('Library name, zip or city')),
-    '#default_value' => isset($form_state['values']['anyField']) ? $form_state['values']['anyField'][0] : NULL,
+    '#default_value' => isset($form_state['values']['anyField']) ? $form_state['values']['anyField']: NULL,
   );
   return $form;
 }

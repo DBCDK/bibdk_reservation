@@ -37,7 +37,6 @@ function bibdk_reservation_form_step_5_form($form, $id) {
 }
 
 function bibdk_reservation_form_step_5_do_order() {
-  drupal_load('module', 'bibdk_openorder');
   $params = array();
   $userdata = BibdkReservationOrderObject::GetObject()->getUserOrderData();
   $orderdata = BibdkReservationOrderObject::GetObject()->getOrderParameters();

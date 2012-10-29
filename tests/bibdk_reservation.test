@@ -3,7 +3,7 @@
 /**
  * Test validation of fields and form submission
  */
-class BibdkReservationButtonTestCase extends DrupalWebTestCase {
+class BibdkReservationButtonTestCase extends SimpleTestCloneTestCase {
 
   /**
    * Implements getInfo().
@@ -17,8 +17,9 @@ class BibdkReservationButtonTestCase extends DrupalWebTestCase {
   }
 
   public function setUp() {
-    $this->profile = 'bibdk';
-    parent::setUp('bibdk_reservation', 'ting', 'ding_entity', 'ting_openformat', 'devel');
+    //$this->profile = 'bibdk';
+    //parent::setUp('bibdk_reservation', 'ting', 'ding_entity', 'ting_openformat', 'devel');
+    parent::setup();;
     variable_set('clean_url', 1);
     variable_set('ting_agency', '100200');
     
@@ -53,7 +54,7 @@ class BibdkReservationButtonTestCase extends DrupalWebTestCase {
 
 }
 
-class BibdkReservationFlow extends DrupalWebTestCase {
+class BibdkReservationFlow extends SimpleTestCloneTestCase {
 
   public static function getInfo() {
     return array(
@@ -64,7 +65,8 @@ class BibdkReservationFlow extends DrupalWebTestCase {
   }
 
   public function setUp() {
-    $this->profile = 'bibdk';
+    parent::setUp();
+    /*$this->profile = 'bibdk';
     parent::setup(array('bibdk_reservation',
                         'bibdk_vejviser',
                         'bibdk_openorder',
@@ -75,7 +77,7 @@ class BibdkReservationFlow extends DrupalWebTestCase {
                         'devel'));
     $user = $this->drupalCreateUser(array('access devel information'));
     $this->drupalLogin($user);
-
+    */
     global $base_url;
     variable_set('agency_search_url', $base_url . '/openagency_webservice/');
     #variable_set('agency_search_url', 'http://guesstimate.dbc.dk/~fvs/OpenLibrary/OpenAgency/trunk/'); //Live service

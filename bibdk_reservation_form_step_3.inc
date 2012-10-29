@@ -11,17 +11,22 @@ function bibdk_reservation_form_step_3($form, &$form_state) {
     '#markup' => bibdk_reservation_manifestation_view($manifestation),
   );
   $orderpolicy = bibdk_reservation_form_step_3_do_policycheck();
-  if ($orderpolicy->orderIsPossible()) {
+  dpm($orderpolicy->getOrderPossible());
+  if ($orderpolicy->getOrderPossible()) {
     $form = bibdk_reservation_step3_user_form_fields($form, $form_state);
     $form = bibdk_reservation_step3_order_form_fields($form, $form_state);
     $form = bibdk_reservation_step3_permanent_fields($form);
   }
   else {
-      $form['policy'] = array(
-    '#type' => 'markup',
-    '#markup' => theme('bibdk_reservation_orderpolicy', array('orderpolicy' => $orderpolicy->getMessages())),
-    );
-    form_set_error('bibdk_reservation_form_step_3', 'The material cannot be borrowed');
+    $form_state['blocked'] = TRUE;
+    $messages = $orderpolicy->getMessages();
+    if ($messages){
+      $form['messages_wrapper'] = array(
+        '#type' => 'fieldset',
+      ); 
+      $form['messages_wrapper']['messages'] = $messages;
+    }
+    form_set_error('bibdk_reservation_form_step_3', 'The material cannot be borrowed through bibliotek.dk');
   }
   return $form;
 }
@@ -190,12 +195,13 @@ function bibdk_reservation_form_step_3_submit($form, &$form_state) {
   
   // Parse itemParameters
   $fields = bibdk_reservation_get_agency_fields()->getOrderParametersForType($manifestation->getOrsOrderMaterialType());
-  foreach ($fields as $itemParameter) {
-    $type = $itemParameter['type'];
-    if (isset($form_state['values'][$type]))
-      $orderParameters[$type] = $form_state['values'][$type];
+  if ($fields){
+    foreach ($fields as $itemParameter) {
+      $type = $itemParameter['type'];
+      if (isset($form_state['values'][$type]))
+        $orderParameters[$type] = $form_state['values'][$type];
+    }
   }
-  
   if (isset($userOrderData['pincode'])) {
     unset($userOrderData['pincode']);
   }
@@ -211,7 +217,8 @@ function bibdk_reservation_form_step_3_submit($form, &$form_state) {
   BibdkReservationOrderObject::GetObject()->setUserData($userData);
   BibdkReservationOrderObject::GetObject()->setUserOrderData($userOrderData);
   BibdkReservationOrderObject::GetObject()->setNeedBeforeDate($date);
-  BibdkReservationOrderObject::GetObject()->setOrderParameters($orderParameters);
+  if (isset($orderParameters))
+    BibdkReservationOrderObject::GetObject()->setOrderParameters($orderParameters);
 }
 
 /**
