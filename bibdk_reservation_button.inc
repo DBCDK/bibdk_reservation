@@ -33,12 +33,13 @@ function bibdk_reservation_button_form($form, &$form_state, $entity_ids, $type, 
 /*
  * Returns a link for reservation flow
  */
-function bibdk_reservation_link($entity_ids, $type, $entity_type) {
-  $text = ($entity_type == "bibdkSubwork") ? t("Order any edition") : t("Order this @type", array("@type" => $type));
+function bibdk_reservation_link($entity_ids, $subtype, $entity_type) {
+  fb(func_get_args());
+  $text = ($entity_type == "bibdkSubwork") ? t("Order any edition") : t("Order this @type", array("@type" => $subtype2));
   $path = 'reservation';
   $query = array('ids' => implode(',', $entity_ids));
   $attributes = array('class' => array('bibdk-popup-link'), 'rel' => 'userhelp');
-  if(bibdk_reservation_check_past_reservations()){
+  if(bibdk_reservation_check_past_reservations() && $subtype != 'Avis' && $subtype != 'Tidsskrift'){
     $attributes['class'][] = 'orderedonce';
   }
   return theme('bibdk_reservation_button', array('link_text' => $text, 'path' => $path, 'query' => $query, 'link_attributes' => $attributes, 'entity_type' => $entity_type)); 

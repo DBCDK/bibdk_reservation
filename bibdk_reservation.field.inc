@@ -76,7 +76,7 @@ function bibdk_reservation_field_formatter_view($entity_type, $entity, $field, $
         if ($entity->isReservable()){
           $button_form = drupal_get_form("bibdk_reservation_button_form", $entity->getIDs(), $entity->getType(), $entity_type);
           //$element[$delta]['#markup'] = drupal_render($button_form);
-          $element[$delta]['#markup'] = bibdk_reservation_link($entity->getIDs(), $entity->getType(), $entity_type);
+          $element[$delta]['#markup'] = bibdk_reservation_link($entity->getIDs(), $entity->getSubType(), $entity_type);
         } elseif ($entity->isLink()) {
           $element[$delta]['#markup'] = t("Insert link here");//TODO : Implement the actual link when a case exists
         }
