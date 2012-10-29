@@ -96,7 +96,6 @@ function _bibdk_reservation_steps() {
  * @return array $form
  */
 function bibdk_reservation_create_wizard_form($form, &$form_state){
-  dpm($form_state);
   // Initialize a description of the steps for the wizard.
   if (empty($form_state['step'])) {
     $form_state['step'] = 1;
