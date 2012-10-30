@@ -38,7 +38,7 @@ function bibdk_reservation_link($entity_ids, $subtype, $entity_type) {
   $path = 'reservation';
   $query = array('ids' => implode(',', $entity_ids));
   $attributes = array('class' => array('bibdk-popup-link'), 'rel' => 'userhelp');
-  if(bibdk_reservation_check_past_reservations() && $subtype != 'Avis' && $subtype != 'Tidsskrift'){
+  if(bibdk_reservation_check_past_reservations() && strtolower($subtype) != 'avis' && strtolower($subtype) != 'tidsskrift'){
     $attributes['class'][] = 'orderedonce';
   }
   return theme('bibdk_reservation_button', array('link_text' => $text, 'path' => $path, 'query' => $query, 'link_attributes' => $attributes, 'entity_type' => $entity_type)); 
