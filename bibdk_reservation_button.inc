@@ -34,7 +34,7 @@ function bibdk_reservation_button_form($form, &$form_state, $entity_ids, $type, 
  * Returns a link for reservation flow
  */
 function bibdk_reservation_link($entity_ids, $subtype, $entity_type) {
-  $text = ($entity_type == "bibdkSubwork") ? t("Order any edition") : t("Order this @type", array("@type" => $subtype2));
+  $text = ($entity_type == "bibdkSubwork") ? t("Order any edition") : t("Order this @type", array("@type" => $subtype));
   $path = 'reservation';
   $query = array('ids' => implode(',', $entity_ids));
   $attributes = array('class' => array('bibdk-popup-link'), 'rel' => 'userhelp');
