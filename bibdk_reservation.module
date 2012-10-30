@@ -105,7 +105,9 @@ function bibdk_reservation_create_wizard_form($form, &$form_state){
     // step.
     $form_state['step_information'] = _bibdk_reservation_steps();
     
-    bibdk_reservation_new_order_object();
+    $order = bibdk_reservation_new_order_object();
+    if (!isset($order))
+      return;
    /*if (isset($_SESSION['bibdk_favourites'])){
       $branch = unserialize(current($_SESSION['bibdk_favourites']));
       BibdkReservationOrderObject::GetObject()->setBranch($branch);
@@ -244,6 +246,7 @@ function bibdk_reservation_new_order_object(){
   
   $manifestation = bibdk_reservation_get_manifestation($ids);
   $order->setManifestation($manifestation);
+  return $order;
 }
 
 function bibdk_reservation_get_order_object(){

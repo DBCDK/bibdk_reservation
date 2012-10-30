@@ -4,14 +4,13 @@
  * implements hook_form
  */
 function bibdk_reservation_form_step_3($form, &$form_state) {
-  
+
 
   $manifestation = BibdkReservationOrderObject::GetObject()->getManifestation();
   $form['manifestation'] = array(
     '#markup' => bibdk_reservation_manifestation_view($manifestation),
   );
   $orderpolicy = bibdk_reservation_form_step_3_do_policycheck();
-  dpm($orderpolicy->getOrderPossible());
   if ($orderpolicy->getOrderPossible()) {
     $form = bibdk_reservation_step3_user_form_fields($form, $form_state);
     $form = bibdk_reservation_step3_order_form_fields($form, $form_state);
@@ -20,10 +19,10 @@ function bibdk_reservation_form_step_3($form, &$form_state) {
   else {
     $form_state['blocked'] = TRUE;
     $messages = $orderpolicy->getMessages();
-    if ($messages){
+    if ($messages) {
       $form['messages_wrapper'] = array(
         '#type' => 'fieldset',
-      ); 
+      );
       $form['messages_wrapper']['messages'] = $messages;
     }
     form_set_error('bibdk_reservation_form_step_3', 'The material cannot be borrowed through bibliotek.dk');
@@ -36,7 +35,7 @@ function bibdk_reservation_form_step_3($form, &$form_state) {
  */
 function bibdk_reservation_step3_user_form_fields($form, $form_state) {
   $fields = bibdk_reservation_get_agency_fields()->getUserParameters();
-  if(!isset($fields))
+  if (!isset($fields))
     return;
   $form['userParameters'] = array(
     '#type' => 'fieldset',
@@ -64,7 +63,7 @@ function bibdk_reservation_step3_user_form_fields($form, $form_state) {
 function bibdk_reservation_step3_order_form_fields($form, $form_state) {
   $manifestation = BibdkReservationOrderObject::GetObject()->getManifestation();
   $fields = bibdk_reservation_get_agency_fields()->getOrderParametersForType($manifestation->getOrsOrderMaterialType());
-  if(!isset($fields))
+  if (!isset($fields))
     return $form;
   $form['orderParameters'] = array(
     '#type' => 'fieldset',
@@ -98,52 +97,49 @@ function bibdk_reservation_step3_permanent_fields($form) {
   return $form;
 }
 
-
-
 function bibdk_reservation_form_step_3_do_policycheck() {
   $pickUpAgencyId = BibdkReservationOrderObject::GetObject()->getBranchId();
   $pid = BibdkReservationOrderObject::GetObject()->getManifestationIds();
   return bibdk_openorder_do_checkOrderPolicy($pickUpAgencyId, $pid[0]);
-  
+
   // MOVED TO ORDERPOLICY OBJECT
-  /*if (isset($res->checkOrderPolicyResponse->orderPossible)) {
+  /* if (isset($res->checkOrderPolicyResponse->orderPossible)) {
     $orderPossible = $res->checkOrderPolicyResponse->orderPossible->{'$'};
     $reason = $res->checkOrderPolicyResponse->orderPossibleReason->{'$'};
     $orderPossibleTxt = t('Order is possible');
-  }
-  else if (isset($res->checkOrderPolicyResponse->checkOrderPolicyError)) {
+    }
+    else if (isset($res->checkOrderPolicyResponse->checkOrderPolicyError)) {
     $orderPossible = FALSE;
     $reason = $res->checkOrderPolicyResponse->checkOrderPolicyError->{'$'};
     $orderPossibleTxt = t('Order is not possible');
-  }
+    }
 
-  switch ($reason) {
+    switch ($reason) {
     case 'not_owned_ILL_loc': //Example 1
-      $reason_place_holder = t('not_owned_ILL_loc');
-      return array('orderPossible' => FALSE, 'orderpossibleTxt' => $orderPossibleTxt, 'reason' => $reason_place_holder);
-      break;
+    $reason_place_holder = t('not_owned_ILL_loc');
+    return array('orderPossible' => FALSE, 'orderpossibleTxt' => $orderPossibleTxt, 'reason' => $reason_place_holder);
+    break;
     case 'owned_wrong_mediumType': //Example 2
-      $url = $res->checkOrderPolicyResponse->agencyCatalogueUrl->{'$'};
-      $reason_place_holder = t('owned_wrong_mediumType');
-      return array('orderPossible' => FALSE, 'orderpossibleTxt' => $orderPossibleTxt, 'reason' => $reason_place_holder, 'agencyCatalogueUrl' => $url);
-      break;
+    $url = $res->checkOrderPolicyResponse->agencyCatalogueUrl->{'$'};
+    $reason_place_holder = t('owned_wrong_mediumType');
+    return array('orderPossible' => FALSE, 'orderpossibleTxt' => $orderPossibleTxt, 'reason' => $reason_place_holder, 'agencyCatalogueUrl' => $url);
+    break;
     case 'owned_accepted': //Example 3
-      $url = $res->checkOrderPolicyResponse->lookUpUrl->{'$'};
-      $reason_place_holder = t('owned_accepted');
-      return array('orderPossible' => FALSE, 'orderpossibleTxt' => $orderPossibleTxt, 'reason' => $reason_place_holder, 'lookUpUrl' => $url);
-      break;
+    $url = $res->checkOrderPolicyResponse->lookUpUrl->{'$'};
+    $reason_place_holder = t('owned_accepted');
+    return array('orderPossible' => FALSE, 'orderpossibleTxt' => $orderPossibleTxt, 'reason' => $reason_place_holder, 'lookUpUrl' => $url);
+    break;
     case 'not_owned_ILL_loc': //Example 4
-      $reason_place_holder = t('not_owned_ILL_loc');
-      return array('orderPossible' => FALSE, 'orderpossibleTxt' => $orderPossibleTxt, 'reason' => $reason_place_holder);
-      break;
+    $reason_place_holder = t('not_owned_ILL_loc');
+    return array('orderPossible' => FALSE, 'orderpossibleTxt' => $orderPossibleTxt, 'reason' => $reason_place_holder);
+    break;
     default: //TODO Implement exaample 5 when openOrder/openSearch is ready - US
-      drupal_set_message('Unknown response: \'' . $reason . '\' Watchdog\'ed', 'error');
-      watchdog('bibdk_reservation_form_step_3', 'Unknown response from openOrder: ' . $reason, array('pickupAgencyId' => $pickUpAgencyId, 'reason' => $reason), WATCHDOG_ERROR);
-      return array('orderPossible' => FALSE, 'orderpossibleTxt' => $orderPossibleTxt, 'reason' => $reason);
-      break;
-  }*/
+    drupal_set_message('Unknown response: \'' . $reason . '\' Watchdog\'ed', 'error');
+    watchdog('bibdk_reservation_form_step_3', 'Unknown response from openOrder: ' . $reason, array('pickupAgencyId' => $pickUpAgencyId, 'reason' => $reason), WATCHDOG_ERROR);
+    return array('orderPossible' => FALSE, 'orderpossibleTxt' => $orderPossibleTxt, 'reason' => $reason);
+    break;
+    } */
 }
-
 
 /*
  * Implements hook_form_validate
@@ -174,7 +170,7 @@ function bibdk_reservation_form_step_3_validate($form, &$form_state) {
 function bibdk_reservation_form_step_3_submit($form, &$form_state) {
   $userParameters = BibdkReservationOrderObject::GetObject()->getFields()->getUserParameters();
   $idKey = BibdkReservationOrderObject::GetObject()->getFields()->getUserIdKey();
-  
+
   // Parse userParameters
   foreach ($userParameters as $key => $userParameter) {
     $type = $userParameter['type'];
@@ -192,10 +188,10 @@ function bibdk_reservation_form_step_3_submit($form, &$form_state) {
   }
 
   $manifestation = BibdkReservationOrderObject::GetObject()->getManifestation();
-  
+
   // Parse itemParameters
   $fields = bibdk_reservation_get_agency_fields()->getOrderParametersForType($manifestation->getOrsOrderMaterialType());
-  if ($fields){
+  if ($fields) {
     foreach ($fields as $itemParameter) {
       $type = $itemParameter['type'];
       if (isset($form_state['values'][$type]))
@@ -225,14 +221,16 @@ function bibdk_reservation_form_step_3_submit($form, &$form_state) {
  * Validate up against Borchk
  */
 function bibdk_reservation_borchk_validate($form_state) {
+  if ($form_state['clicked_button']['#name'] != 'prev') {
     $agencySettings = BibdkReservationOrderObject::GetObject()->getFields();
     $messages = bibdk_reservation_borchk_execute($form_state, $agencySettings);
     if (!isset($messages))
       return;
-    if(isset($messages['status']))
-      drupal_set_message ($messages['status']);
-    if(isset($messages['error']))
-      form_set_error ("borchk", $messages['error']);
+    if (isset($messages['status']))
+      drupal_set_message($messages['status']);
+    if (isset($messages['error']))
+      form_set_error("borchk", $messages['error']);
+  }
 }
 
 /**
@@ -260,7 +258,6 @@ function bibdk_reservation_borchk_execute($form_state, $agencySettings) {
   }
   return $messages;
 }
-
 
 /**
  * Parse response from borchk and return messages
@@ -295,7 +292,7 @@ function bibdk_reservation_borchk_parse_response($response, $acceptOrderFromUnkn
         $message['error'] = t("Service Unavailable. We can not make reservation right know");
       break;
   }
-    return $message;
+  return $message;
 }
 
 /**
@@ -307,7 +304,7 @@ function bibdk_reservation_get_agency_fields() {
   $branch = BibdkReservationOrderObject::GetObject()->getBranch();
 
   $fields = $branch->getAgencyFields();
-  
+
   BibdkReservationOrderObject::GetObject()->setFields($fields);
 
   return $fields;
