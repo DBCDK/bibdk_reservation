@@ -101,44 +101,6 @@ function bibdk_reservation_form_step_3_do_policycheck() {
   $pickUpAgencyId = BibdkReservationOrderObject::GetObject()->getBranchId();
   $pid = BibdkReservationOrderObject::GetObject()->getManifestationIds();
   return bibdk_openorder_do_checkOrderPolicy($pickUpAgencyId, $pid[0]);
-
-  // MOVED TO ORDERPOLICY OBJECT
-  /* if (isset($res->checkOrderPolicyResponse->orderPossible)) {
-    $orderPossible = $res->checkOrderPolicyResponse->orderPossible->{'$'};
-    $reason = $res->checkOrderPolicyResponse->orderPossibleReason->{'$'};
-    $orderPossibleTxt = t('Order is possible');
-    }
-    else if (isset($res->checkOrderPolicyResponse->checkOrderPolicyError)) {
-    $orderPossible = FALSE;
-    $reason = $res->checkOrderPolicyResponse->checkOrderPolicyError->{'$'};
-    $orderPossibleTxt = t('Order is not possible');
-    }
-
-    switch ($reason) {
-    case 'not_owned_ILL_loc': //Example 1
-    $reason_place_holder = t('not_owned_ILL_loc');
-    return array('orderPossible' => FALSE, 'orderpossibleTxt' => $orderPossibleTxt, 'reason' => $reason_place_holder);
-    break;
-    case 'owned_wrong_mediumType': //Example 2
-    $url = $res->checkOrderPolicyResponse->agencyCatalogueUrl->{'$'};
-    $reason_place_holder = t('owned_wrong_mediumType');
-    return array('orderPossible' => FALSE, 'orderpossibleTxt' => $orderPossibleTxt, 'reason' => $reason_place_holder, 'agencyCatalogueUrl' => $url);
-    break;
-    case 'owned_accepted': //Example 3
-    $url = $res->checkOrderPolicyResponse->lookUpUrl->{'$'};
-    $reason_place_holder = t('owned_accepted');
-    return array('orderPossible' => FALSE, 'orderpossibleTxt' => $orderPossibleTxt, 'reason' => $reason_place_holder, 'lookUpUrl' => $url);
-    break;
-    case 'not_owned_ILL_loc': //Example 4
-    $reason_place_holder = t('not_owned_ILL_loc');
-    return array('orderPossible' => FALSE, 'orderpossibleTxt' => $orderPossibleTxt, 'reason' => $reason_place_holder);
-    break;
-    default: //TODO Implement exaample 5 when openOrder/openSearch is ready - US
-    drupal_set_message('Unknown response: \'' . $reason . '\' Watchdog\'ed', 'error');
-    watchdog('bibdk_reservation_form_step_3', 'Unknown response from openOrder: ' . $reason, array('pickupAgencyId' => $pickUpAgencyId, 'reason' => $reason), WATCHDOG_ERROR);
-    return array('orderPossible' => FALSE, 'orderpossibleTxt' => $orderPossibleTxt, 'reason' => $reason);
-    break;
-    } */
 }
 
 /*
@@ -158,6 +120,7 @@ function bibdk_reservation_form_step_3_validate($form, &$form_state) {
   if (!empty($form_state['values']['userMail']) && !valid_email_address($form_state['values']['userMail'])) {
     form_set_error('userEmail', t('Email needs to be a valid email'));
   }
+  
   if (!form_get_errors()) {
     bibdk_reservation_borchk_validate($form_state);
   }

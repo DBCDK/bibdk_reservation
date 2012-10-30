@@ -63,27 +63,32 @@ function _bibdk_reservation_steps() {
         'form' => 'bibdk_reservation_form_step_1',
         'previous_step' => null,
         'next_step' => 2,
+        'title' => t('Choose Library'),
       ),
       2 => array(
         'form' => 'bibdk_reservation_form_step_2',
         'previous_step' => null,
         'next_step' => null,
+        'title' => t('Choose Library'),
       ),
       3 => array(
         'form' => 'bibdk_reservation_form_step_3',
         'previous_step' => 1,
         'next_step' => 4,
+        'title' => t('Add Personal Data'),
       ),
       4 => array(
         'form' => 'bibdk_reservation_form_step_4',
         'next button text' => t('Order'), //overriding the default "Next" text on buttons
         'previous_step' => 3,
         'next_step' => 4,
+        'title' => t('Review'),
       ),
       5 => array(
         'form' => 'bibdk_reservation_form_step_5',
         'previous_step' => null,
         'next_step' => 6,
+        'title' => t('Order Complete'),
       ),
     );
   return $steps;
@@ -95,6 +100,7 @@ function _bibdk_reservation_steps() {
  * @param type $form_state
  * @return array $form
  */
+
 function bibdk_reservation_create_wizard_form($form, &$form_state){
   // Initialize a description of the steps for the wizard.
   if (empty($form_state['step'])) {
@@ -108,15 +114,17 @@ function bibdk_reservation_create_wizard_form($form, &$form_state){
     $order = bibdk_reservation_new_order_object();
     if (!isset($order))
       return;
-   /*if (isset($_SESSION['bibdk_favourites'])){
+    global $user;
+    dpm($_SESSION);
+   if (isset($_SESSION['bibdk_favourites'])){
       $branch = unserialize(current($_SESSION['bibdk_favourites']));
       BibdkReservationOrderObject::GetObject()->setBranch($branch);
       $form_state['step'] = 3;
-    }*/
+    }
   }
   
   $step = &$form_state['step'];
-  drupal_set_title(t('Reservation: Step @step of ' . count($form_state['step_information']), array('@step' => $step)));
+  drupal_set_title($form_state['step_information'][$step]['title']);
 
   // Call the function named in $form_state['step_information'] to get the
   // form elements to display for this step.

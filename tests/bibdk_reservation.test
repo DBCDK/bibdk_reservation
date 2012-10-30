@@ -54,7 +54,7 @@ class BibdkReservationButtonTestCase extends DrupalWebTestCase {
 
 }
 
-class BibdkReservationFlow extends DrupalWebTestCase {
+class BibdkReservationFlow extends SimpleTestCloneTestCase {
 
   public static function getInfo() {
     return array(
@@ -78,7 +78,6 @@ class BibdkReservationFlow extends DrupalWebTestCase {
     $user = $this->drupalCreateUser(array('access devel information'));
     $this->drupalLogin($user);
     */
-    
     global $base_url;
     variable_set('agency_search_url', $base_url . '/openagency_webservice/');
     #variable_set('agency_search_url', 'http://guesstimate.dbc.dk/~fvs/OpenLibrary/OpenAgency/trunk/'); //Live service
@@ -87,8 +86,8 @@ class BibdkReservationFlow extends DrupalWebTestCase {
     variable_set('bibdk_borchk_servicerequester', 'bibliotek.dk');
     
     // TODO: Change link to muckup URL
-    variable_set('bibdk_openorder_url', 'http://guesstimate.dbc.dk/~fvs/OpenLibrary/OpenOrder/trunk/server.php/');
-    #variable_set('bibdk_openorder_url', $base_url . '/bibdk_openorder_webservice/');
+    //variable_set('bibdk_openorder_url', 'http://guesstimate.dbc.dk/~fvs/OpenLibrary/OpenOrder/trunk/server.php/');
+    variable_set('bibdk_openorder_url', $base_url . '/bibdk_openorder_webservice/');
     variable_set('bibdk_openorder_groupIdAut', '010100');
     variable_set('bibdk_openorder_passwordAut', '20Koster');
     variable_set('bibdk_openorder_userIdAut', 'netpunkt');
@@ -103,123 +102,139 @@ class BibdkReservationFlow extends DrupalWebTestCase {
     variable_set('ting_search_url', 'http://lakiseks.dbc.dk/hive/');
   }
   
-  public function testCheckOrderPolicy() {
-    variable_set('agency_search_url', 'http://guesstimate.dbc.dk/~fvs/OpenLibrary/OpenAgency/trunk/');
+  public function testMultiStepReservationForm() {
+
+    /* STEP 0 */
     $this->drupalGet('reservation', array('query' => array('ids' => '870971-tsart%3A86167743')));
-    $this->drupalPost(NULL, array('anyField' => 'Odense Centralbibliotek'), t('Next'));
+    // TODO : Test That new session is created 
+    // TODO : Check that flow stops if no manifestation is selected
+
+    /* STEP 1 */
+    $this->assertField('anyField', "Agency Field \"anyField\" exists");
+    $this->drupalPost(NULL, NULL, t('Next'));
+    $this->assertText(t('You haven\'t entered any search criteria.'), t('"No input" Error message appears correctly'));
+
+    /* STEP 2 */
+    $this->drupalPost(NULL, array('anyField' => 'als'), t('Next'));
+    $this->assertText('Als Bibliotek', t('Agency search result correctly shown'));
+    $this->assertFieldById('edit-button', t('Select'), 'Select button is present');
+
+    /* STEP 3 */
+    //Check if fields exist
+    $this->drupalPost(NULL, NULL, t('Select'));
+    $this->assertTitle('Add Personal Data | Bibliotek.dk', 'We are on step 3!');
+    $this->assertField("cpr", "Field CPR-number exists");
+    $this->assertField("pincode", "Field pincode exists");
+    $this->assertField("userName", "Field userName exists");
+
+    $this->drupalPost(NULL, NULL, t('Next'));
+
+    //Check if required elements is set
+    $this->assertText('Name field is required');
+    $this->assertText('CPR-number field is required');
+    $this->assertText('Pincode field is required');
+    $this->assertText('Adress, postal code, town/city field is required');
+    
+    // Check if OrderParameters are required
+    $this->assertText('issue field is required.');
+    $this->assertText('publicationDateOfComponent field is required.');
+    
+    //Check custom validation
+    $this->drupalPost(NULL, array('pincode' => '123123123', 'userMail' => "qwqwqw@weewewe"), t('Next'));
+    $this->assertText(t('Pincode needs to be a four diggit number'));
+    $this->assertText(t('Email needs to be a valid email'));
+    $this->drupalPost(NULL, array(
+      'cpr' => '1234561234', 
+      'pincode' => '1231', 
+      'userMail' => 'test@test.dk', 
+      'userName' => 'Test Testersen', 
+      'userAddress' => 'testing 5', 
+      'issue' => 'test Issue', 
+      'publicationDateOfComponent' => 'test publicationDateOfComponent'
+      ), "Next");
+
+    //Check if validation passes
+    $this->assertNoText('Name field is required');
+    $this->assertNoText('User ID field is required');
+    $this->assertNoText('Pincode field is required');
+    $this->assertNoText('Adress, postal code, town/city field is required');
+    $this->assertNoText('Pincode needs to be a four diggit number');
+    $this->assertNoText('CPR-number needs to be a valid CPR-number');
+    $this->assertNoText('Email needs to be a valid email');
+    $this->assertNoText('issue field is required.');
+    $this->assertNoText('publicationDateOfComponent field is required.');
+    
+    //Test Bad user
+    $this->assertText('User not found');
+
+    //Test Good user
+    $this->drupalPost(NULL, array(
+      'cpr' => '0019',
+      'pincode' => '0019',
+      'userName' => 'Test Testersen',
+      'userAddress' => 'testing 5',
+      'userMail' => 'test@test.dk',
+      'needBeforeDate[month]' => 12,
+      'needBeforeDate[year]' => 2012,
+      'needBeforeDate[day]' => 10,
+      'issue' => 'test Issue', 
+      'publicationDateOfComponent' => 'test publicationDateOfComponent'
+        ), t('Next'));
+    $this->assertNoText('User not found');
+
+    /* STEP 4 */
+    $this->assertText('CPR-number: ****');
+    $this->assertText('Name: Test Testersen');
+    $this->assertText('Adress, postal code, town/city: testing 5');
+    $this->assertText('E-mail: test@test.dk');
+    $this->assertText('Need before Date: 10/12/2012');
+    $this->assertText('test Issue');
+    $this->assertText('test publicationDateOfComponent');
+    $this->assertText('Als Bibliotek');
+    $this->assertText('Danske økologer vil dyrke sojabønner.');
+    
+    /* STEP 5 */
+    $this->drupalPost(NULL, NULL, t('Order'));
+    $this->assertText('1009323660');
+    
+    /* CheckOrderPolicy */
+    $this->_testCheckOrderPolicy();
+    
+    /* This test is not working */
+    //$this->_testFavouriteLibrary();
+    
+  }
+  
+  private function _testCheckOrderPolicy() {
+    
+    // Material cannot be borrowed
+    $this->drupalGet('reservation', array('query' => array('ids' => '870970-basis:28794932')));
+    $this->drupalPost(NULL, array('anyField' => 'odense'), t('Next'));
     $this->assertText('Odense Centralbibliotek', t('Agency search result correctly shown'));
     $this->drupalPost(NULL, NULL, t('Select'));
     $this->assertText('The material cannot be borrowed through bibliotek.dk');
-
+    
+    // Material can be borrowed
     $this->drupalGet('reservation', array('query' => array('ids' => '870971-tsart%3A86167743')));
-    $this->drupalPost(NULL, array('anyField' => 'Als'), t('Next'));
+    $this->drupalPost(NULL, array('anyField' => 'als'), t('Next'));
     $this->assertText('Als', t('Agency search result correctly shown'));
     $this->drupalPost(NULL, NULL, t('Select'));
-    $this->assertText('The material cannot be borrowed through bibliotek.dk');
+    $this->assertNoText('The material cannot be borrowed through bibliotek.dk');
   }
   
-//  public function testMultiStepReservationForm() {
-//
-//    /* STEP 0 */
-//    $this->drupalGet('reservation', array('query' => array('ids' => '870971-tsart%3A86167743')));
-//    // TODO : Test That new session is created 
-//    // TODO : Check that flow stops if no manifestation is selected
-//
-//    /* STEP 1 */
-//    $this->assertField('anyField', "Agency Field \"anyField\" exists");
-//    $this->drupalPost(NULL, NULL, t('Next'));
-//    $this->assertText(t('You haven\'t entered any search criteria.'), t('"No input" Error message appears correctly'));
-//
-//    /* STEP 2 */
-//    $this->drupalPost(NULL, array('anyField' => 'als'), t('Next'));
-//    $this->assertText('Als Bibliotek', t('Agency search result correctly shown'));
-//    $this->assertFieldById('edit-button', t('Select'), 'Select button is present');
-//
-//    /* STEP 3 */
-//    //Check if fields exist
-//    $this->drupalPost(NULL, NULL, t('Select'));
-//    $this->assertText('Reservation: Step 3 of 5', 'We are on step 3!');
-//    
-//    $this->assertField("cpr", "Field CPR-number exists");
-//    $this->assertField("pincode", "Field pincode exists");
-//    $this->assertField("userName", "Field userName exists");
-//
-//    $this->drupalPost(NULL, NULL, t('Next'));
-//
-//    //Check if required elements is set
-//    $this->assertText('Name field is required');
-//    $this->assertText('CPR-number field is required');
-//    $this->assertText('Pincode field is required');
-//    $this->assertText('Adress, postal code, town/city field is required');
-//    
-//    // Check if OrderParameters are required
-//    $this->assertText('issue field is required.');
-//    $this->assertText('publicationDateOfComponent field is required.');
-//    
-//    //Check custom validation
-//    $this->drupalPost(NULL, array('pincode' => '123123123', 'userMail' => "qwqwqw@weewewe"), t('Next'));
-//    $this->assertText(t('Pincode needs to be a four diggit number'));
-//    $this->assertText(t('Email needs to be a valid email'));
-//    $this->drupalPost(NULL, array(
-//      'cpr' => '1234561234', 
-//      'pincode' => '1231', 
-//      'userMail' => 'test@test.dk', 
-//      'userName' => 'Test Testersen', 
-//      'userAddress' => 'testing 5', 
-//      'issue' => 'test Issue', 
-//      'publicationDateOfComponent' => 'test publicationDateOfComponent'
-//      ), "Next");
-//
-//    //Check if validation passes
-//    $this->assertNoText('Name field is required');
-//    $this->assertNoText('User ID field is required');
-//    $this->assertNoText('Pincode field is required');
-//    $this->assertNoText('Adress, postal code, town/city field is required');
-//    $this->assertNoText('Pincode needs to be a four diggit number');
-//    $this->assertNoText('CPR-number needs to be a valid CPR-number');
-//    $this->assertNoText('Email needs to be a valid email');
-//    $this->assertNoText('issue field is required.');
-//    $this->assertNoText('publicationDateOfComponent field is required.');
-//    
-//    //Test Bad user
-//    $this->assertText('User not found');
-//
-//    //Test Good user
-//    $this->drupalPost(NULL, array(
-//      'cpr' => '0019',
-//      'pincode' => '0019',
-//      'userName' => 'Test Testersen',
-//      'userAddress' => 'testing 5',
-//      'userMail' => 'test@test.dk',
-//      'needBeforeDate[month]' => 12,
-//      'needBeforeDate[year]' => 2012,
-//      'needBeforeDate[day]' => 10,
-//      'issue' => 'test Issue', 
-//      'publicationDateOfComponent' => 'test publicationDateOfComponent'
-//        ), t('Next'));
-//    $this->assertNoText('User not found');
-//
-//    /* STEP 4 */
-//    $this->assertText('CPR-number: ****');
-//    $this->assertText('Name: Test Testersen');
-//    $this->assertText('Adress, postal code, town/city: testing 5');
-//    $this->assertText('E-mail: test@test.dk');
-//    $this->assertText('Need before Date: 10/12/2012');
-//    $this->assertText('test Issue');
-//    $this->assertText('test publicationDateOfComponent');
-//    $this->assertText('Als Bibliotek');
-//    $this->assertText('Danske økologer vil dyrke sojabønner.');
-//    
-//    //Proceeding to step 5:
-//    $this->drupalPost(NULL, NULL, t('Order'));
-//    
-//    /* STEP 5 */
-//    // TODO: Can we make the the service fail?
-//    // TODO: Create a dummy service - Check if ID existst
-//    
-//  }
   
-  
+  private function _testFavouriteLibrary() {
+    // THIS IS NOT WORKING :(
+    
+    $session['bibdk_favourites'] = array('this is true');
+    $user = $this->drupalCreateUser(array('access devel information'));
+    $user->session = serialize($session);
+    $this->drupalLogin($user);
+    
+    // Material cannot be borrowed
+    $this->drupalGet('reservation', array('query' => array('ids' => '870971-tsart%3A86167743')));
+    $this->assertTitle('Add Personal Data | Bibliotek.dk');
+  }
   
   
 
