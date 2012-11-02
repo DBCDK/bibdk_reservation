@@ -87,9 +87,6 @@ class BibdkReservationFlow extends DrupalWebTestCase {
 
     variable_set('bibdk_borchk_url', $base_url . '/bibdk_borchk_webservice/');
     variable_set('bibdk_borchk_servicerequester', 'bibliotek.dk');
-
-    // TODO: Change link to muckup URL
-    //variable_set('bibdk_openorder_url', 'http://guesstimate.dbc.dk/~fvs/OpenLibrary/OpenOrder/trunk/server.php/');
     variable_set('bibdk_openorder_url', $base_url . '/bibdk_openorder_webservice/');
     variable_set('bibdk_openorder_groupIdAut', '010100');
     variable_set('bibdk_openorder_passwordAut', '20Koster');
@@ -125,7 +122,7 @@ class BibdkReservationFlow extends DrupalWebTestCase {
     /* STEP 3 */
     //Check if fields exist
     $this->drupalPost(NULL, NULL, t('Select'));
-    $this->assertTitle('Add Personal Data | Bibliotek.dk', 'We are on step 3!');
+    $this->assertTitle('Add Personal Data', 'We are on step 3!');
     $this->assertField("cpr", "Field CPR-number exists");
     $this->assertField("pincode", "Field pincode exists");
     $this->assertField("userName", "Field userName exists");
@@ -239,138 +236,4 @@ class BibdkReservationFlow extends DrupalWebTestCase {
     $this->assertTitle('Add Personal Data | Bibliotek.dk');
   }
 
-}
-
-class BibdkReservationBorrowerCheckTestCase extends DrupalUnitTestCase {
-
-  /**
-   * Implements getInfo().
-   */
-  public static function getInfo() {
-    return array(
-      'name' => t('Borrower check unit test'),
-      'description' => t('Check if borrower check returns the right messages'),
-      'group' => t('Reservation'),
-    );
-  }
-
-  public function setUp() {
-    parent::setUp();
-  }
-
-  public function testBorchkParseResponse() {
-
-    /*  borrower_not_found  */
-    $response = "borrower_not_found";
-    // Borrower not found and unknown not acceptet
-    $messages = bibdk_reservation_borchk_parse_response($response, FALSE, FALSE);
-    $this->assert($messages['error'] == 'User not found', $messages['error']);
-    // Borrower not found and unknown is acceptet
-    $messages = bibdk_reservation_borchk_parse_response($response, TRUE, FALSE);
-    $this->assertNull($messages['error'], "No error messages");
-    $this->assert($messages['status'] == 'Borrower not found, but Library accepts reservations from unknown users', $messages['status']);
-    $messages = bibdk_reservation_borchk_parse_response($response, 0, 1);
-    $this->assert($messages['error'] == 'User not found', $messages['error']);
-    /*  ok  */
-    $response = 'ok';
-    $messages = bibdk_reservation_borchk_parse_response($response, FALSE, FALSE);
-    $this->assertNull($messages, "No messages");
-
-    $messages = bibdk_reservation_borchk_parse_response($response, TRUE, TRUE);
-    $this->assertNull($messages, "No messages");
-
-    /*  service unavailable */
-    $response = 'service unavailable';
-    $messages = bibdk_reservation_borchk_parse_response($response, TRUE, FALSE);
-    $this->assertNotNull($messages['error'], $messages['error']);
-    $messages = bibdk_reservation_borchk_parse_response($response, TRUE, TRUE);
-    $this->assertNotNull($messages['status'], $messages['status']);
-  }
-
-  public function testBorchkExecute() {
-    
-  }
-
-}
-
-class BibdkReservationButtonReBorrow extends DrupalWebTestCase {
-
-  public static function getInfo() {
-    return array(
-      'name' => t('Re-borrowing the same material'),
-      'description' => t('If the same material is reserved twice within the same session the user should be notified.'),
-      'group' => t('Reservation'),
-    );
-  }
-
-  public function setUp() {
-    //parent::setUp();
-    $this->profile = 'bibdk';
-    
-     parent::setup(array('bibdk_reservation',
-      'bibdk_vejviser',
-      'bibdk_openorder',
-      'bibdk_openorder_webservice_mockup',
-      'ting_openformat',
-      'ting_openformat_webservice_mockup',
-      'openagency_webservice_mockup',
-      'bibdk_borchk_webservice_mockup',
-      'devel'));
-    $user = $this->drupalCreateUser(array('access devel information'));
-    $this->drupalLogin($user);
-
-    global $base_url;
-    variable_set('agency_search_url', $base_url . '/openagency_webservice/');
-    #variable_set('agency_search_url', 'http://guesstimate.dbc.dk/~fvs/OpenLibrary/OpenAgency/trunk/'); //Live service
-
-    variable_set('bibdk_borchk_url', $base_url . '/bibdk_borchk_webservice/');
-    variable_set('bibdk_borchk_servicerequester', 'bibliotek.dk');
-
-    // TODO: Change link to muckup URL
-    //variable_set('bibdk_openorder_url', 'http://guesstimate.dbc.dk/~fvs/OpenLibrary/OpenOrder/trunk/server.php/');
-    variable_set('bibdk_openorder_url', $base_url . '/bibdk_openorder_webservice/');
-    variable_set('bibdk_openorder_groupIdAut', '010100');
-    variable_set('bibdk_openorder_passwordAut', '20Koster');
-    variable_set('bibdk_openorder_userIdAut', 'netpunkt');
-    variable_set('bibdk_openorder_serviceRequester', '190101');
-    variable_set('bibdk_openorder_verification_reference_source', 'dbcdatawell');
-
-    variable_set('ting_agency', '100200');
-    variable_set('ting_search_profile', 'test');
-    variable_set('ting_search_openformat', 'bibliotekdkWorkDisplay');
-
-    // TODO: Change link to muckup URL 
-    variable_set('ting_search_url', 'http://lakiseks.dbc.dk/hive/');
-  }
-  
-  public function testReBorrow() {
-    //testing for re-borrow of manifestation. If a work already have been ordered class="orderedonce" will be present on reservation button. 
-    //In this case Lego Harry Potter (870970-basis:45090981); is added to $_SESSION in 
-    $this->_makeReservation();
-    
-    $this->drupalGet('search/work/Lego Harry Potter');
-    $this->assertText("Lego Harry Potter", t('Lego Harry Potter is present in page'));
-    $this->drupalPostAJAX(NULL, array(), array('op' => ''), NULL, array(), array(), 'ting-openformat-show-info-get-form');
-    $this->assertRaw('orderedonce', t('Reservation button have got the "orderedonce" class'));
-  }
-  
-  private function _makeReservation() {
-    $this->drupalGet('reservation', array('query' => array('ids' => '870970-basis:45090981')));
-    $this->drupalPost(NULL, array('anyField' => 'als'), t('Next'));
-    
-    $this->drupalPost(NULL, NULL, t('Select'));
-    
-    $this->drupalPost(NULL, array(
-      'cpr' => '0019',
-      'pincode' => '0019',
-      'userName' => 'Test Testersen',
-      'userAddress' => 'testing 5',
-      'userMail' => 'test@test.dk',
-      'needBeforeDate[month]' => 12,
-      'needBeforeDate[year]' => 2012,
-      'needBeforeDate[day]' => 10,
-        ), t('Next'));
-    
-    $this->drupalPost(NULL, NULL, t('Order'));
-  }
 }

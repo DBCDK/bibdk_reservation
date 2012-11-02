@@ -1,16 +1,14 @@
 <div class="receipt-container">
   <h4><?php print t('Your order was successfully completed:'); ?></h4>
-  <p><?php print t('Your order ID: ') . $variables['orderId']; ?></p>
+  <p><?php print t('Your order ID: ') . $orderId; ?></p>
   <h3><?php print t('Personal information'); ?></h3>
-  <?php $user = $variables['user']; ?>
   <?php foreach ($user as $key => $value) : ?>
     <?php print $key . ': ' . $value . '<br />'; ?>
 <?php endforeach; ?>
   <br />
   <h4><?php print t('You are ordering: '); ?></h4>
-  <p><?php print $variables['manifestation']; ?></p>
+  <p><?php print $manifestation ?></p>
   <h3><?php print t('Library'); ?></h3>
-    <?php $branch = $variables['branch']; ?>
   <p><?php print $branch->branchName; ?><br/>
     <?php if (isset($branch->postalAddress) && $branch->postalAddress) : ?>
       <?php print $branch->postalAddress; ?><br/>
