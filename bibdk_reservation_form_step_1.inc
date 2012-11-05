@@ -11,9 +11,9 @@ function bibdk_reservation_form_step_1($form, &$form_state) {
       '#markup' => t('bibdk_reservation_step1_description'),
     );
 
-  $form['agency_search'] = bibdk_reservation_agency_search_form(array(), &$form_state);
+  $form['agency_search'] = bibdk_reservation_agency_search_form(array(), $form_state);
   if (isset($form_state['values']['anyField']))
-    $form['agency_search_result'] = _bibdk_reservation_form_step_1_agency_result(array(), &$form_state);
+    $form['agency_search_result'] = _bibdk_reservation_form_step_1_agency_result(array(), $form_state);
   
   return $form;
 }
