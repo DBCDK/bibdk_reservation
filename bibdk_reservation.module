@@ -107,10 +107,10 @@ function bibdk_reservation_create_wizard_form($form, &$form_state) {
     }
   }
 
-  $step = &$form_state['step'];
+  $step = $form_state['step'];
   drupal_set_title($form_state['step_information'][$step]['title']);
 
-  $form['step_guide'] = bibdk_reservation_step_guide($form, &$form_state, $step);
+  $form['step_guide'] = bibdk_reservation_step_guide($form, $form_state, $step);
 
   // Get the form elements to display for this step.
   $form = $form_state['step_information'][$step]['form']($form, $form_state);
@@ -170,7 +170,7 @@ function bibdk_reservation_create_wizard_form($form, &$form_state) {
  * Submit handler for the "previous" button.
  */
 function bibdk_reservation_wizard_previous_submit($form, &$form_state) {
-  $current_step = &$form_state['step'];
+  $current_step = $form_state['step'];
   $form_state['step_information'][$current_step]['stored_values'] = $form_state['values'];
   if ($current_step > 1) {
     isset($form_state['step_information'][$current_step]['previous_step']) ? $current_step = $form_state['step_information'][$current_step]['previous_step'] : $current_step;
@@ -183,7 +183,7 @@ function bibdk_reservation_wizard_previous_submit($form, &$form_state) {
  * Submit handler for the 'next' button.
  */
 function bibdk_reservation_wizard_next_submit($form, &$form_state) {
-  $current_step = &$form_state['step'];
+  $current_step = $form_state['step'];
   /* Call custom submit function for current step */
   $current_submit_function = $form_state['step_information'][$current_step]['form'] . '_submit';
 
