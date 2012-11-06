@@ -6,7 +6,7 @@
 function bibdk_reservation_form_step_2($form, &$form_state) {
 
   $form['manifestation'] = bibdk_reservation_manifestation_form_fields(array(), $form_state);
-  
+
   $orderpolicy = bibdk_reservation_form_step_2_do_policycheck();
   if ($orderpolicy->getOrderPossible()) {
     $form['userdata'] = bibdk_reservation_step_2_user_form_fields(array(), $form_state);
@@ -54,7 +54,7 @@ function bibdk_reservation_step_2_user_form_fields($form, $form_state) {
     '#attributes' => array(
       'class' => array('form-section'),
     ),
-  );  
+  );
   $form['userParameters'] = array(
     '#type' => 'fieldset',
     '#title' => t('User Parameters'),
@@ -83,13 +83,13 @@ function bibdk_reservation_step_2_order_form_fields($form, $form_state) {
   $fields = bibdk_reservation_get_agency_fields()->getOrderParametersForType($manifestation->getOrsOrderMaterialType());
   if (!isset($fields))
     return $form;
-   
+
   $form = array(
     '#type' => 'container',
     '#attributes' => array(
       'class' => array('form-section'),
     ),
-  );  
+  );
   $form['orderParameters'] = array(
     '#type' => 'fieldset',
     '#title' => t('Order Parameters'),
@@ -117,7 +117,7 @@ function bibdk_reservation_step_2_permanent_fields($form) {
     '#type' => 'date',
     '#title' => t('Is of no interest after'),
     '#required' => FALSE,
-    '#default_value' => array('year' => date('Y', $date), 'month' => date('m', $date), 'day' => date('d', $date)),
+    '#default_value' => array('year' => date('Y', $date), 'month' => date('n', $date), 'day' => date('j', $date)),
   );
   return $form;
 }
@@ -145,7 +145,7 @@ function bibdk_reservation_form_step_2_validate($form, &$form_state) {
   if (!empty($form_state['values']['userMail']) && !valid_email_address($form_state['values']['userMail'])) {
     form_set_error('userEmail', t('Email needs to be a valid email'));
   }
-  
+
   if (!form_get_errors()) {
     bibdk_reservation_borchk_validate($form_state);
   }
