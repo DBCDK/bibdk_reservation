@@ -30,12 +30,6 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
 
 function bibdk_reservation_manifestation_form_fields($form, &$form_state){
   $manifestation = BibdkReservationOrderObject::GetObject()->getManifestation();
-  $form = array(
-    '#type' => 'container',
-    '#attributes' => array(
-      'class' => array('form-section'),
-    ),
-  );
   $form['view'] = array(
     '#markup' => bibdk_reservation_manifestation_view($manifestation),
   );
@@ -47,14 +41,10 @@ function bibdk_reservation_manifestation_form_fields($form, &$form_state){
  */
 function bibdk_reservation_step_2_user_form_fields($form, $form_state) {
   $fields = bibdk_reservation_get_agency_fields()->getUserParameters();
-  if (!isset($fields))
+  if (!isset($fields)) {
     return;
-  $form = array(
-    '#type' => 'container',
-    '#attributes' => array(
-      'class' => array('form-section'),
-    ),
-  );
+  }
+
   $form['userParameters'] = array(
     '#type' => 'fieldset',
     '#title' => t('User Parameters'),
@@ -81,15 +71,10 @@ function bibdk_reservation_step_2_user_form_fields($form, $form_state) {
 function bibdk_reservation_step_2_order_form_fields($form, $form_state) {
   $manifestation = BibdkReservationOrderObject::GetObject()->getManifestation();
   $fields = bibdk_reservation_get_agency_fields()->getOrderParametersForType($manifestation->getOrsOrderMaterialType());
-  if (!isset($fields))
+  if (!isset($fields)) {
     return $form;
+  }
 
-  $form = array(
-    '#type' => 'container',
-    '#attributes' => array(
-      'class' => array('form-section'),
-    ),
-  );
   $form['orderParameters'] = array(
     '#type' => 'fieldset',
     '#title' => t('Order Parameters'),

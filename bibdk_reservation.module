@@ -91,14 +91,14 @@ function bibdk_reservation_create_wizard_form($form, &$form_state) {
   // Initialize a description of the steps for the wizard.
   if (empty($form_state['step'])) {
     $form_state['step'] = 1;
-    
+
     $form_state['step_information'] = _bibdk_reservation_steps();
 
     $order = bibdk_reservation_new_order_object();
     if (!isset($order))
       return;
     global $user;
-    
+
     // Check if favorite library exists
     if (isset($_SESSION['bibdk_favourites'])){
       $branch = unserialize(current($_SESSION['bibdk_favourites']));
@@ -118,12 +118,9 @@ function bibdk_reservation_create_wizard_form($form, &$form_state) {
   // NAGIVATION
   $form['navigation'] = array(
     '#type' => 'container',
-    '#attributes' => array(
-      'class' => array('form-section'),
-    ),
   );
 
-  // Show the 'previous' button if appropriate. 
+  // Show the 'previous' button if appropriate.
   if ($form_state['step_information'][$step]['previous_step']) {
     $form['navigation']['prev'] = array(
       '#type' => 'submit',
@@ -294,7 +291,6 @@ function bibdk_reservation_step_guide($form, &$form_state, $current_step) {
       '#limit_validation_errors' => array(),
     );
   }
-
 
   return $form;
 }
