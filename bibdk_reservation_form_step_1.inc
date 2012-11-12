@@ -74,6 +74,6 @@ function _bibdk_reservation_form_step_1_agency_result($form, &$form_state){
   return $form;
 }
 
-function bibdk_reservation_form_step_1_submit($form, $form_state) {
+function bibdk_reservation_form_step_1_submit($form, &$form_state) {
   BibdkReservationOrderObject::GetObject()->setBranch($form_state['clicked_button']['#branch']);
 }
