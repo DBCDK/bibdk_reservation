@@ -158,6 +158,12 @@ function bibdk_reservation_create_wizard_form($form, &$form_state) {
   if (function_exists($form_state['step_information'][$step]['form'] . '_validate')) {
     $form['#validate'] = array($form_state['step_information'][$step]['form'] . '_validate');
   }
+
+  // quick hack: move step_guide to the bottom of the form array, so they won't be activated by enter key.
+  $step_guide = $form['step_guide'];
+  unset($form['step_guide']);
+  $form['step_guide'] = $step_guide;
+
   unset($form_state['blocked']);
   return $form;
 }
@@ -276,7 +282,7 @@ function bibdk_reservation_step_guide($form, &$form_state, $current_step) {
       $classes = array('btn-grey', 'btn'); // These classes is just for test - should be replaced with current
 
 
-      
+
 // Create step button for $step
     $form['step_guide'][$step] = array(
       '#type' => 'submit',
