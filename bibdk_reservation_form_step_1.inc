@@ -18,7 +18,7 @@ function bibdk_reservation_form_step_1($form, &$form_state) {
 function bibdk_reservation_form_step_1_validate($form, &$form_state) {
   $query = check_plain($form_state['values']['anyField']);
   if (empty($query)) {
-    form_set_error('bibdk_reservation_form_step_1', t('You haven\'t entered any search criteria.'));
+    form_set_error('anyField', t('You haven\'t entered any search criteria.'));
   }
 }
 
