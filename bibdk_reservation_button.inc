@@ -7,7 +7,7 @@ module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation.field');
  * Returns a link for reservation flow
  */
 function bibdk_reservation_link($entity_ids, $subtype, $entity_type) {
-  $text = ($entity_type == "bibdkSubwork") ? t("Order any edition") : t("Order this @type", array("@type" => $subtype));
+  $text = ($entity_type == "bibdkSubwork") ? t($subtype) : t("Order this @type", array("@type" => $subtype));
   $path = 'reservation';
   $query = array('ids' => implode(',', $entity_ids));
   
@@ -26,7 +26,8 @@ function bibdk_reservation_link($entity_ids, $subtype, $entity_type) {
     '#path' => $path,
     '#options' => array(
       'query' => $query,
-      'attributes' => $attributes,      
+      'attributes' => $attributes,
+      'html' => FALSE,
     ),
   );
   return drupal_render($link);

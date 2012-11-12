@@ -95,12 +95,12 @@ function bibdk_reservation_create_wizard_form($form, &$form_state) {
     $form_state['step_information'] = _bibdk_reservation_steps();
 
     $order = bibdk_reservation_new_order_object();
-    if (!isset($order))
+    if (!isset($order)) {
       return;
-    global $user;
+    }
 
     // Check if favorite library exists
-    if (isset($_SESSION['bibdk_favourites'])){
+    if (isset($_SESSION['bibdk_favourites'])) {
       $branch = unserialize(current($_SESSION['bibdk_favourites']));
       BibdkReservationOrderObject::GetObject()->setBranch($branch);
       $form_state['step'] = 3;
@@ -159,7 +159,6 @@ function bibdk_reservation_create_wizard_form($form, &$form_state) {
     $form['#validate'] = array($form_state['step_information'][$step]['form'] . '_validate');
   }
   unset($form_state['blocked']);
-  //dpm($form);
   return $form;
 }
 
@@ -207,6 +206,7 @@ function bibdk_reservation_wizard_next_submit($form, &$form_state) {
 /*
  * Submithandler for stepguide
  */
+
 function bibdk_reservation_wizard_goto_step_submit($form, &$form_state) {
   $next_step = $form_state['triggering_element']['#step'];
   $current_step = $form_state['step'];
@@ -245,8 +245,9 @@ function bibdk_reservation_get_order_object() {
 }
 
 function bibdk_reservation_get_manifestation($id) {
-  if (is_array($id))
+  if (is_array($id)) {
     $id = reset($id);
+  }
 
   $result = ting_openformat_get_single($id);
   $work = reset($result)->getManifestations();
@@ -259,19 +260,13 @@ function bibdk_reservation_manifestation_view($manifestation) {
 }
 
 function bibdk_reservation_step_guide($form, &$form_state, $current_step) {
-  $labels = array(
-    1 => t('Library'),
-    2 => t('Borrower information'),
-    3 => t('Confirm'),
-    4 => t('Receipt'),
-  );
   $form['step_guide'] = array(
     '#type' => 'container',
     '#attributes' => array(
       'class' => array('form-step-guide'),
     ),
   );
-  $step_info = _bibdk_reservation_steps();
+
   for ($step = 1; $step <= 4; $step++) {
     //Set classes
     $classes = array('inactive');
@@ -280,7 +275,9 @@ function bibdk_reservation_step_guide($form, &$form_state, $current_step) {
     else if ($step == $current_step)
       $classes = array('btn-grey', 'btn'); // These classes is just for test - should be replaced with current
 
-    // Create step button for $step
+
+      
+// Create step button for $step
     $form['step_guide'][$step] = array(
       '#type' => 'submit',
       '#disabled' => ($step > $current_step) ? TRUE : FALSE,
