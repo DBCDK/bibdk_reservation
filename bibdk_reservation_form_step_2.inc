@@ -11,6 +11,7 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
   if ($orderpolicy->getOrderPossible()) {
     $form['userdata'] = bibdk_reservation_step_2_user_form_fields(array(), $form_state);
     $form['manifestation_userdata'] = bibdk_reservation_step_2_order_form_fields(array(), $form_state);
+    $form['manifestation_branchdata'] = bibdk_reservation_step_2_order_branch_fields(array(), $form_state);
     $form['manifestation']['date'] = bibdk_reservation_step_2_permanent_fields(array());
   }
   else {
@@ -93,6 +94,34 @@ function bibdk_reservation_step_2_order_form_fields($form, $form_state) {
       '#default_value' => (isset($form_state['values'][$type])) ? $form_state['values'][$type] : "",
     );
   }
+  return $form;
+}
+/**
+ * Render branch fields;
+ */
+function bibdk_reservation_step_2_order_branch_fields($form, $form_state) {
+
+  $branch = BibdkReservationOrderObject::GetObject()->getBranch();
+
+  $form['branchParameters'] = array(
+    '#type' => 'fieldset',
+  );
+
+  $form['branchParameters']['description'] = array(
+    '#type' => 'markup',
+    '#markup' => t('Description for selected branch'),
+  );
+
+  $form['branchParameters'][$branch->branchId] = array(
+  '#type' => 'container',
+  '#attributes' => array(
+    'class' => array('form-section'),
+  ),
+  );
+  $form['branchParameters'][$branch->branchId]['agency_result'] = array(
+    '#markup' => theme('bibdk_reservation_agency', array('agency' => $branch)),
+  );
+
   return $form;
 }
 
