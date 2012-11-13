@@ -89,7 +89,6 @@ function bibdk_reservation_step_2_order_form_fields($form, $form_state) {
     $form['orderParameters'][$type] = array(
       '#type' => isset($itemParameter['field_type']) ? $itemParameter['field_type'] : 'textfield',
       '#title' => bibdk_reservation_get_agency_fields()->getOrderLabelFromType($type),
-      //'#description' => isset($orderParameter['field_description']) ? $orderParameter['field_description'] : NULL,
       '#required' => $itemParameter['required'],
       '#default_value' => (isset($form_state['values'][$type])) ? $form_state['values'][$type] : "",
     );
@@ -229,7 +228,7 @@ function bibdk_reservation_borchk_validate($form_state) {
     if (!isset($messages))
       return;
     if (isset($messages['status']))
-      drupal_set_message($messages['status']);
+      drupal_set_message($messages['status'], 'warning');
     if (isset($messages['error']))
       form_set_error("borchk", $messages['error']);
   }

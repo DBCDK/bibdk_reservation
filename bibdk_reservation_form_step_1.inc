@@ -52,26 +52,53 @@ function _bibdk_reservation_form_step_1_agency_result($form, &$form_state){
     return;
 
   foreach ($result as $branch) {
-      $form[$branch->branchId] = array(
-      '#type' => 'container',
-      '#attributes' => array(
-        'class' => array('form-section'),
-      ),
-      );
-      $form[$branch->branchId]['agency_result'] = array(
-        '#markup' => theme('bibdk_reservation_agency', array('agency' => $branch)),
-      );
-      $form[$branch->branchId]['button'] = array(
-        '#value' => t('Select'),
-        '#name' => $branch->branchId,
-        '#type' => 'submit',
-        '#submit' => array('bibdk_reservation_wizard_next_submit'),
-        '#branch' => $branch,
-      );
+      $form += bibdk_reservation_view_agency_branch($branch);
   }
   return $form;
 }
 
 function bibdk_reservation_form_step_1_submit($form, &$form_state) {
   BibdkReservationOrderObject::GetObject()->setBranch($form_state['clicked_button']['#branch']);
+}
+
+function bibdk_reservation_agency_branch_get_action_link($branch) {
+  $form = array(
+        '#value' => t('select_reservation_library'),
+        '#name' => 'branch-'.$branch->branchId,
+        '#type' => 'submit',
+        '#submit' => array('bibdk_reservation_wizard_next_submit'),
+        '#step' => 2,
+        '#branch' => $branch,
+      );
+  return $form;
+}
+
+/**
+ * the form to be displayed on profile tab
+ * */
+function bibdk_reservation_view_agency_branch($branch) {
+  // check if given branch is set as order-agency
+  $order_class = ( isset($branch->orderLibrary) && $branch->orderLibrary == 'TRUE') ? 'order-agency' : '';
+
+  $form['#title'] = $branch->branchName;
+  
+  $moreinfo = theme('ting_agency_more_info', array('branch' => $branch,
+    'openingHours' => theme('ting_agency_opening_hours', array('branch' => $branch,)),
+    //'tools' => theme('ting_agency_tools', array('branch' => $branch)),
+    'address' => theme('ting_agency_address', array('branch' => $branch)),
+    'contact' => theme('ting_agency_contact', array('branch' => $branch)),
+      )
+  );
+  $classes = array();
+  $classes[] = 'favourite_' . $branch->branchId;
+  $classes[] = ( isset($branch->orderLibrary) && $branch->orderLibrary == 'TRUE') ? 'order-agency' : NULL;
+  $form[$branch->branchId]['action'] = bibdk_reservation_agency_branch_get_action_link($branch);
+  $form[$branch->branchId]['library']['#markup'] =
+      theme('ting_agency_library', array('branchName' => $branch->branchName, 'actions' => drupal_render($form[$branch->branchId]['action']), 'add_classes' => $classes, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
+
+  // place branch on top if set as order-agency
+  if (isset($branch->orderLibrary) && $branch->orderLibrary == 'TRUE') {
+    $form[$branch->branchId]['#weight'] = -1;
+  }
+  return $form;
 }
