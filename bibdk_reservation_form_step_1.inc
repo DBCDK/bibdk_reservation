@@ -81,7 +81,7 @@ function bibdk_reservation_view_agency_branch($branch) {
   $order_class = ( isset($branch->orderLibrary) && $branch->orderLibrary == 'TRUE') ? 'order-agency' : '';
 
   $form['#title'] = $branch->branchName;
-  
+
   $moreinfo = theme('ting_agency_more_info', array('branch' => $branch,
     'openingHours' => theme('ting_agency_opening_hours', array('branch' => $branch,)),
     //'tools' => theme('ting_agency_tools', array('branch' => $branch)),

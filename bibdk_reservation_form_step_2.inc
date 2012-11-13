@@ -5,13 +5,13 @@
  */
 function bibdk_reservation_form_step_2($form, &$form_state) {
 
+  $form['manifestation_branchdata'] = bibdk_reservation_step_2_order_branch_fields(array(), $form_state);
   $form['manifestation'] = bibdk_reservation_manifestation_form_fields(array(), $form_state);
 
   $orderpolicy = bibdk_reservation_form_step_2_do_policycheck();
   if ($orderpolicy->getOrderPossible()) {
     $form['userdata'] = bibdk_reservation_step_2_user_form_fields(array(), $form_state);
     $form['manifestation_userdata'] = bibdk_reservation_step_2_order_form_fields(array(), $form_state);
-    $form['manifestation_branchdata'] = bibdk_reservation_step_2_order_branch_fields(array(), $form_state);
     $form['manifestation']['date'] = bibdk_reservation_step_2_permanent_fields(array());
   }
   else {
@@ -111,15 +111,18 @@ function bibdk_reservation_step_2_order_branch_fields($form, $form_state) {
     '#markup' => t('Description for selected branch'),
   );
 
-  $form['branchParameters'][$branch->branchId] = array(
-  '#type' => 'container',
-  '#attributes' => array(
-    'class' => array('form-section'),
-  ),
+  $moreinfo = theme('ting_agency_more_info', array('branch' => $branch,
+    'openingHours' => theme('ting_agency_opening_hours', array('branch' => $branch,)),
+    'tools' => theme('ting_agency_tools', array('branch' => $branch)),
+    'address' => theme('ting_agency_address', array('branch' => $branch)),
+    'contact' => theme('ting_agency_contact', array('branch' => $branch)),
+      )
   );
-  $form['branchParameters'][$branch->branchId]['agency_result'] = array(
-    '#markup' => theme('bibdk_reservation_agency', array('agency' => $branch)),
-  );
+
+  $classes[] = 'selected_branch';
+
+  $form['branchParameters']['selectedBranch']['#markup'] =
+      theme('ting_agency_library', array('branchName' => $branch->branchName, 'actions' => NULL, 'add_classes' => $classes, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
 
   return $form;
 }
