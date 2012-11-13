@@ -175,12 +175,9 @@ function bibdk_reservation_create_wizard_form($form, &$form_state) {
  * Submit handler for the "previous" button.
  */
 function bibdk_reservation_wizard_previous_submit($form, &$form_state) {
+
   $current_step = $form_state['step'];
   $form_state['step_information'][$current_step]['stored_values'] = $form_state['values'];
-  if ( $current_step == 2 ) {
-    BibdkReservationOrderObject::GetObject()->unsetBranch();
-    $form_state['step'] = $current_step == 1;
-  }
   if ($current_step > 1) {
     isset($form_state['step_information'][$current_step]['previous_step']) ? $current_step = $form_state['step_information'][$current_step]['previous_step'] : $current_step;
     $form_state['values'] = $form_state['step_information'][$current_step]['stored_values'];

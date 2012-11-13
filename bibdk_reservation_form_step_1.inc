@@ -24,17 +24,21 @@ function bibdk_reservation_form_step_1_validate($form, &$form_state) {
 function bibdk_reservation_agency_search_form($form, &$form_state){
    $form['agency_search_fieldset'] = array(
      '#type' => 'fieldset',
+     '#attributes' => array('class' => array('search-form-horizontal', 'header-action-reservation')),
      '#title' => t('Find Library'),
+     
    );
    $form['agency_search_fieldset']['anyField'] = array(
     '#type' => 'textfield',
-    '#title' => t('bibdk_reservation_agency_search_description'),
-    '#attributes' => array('placeholder' => t('Library name, zip or city')),
+    //'#title' => t('bibdk_reservation_agency_search_description'),
+    '#attributes' => array('placeholder' => t('Library name, zip or city'), 'class'=> array('')),
     '#default_value' => isset($form_state['values']['anyField']) ? $form_state['values']['anyField']: NULL,
   );
    $form['agency_search_fieldset']['search'] = array(
     '#type' => 'submit',
+    '#prefix' => '<div class="form-wrapper form-actions">', 
     '#submit' => array('bibdk_reservation_wizard_goto_step_submit'),
+    '#suffix' => '</div>',
     '#value' => t('Search'),
     '#step' => 1
   );
