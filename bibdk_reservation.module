@@ -88,7 +88,6 @@ function _bibdk_reservation_steps() {
  * @return array $form
  */
 function bibdk_reservation_create_wizard_form($form, &$form_state) {
-
   // Initialize a description of the steps for the wizard.
   if (empty($form_state['step'])) {
     $form_state['step'] = 1;
@@ -108,7 +107,7 @@ function bibdk_reservation_create_wizard_form($form, &$form_state) {
     }
   }
 
-  if ( $form_state['step'] == 1 && BibdkReservationOrderObject::GetObject()->getBranchId() ) {
+  if ( $form_state['step'] == 1 && BibdkReservationOrderObject::GetObject()->getBranch() ) {
     $form_state['step'] = 2;
   }
 
@@ -178,9 +177,12 @@ function bibdk_reservation_create_wizard_form($form, &$form_state) {
  * Submit handler for the "previous" button.
  */
 function bibdk_reservation_wizard_previous_submit($form, &$form_state) {
-
   $current_step = $form_state['step'];
   $form_state['step_information'][$current_step]['stored_values'] = $form_state['values'];
+  if ( $current_step == 2 ) {
+    BibdkReservationOrderObject::GetObject()->unsetBranch();
+    $form_state['step'] = $current_step == 1;
+  }
   if ($current_step > 1) {
     isset($form_state['step_information'][$current_step]['previous_step']) ? $current_step = $form_state['step_information'][$current_step]['previous_step'] : $current_step;
     $form_state['values'] = $form_state['step_information'][$current_step]['stored_values'];
@@ -192,7 +194,6 @@ function bibdk_reservation_wizard_previous_submit($form, &$form_state) {
  * Submit handler for the 'next' button.
  */
 function bibdk_reservation_wizard_next_submit($form, &$form_state) {
-
   $current_step = $form_state['step'];
   /* Call custom submit function for current step */
   $current_submit_function = $form_state['step_information'][$current_step]['form'] . '_submit';
@@ -221,7 +222,6 @@ function bibdk_reservation_wizard_next_submit($form, &$form_state) {
  */
 
 function bibdk_reservation_wizard_goto_step_submit($form, &$form_state) {
-
   $next_step = $form_state['triggering_element']['#step'];
   $current_step = $form_state['step'];
   $form_state['step'] = $next_step;
@@ -240,7 +240,6 @@ function bibdk_reservation_wizard_goto_step_submit($form, &$form_state) {
  * Creates the BibdkReservationOrderObject and saves the manifestation IDs to it
  */
 function bibdk_reservation_new_order_object() {
-
   if (!isset($_REQUEST['ids'])) {
     drupal_set_message("No objects have been chosen", 'error');
     return;
@@ -289,8 +288,6 @@ function bibdk_reservation_step_guide($form, &$form_state, $current_step) {
       $classes = array('active');
     else if ($step == $current_step)
       $classes = array('btn-grey', 'btn'); // These classes is just for test - should be replaced with current
-
-
 
 // Create step button for $step
     $form['step_guide'][$step] = array(

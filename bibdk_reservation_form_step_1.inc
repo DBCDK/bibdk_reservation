@@ -1,7 +1,6 @@
 <?php
 
 function bibdk_reservation_form_step_1($form, &$form_state) {
-
   $form['step_description'] = array(
     '#type' => 'markup',
     '#prefix' => '<div class="form-wrapper"><div class="form-item">',
@@ -23,7 +22,6 @@ function bibdk_reservation_form_step_1_validate($form, &$form_state) {
 }
 
 function bibdk_reservation_agency_search_form($form, &$form_state){
-
    $form['agency_search_fieldset'] = array(
      '#type' => 'fieldset',
      '#title' => t('Find Library'),

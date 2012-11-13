@@ -10,7 +10,7 @@ function bibdk_reservation_link($entity_ids, $subtype, $entity_type) {
   $text = ($entity_type == "bibdkSubwork") ? t($subtype) : t("Order this @type", array("@type" => $subtype));
   $path = 'reservation';
   $query = array('ids' => implode(',', $entity_ids));
-  
+
   // This should be moved to the template
   $attributes['rel'] = 'userhelp';
   $attributes['class'][] = 'bibdk-popup-link';
@@ -19,7 +19,7 @@ function bibdk_reservation_link($entity_ids, $subtype, $entity_type) {
   if(bibdk_reservation_check_past_reservations() && strtolower($subtype) != 'avis' && strtolower($subtype) != 'tidsskrift'){
     $attributes['class'][] = 'orderedonce';
   }
-  
+
   $link = array(
     '#theme' => 'link',
     '#text' => $text,
