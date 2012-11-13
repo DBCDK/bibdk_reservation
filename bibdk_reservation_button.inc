@@ -12,7 +12,7 @@ function bibdk_reservation_link($entity_ids, $subtype, $entity_type) {
   $query = array('ids' => implode(',', $entity_ids));
 
   // This should be moved to the template
-  $attributes['rel'] = 'userhelp';
+  $attributes['rel'] = 'reservation';
   $attributes['class'][] = 'bibdk-popup-link';
   $attributes['class'][] = 'btn';
   $attributes['class'][] = (isset($entity_type) && $entity_type == 'bibdkManifestation') ? 'btn-grey' : 'btn-blue';
