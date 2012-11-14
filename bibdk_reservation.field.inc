@@ -13,6 +13,13 @@ function bibdk_reservation_field_info() {
       'default_formatter' => 'bibdk_reservation_button_default',
       'no_ui' => TRUE,
     ),
+    'bibdk_coll_reservation_button' => array(
+      'label' => t('Reservation button.'),
+      'description' => t('Reservation button.'),
+      'default_widget' => 'hidden',
+      'default_formatter' => 'bibdk_reservation_collection_button',
+      'no_ui' => TRUE,
+    ),
     'bibdk_sub_reservation_button' => array(
       'label' => t('Reservation button.'),
       'description' => t('Reservation button.'),
@@ -55,6 +62,12 @@ function bibdk_reservation_field_formatter_info() {
         'bibdk_sub_reservation_button'
       ),
     ),
+    'bibdk_reservation_collection_button' => array(
+      'label' => t('Default'),
+      'field types' => array(
+        'bibdk_coll_reservation_button',
+      ),
+    ),
     // Information text
     'bibdk_reservation_information_default' => array(
       'label' => t('Default'),
@@ -86,6 +99,9 @@ function bibdk_reservation_field_formatter_view($entity_type, $entity, $field, $
         if (!isset($infotext))
           return;
         $element[$delta]['#markup'] = _bibdk_reservation_render_infotext($infotext);
+        break;
+      case "bibdk_reservation_collection_button" :
+        $element[$delta]['#markup'] = bibdk_reservation_order_any_edition_link($entity->getCollectionTypes());
         break;
     }
   }

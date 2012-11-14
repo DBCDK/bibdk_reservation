@@ -17,6 +17,17 @@ function bibdk_reservation_menu() {
     'access callback' => TRUE,
     'description' => t('Make reservation in 4 steps'),
   );
+  
+  // ajax call for for checking reservability
+  $items['reservation/ajax/%'] = array(
+    'title' => 'ajax_check_reservability',
+    'page callback' => 'bibdk_reservation_ajax_check_reservability',
+    'page arguments' => array(2),
+    'access callback' => TRUE,
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+    'file' => 'bibdk_reservation_button.inc'
+  );
 
   return $items;
 }
@@ -37,6 +48,10 @@ function bibdk_reservation_theme() {
     'bibdk_reservation_receipt' => array(
       'variables' => array('resume' => array()),
       'template' => 'template/bibdk_reservation_receipt',
+    ),
+    'bibdk_reservation_order_any_btn' => array(
+      'variables' => array('resume' => array()),
+      'template' => 'template/bibdk_reservation_order_any_btn',
     ),
   );
 }
