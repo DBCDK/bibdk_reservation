@@ -1,13 +1,24 @@
 <?php
 
 function bibdk_reservation_form_step_1($form, &$form_state) {
-  $form['step_description'] = array(
-    '#type' => 'markup',
-    '#prefix' => '<div class="form-wrapper"><div class="form-item">',
-    '#suffix' => '</div></div>',
-    '#markup' => t('bibdk_reservation_step1_description'),
+  $form['step_info'] = array(
+    '#type' => 'container', 
+    '#attributes' => array('class' => array('form-wrapper', 'form-item')),
   );
-  $form['agency_search'] = bibdk_reservation_agency_search_form(array(), $form_state);
+  $form['step_info']['content'] = array(
+    '#type' => 'markup',
+    '#markup' => t('bibdk_reservation_step1_description'),
+    
+  );
+  
+  $form['agency_search_form_container'] = array(
+    '#type' => 'container', 
+    '#attributes' => array('class' => array('form-wrapper')),
+  );
+  
+  $form['agency_search_form_container']['search_form'] = bibdk_reservation_agency_search_form(array(), $form_state);
+  
+  
   if (isset($form_state['values']['anyField']))
     $form['agency_search_result'] = _bibdk_reservation_form_step_1_agency_result(array(), $form_state);
 

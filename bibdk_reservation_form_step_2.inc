@@ -30,9 +30,20 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
 
 
 function bibdk_reservation_manifestation_form_fields($form, &$form_state){
+  $form = array(
+    '#type' => 'fieldset',
+    '#title' => t('Selected Work'),
+  );
+  $form['description'] = array(
+    '#markup' => t('description_for_selected_work'),
+  );
   $manifestation = BibdkReservationOrderObject::GetObject()->getManifestation();
-  $form['view'] = array(
+  $form['view_wrapper'] = array(
+    '#type'=> 'container',
+  );
+  $form['view_wrapper']['view'] = array(
     '#markup' => bibdk_reservation_manifestation_view($manifestation),
+    
   );
   return $form;
 }
@@ -104,22 +115,30 @@ function bibdk_reservation_step_2_order_branch_fields($form, $form_state) {
 
   $form['branchParameters'] = array(
     '#type' => 'fieldset',
+    '#title' => t('Selected Branch'),
+    
   );
 
   $form['branchParameters']['description'] = array(
     '#type' => 'markup',
+    '#attributes' => array('class' => array('form-wrapper', 'form-item')),
     '#markup' => t('Description for selected branch'),
   );
 
   $moreinfo = theme('ting_agency_more_info', array('branch' => $branch,
     'openingHours' => theme('ting_agency_opening_hours', array('branch' => $branch,)),
-    'tools' => theme('ting_agency_tools', array('branch' => $branch)),
+    //'tools' => theme('ting_agency_tools', array('branch' => $branch)),
     'address' => theme('ting_agency_address', array('branch' => $branch)),
     'contact' => theme('ting_agency_contact', array('branch' => $branch)),
       )
   );
 
-  $classes[] = 'selected_branch';
+  //$classes[] = 'selected_branch';
+  $classes = array();
+  $classes[] = 'element-wrapper';
+  $classes[] = 'favourite_' . $branch->branchId;
+  $classes[] = ( isset($branch->orderLibrary) && $branch->orderLibrary == 'TRUE') ? 'order-agency' : NULL;
+  
 
   $form['branchParameters']['selectedBranch']['#markup'] =
       theme('ting_agency_library', array('branchName' => $branch->branchName, 'actions' => NULL, 'add_classes' => $classes, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
