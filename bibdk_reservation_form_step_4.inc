@@ -1,38 +1,25 @@
 <?php
-
 function bibdk_reservation_form_step_4($form, &$form_state) {
-  $result = bibdk_reservation_form_step_4_do_order();
-  if (isset($result['error'])) {
-    drupal_set_message($result['error'], 'error');
-  }
-  else {
-    $id = $result['orderId'];
-    return bibdk_reservation_form_step_4_form($form, $id);
-  }
+  $orderId = BibdkReservationOrderObject::GetObject()->getOrderId();
+  return bibdk_reservation_form_step_4_form($form,$form_state, $orderId);
 }
 
-function bibdk_reservation_form_step_4_form($form, $id) {
-  $manifestation_object = BibdkReservationOrderObject::GetObject()->getManifestation();
-  $manifestation_view = bibdk_reservation_manifestation_view($manifestation_object);
-  $user = BibdkReservationOrderObject::GetObject()->getUserData();
-  $branch = BibdkReservationOrderObject::GetObject()->getBranch();
-  $orderParamWithLabel = null;
-  $orderParameters = BibdkReservationOrderObject::GetObject()->getOrderParameters();
-  if (isset($orderParameters)){
-  foreach ($orderParameters as $type => $orderParameter){
-    $orderParamWithLabel[bibdk_reservation_get_agency_fields()->getOrderLabelFromType($type)] = $orderParameter;
-  }
-  }
-  $needBeforeDate = t('Is not needed after: ') . BibdkReservationOrderObject::GetObject()->getNeedBeforDate();
-  $orderId = $id;
+function bibdk_reservation_form_step_4_form($form, &$form_state, $orderId) {
   
-  $form['resume'] = array(
-    '#markup' => theme('bibdk_reservation_receipt', array('user' => $user, 'orderParameters' => $orderParamWithLabel, 'branch' => $branch, 'manifestation' => $manifestation_view, 'orderId' => $orderId, 'needBeforeDate' => $needBeforeDate)),
+  // render OrderID
+  $form['orderId'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Your order is complete'),
+    '#attributes' => array('class' => array('bottom-space')),
   );
-  $form['print'] = array(
-    '#type' => 'button',
-    '#value' => t('Print'),
-  );
+  
+  $form['orderId']['container']['markup'] = bibdk_reservation_convert_array_to_table(array(
+      t('Your order ID') => $orderId,
+    ));
+  
+  // Render the same fields as on step 3
+  $form = bibdk_reservation_form_step_3($form, $form_state);
+  
   return $form;
 }
 

@@ -4,10 +4,15 @@
  * implements hook_form
  */
 function bibdk_reservation_form_step_2($form, &$form_state) {
+  
+  //render manifestation 
+  $manifestation = BibdkReservationOrderObject::GetObject()->getManifestation();
+  $form['manifestation'] = bibdk_reservation_render_custom_manifestation_view($manifestation);
 
-  $form['manifestation_branchdata'] = bibdk_reservation_step_2_order_branch_fields(array(), $form_state);
-  $form['manifestation'] = bibdk_reservation_manifestation_form_fields(array(), $form_state);
-
+  //render branch
+  $branch = BibdkReservationOrderObject::GetObject()->getBranch();
+  $form['branchdata'] = bibdk_reservation_render_custom_branch_view($branch); //bibdk_reservation_step_2_order_branch_fields(array(), $form_state);
+  
   $orderpolicy = bibdk_reservation_form_step_2_do_policycheck();
   if ($orderpolicy->getOrderPossible()) {
     $form['userdata'] = bibdk_reservation_step_2_user_form_fields(array(), $form_state);

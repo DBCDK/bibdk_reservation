@@ -38,8 +38,12 @@ function bibdk_reservation_menu() {
 function bibdk_reservation_theme() {
   return array(
     'bibdk_reservation_agency' => array(
-      'variables' => array('agency' => array()),
+      'variables' => array('name', 'adress', 'postalCode', 'city'),
       'template' => 'template/bibdk_reservation_agency',
+    ),
+    'bibdk_reservation_manifestation' => array(
+      'variables' => array('title', 'author', 'type'),
+      'template' => 'template/bibdk_reservation_manifestation',
     ),
     'bibdk_reservation_resume' => array(
       'variables' => array('resume' => array()),
@@ -168,11 +172,17 @@ function bibdk_reservation_create_wizard_form($form, &$form_state) {
     $button_text = isset($form_state['step_information'][$step]['next button text']) ? $form_state['step_information'][$step]['next button text'] : t('Finish');
     $form['navigation']['finish'] = array(
       '#type' => 'markup',
-      '#markup' => '<a href="JavaScript:window.close();" />' . $button_text . '</a>',
+      '#markup' => '<a href="JavaScript:window.close();" class="btn btn-blue form-submit" />' . $button_text . '</a>',
+    );
+     //Add a print button
+    $form['navigation']['print'] = array(
+      '#type' => 'markup',
+      '#markup' => '<a href="JavaScript:window.print();" class="btn btn-grey form-submit" />' . t('print') . '</a>',
     );
   }
 
   // Include each validation function defined for the different steps.
+  
   if (function_exists($form_state['step_information'][$step]['form'] . '_validate')) {
     $form['#validate'] = array($form_state['step_information'][$step]['form'] . '_validate');
   }
@@ -213,6 +223,7 @@ function bibdk_reservation_wizard_next_submit($form, &$form_state) {
     call_user_func_array($current_submit_function, array($form, $form_state));
   }
   /* End custom submit */
+  dpm($form_state);
   $form_state['step_information'][$current_step]['stored_values'] = $form_state['values'];
 
   if ($current_step < count($form_state['step_information'])) {
