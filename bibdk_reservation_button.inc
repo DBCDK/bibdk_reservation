@@ -6,6 +6,7 @@ module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation.field');
 /*
  * Returns a link for reservation flow
  */
+
 function bibdk_reservation_link($entity_ids, $subtype, $entity_type) {
   $text = ($entity_type == "bibdkSubwork") ? t($subtype) : t("Order this @type", array("@type" => $subtype));
   $path = 'reservation';
@@ -16,7 +17,7 @@ function bibdk_reservation_link($entity_ids, $subtype, $entity_type) {
   $attributes['class'][] = 'bibdk-popup-link';
   $attributes['class'][] = 'btn';
   $attributes['class'][] = (isset($entity_type) && $entity_type == 'bibdkManifestation') ? 'btn-grey' : 'btn-blue';
-  if(bibdk_reservation_check_past_reservations() && strtolower($subtype) != 'avis' && strtolower($subtype) != 'tidsskrift'){
+  if (bibdk_reservation_check_past_reservations() && strtolower($subtype) != 'avis' && strtolower($subtype) != 'tidsskrift') {
     $attributes['class'][] = 'orderedonce';
   }
 
@@ -33,7 +34,6 @@ function bibdk_reservation_link($entity_ids, $subtype, $entity_type) {
   return drupal_render($link);
 }
 
-
 /**
  * Checks session for already ordered materials
  */
@@ -46,7 +46,8 @@ function bibdk_reservation_check_past_reservations() {
         break;
       }
     }
-  } else {
+  }
+  else {
     return FALSE;
   }
 }
@@ -54,26 +55,27 @@ function bibdk_reservation_check_past_reservations() {
 /*
  * Returns a link for 'reservation'Order any edition' button
  */
+
 function bibdk_reservation_order_any_edition_link($collection, $uid) {
-  $uid  = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '', $uid));
+  $uid = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '', $uid));
   $types = array();
   foreach ($collection as $type => $ids) {
     $types[] = _bibdk_reservation_create_type_button($type, $ids, $uid);
   }
   $button = theme('bibdk_reservation_order_any_btn', array('types' => $types));
-  
+
   return $button;
 }
 
 function _bibdk_reservation_create_type_button($type, $ids, $uid) {
   $text = $type;
-  $path = 'reservation/ajax/'.$uid.'/';
+  $path = 'reservation/ajax/' . $uid . '/';
   $query = implode(',', $ids);
   $class = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '', $ids[0]));
-  
+
   // This should be moved to the template
   $attributes['rel'] = 'userhelp';
-  $attributes['class'][] = 'bibdk-popup-link-'.$class;
+  $attributes['class'][] = 'bibdk-popup-link-' . $class;
   $attributes['class'][] = 'use-ajax';
   $link = l($text, $path . $query, array('attributes' => $attributes));
   return $link;
@@ -95,40 +97,37 @@ function bibdk_reservation_ajax_command($reservable, $class, $path) {
 function bibdk_reservation_ajax_check_reservability($uid, $pids) {
   $ids = explode(',', $pids);
   $id = $ids[0];
-  
+
   $bibdkWorkEntity = ting_openformat_get_manifestations($ids);
   $manifestations = $bibdkWorkEntity[$id]->getManifestations();
   $isReservable = FALSE;
   foreach ($manifestations as $manifestation) {
-    if($manifestation->isReservable()){
+    if ($manifestation->isReservable()) {
       $isReservable = TRUE;
     }
   }
-  
+
   $class = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '', $id));
-  
+  $commands = array();
   if (!$isReservable) {
     $text = t('not_possible_to_borrow_material');
     $type = 'notice';
     $path = '';
-  } else {
-    global $base_root;
-    global $base_path;
-    $path = $base_root . $base_path . 'reservation/?ids=' . $pids;
-  }
-  
-  $commands = array();
-  drupal_get_messages();
-  $commands[] = bibdk_reservation_ajax_command($isReservable, $class, $path);
-  
-  
-  if (!$isReservable) {
+    drupal_get_messages();
     drupal_set_message($text, $type);
-    $selector = '.msg-'.$uid;
+    $selector = '.msg-' . $uid;
     $commands[] = ajax_command_invoke($selector, 'hide');
     $commands[] = ajax_command_html($selector, theme('status_messages'));
     $commands[] = ajax_command_invoke($selector, 'fadeIn', array('fast'));
   }
+  else {
+    global $base_root;
+    global $base_path;
+    $path = $base_root . $base_path . 'reservation/?ids=' . $pids;
+  }
+
+  $commands[] = bibdk_reservation_ajax_command($isReservable, $class, $path);
+
   $page = array('#type' => 'ajax', '#commands' => $commands);
   ajax_deliver($page);
 }
