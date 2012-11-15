@@ -110,6 +110,7 @@ function bibdk_reservation_ajax_check_reservability($uid, $pids) {
   if (!$isReservable) {
     $text = t('not_possible_to_borrow_material');
     $type = 'notice';
+    $path = '';
   } else {
     global $base_root;
     global $base_path;
