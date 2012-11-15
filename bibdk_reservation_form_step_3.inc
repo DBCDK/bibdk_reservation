@@ -80,7 +80,7 @@ function bibdk_reservation_render_custom_branch_view($branch) {
 
 function bibdk_reservation_render_custom_manifestation_view(manifestation $manifestation) {
   $title = $manifestation->getTitle();
-  $author = $manifestation->getCreator();
+  $author = implode(', ', $manifestation->getContributors());
   $type = $manifestation->getType();
 
   $markup = theme('bibdk_reservation_manifestation', array(

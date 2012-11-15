@@ -223,7 +223,6 @@ function bibdk_reservation_wizard_next_submit($form, &$form_state) {
     call_user_func_array($current_submit_function, array($form, $form_state));
   }
   /* End custom submit */
-  dpm($form_state);
   $form_state['step_information'][$current_step]['stored_values'] = $form_state['values'];
 
   if ($current_step < count($form_state['step_information'])) {
