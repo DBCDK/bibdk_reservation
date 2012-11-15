@@ -54,21 +54,22 @@ function bibdk_reservation_check_past_reservations() {
 /*
  * Returns a link for 'reservation'Order any edition' button
  */
-function bibdk_reservation_order_any_edition_link($collection) {  
+function bibdk_reservation_order_any_edition_link($collection, $uid) {
+  $uid  = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '', $uid));
   $types = array();
   foreach ($collection as $type => $ids) {
-    $types[] = _bibdk_reservation_create_type_button($type, $ids);
+    $types[] = _bibdk_reservation_create_type_button($type, $ids, $uid);
   }
   $button = theme('bibdk_reservation_order_any_btn', array('types' => $types));
   
   return $button;
 }
 
-function _bibdk_reservation_create_type_button($type, $ids) {
+function _bibdk_reservation_create_type_button($type, $ids, $uid) {
   $text = $type;
-  $path = 'reservation/ajax/';
+  $path = 'reservation/ajax/'.$uid.'/';
   $query = implode(',', $ids);
-  $class = strtolower(preg_replace('/[^a-zA-Z0-9-]+/', '-', $ids[0]));
+  $class = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '', $ids[0]));
   
   // This should be moved to the template
   $attributes['rel'] = 'userhelp';
@@ -91,7 +92,7 @@ function bibdk_reservation_ajax_command($reservable, $class, $path) {
  * ajax callback for order any edition check
  * If material is not not borrowable a message will appear otherwise the reservation window will pop up
  */
-function bibdk_reservation_ajax_check_reservability($pids) {
+function bibdk_reservation_ajax_check_reservability($uid, $pids) {
   $ids = explode(',', $pids);
   $id = $ids[0];
   
@@ -104,25 +105,28 @@ function bibdk_reservation_ajax_check_reservability($pids) {
     }
   }
   
-  $class = strtolower(preg_replace('/[^a-zA-Z0-9-]+/', '-', $ids[0]));
-  
-  global $base_root;
-  global $base_path;
-  $path = $base_root . $base_path . 'reservation/?ids=' . $pids;
+  $class = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '', $id));
   
   if (!$isReservable) {
     $text = t('not_possible_to_borrow_material');
-    $type = 'warning';
-  }  
+    $type = 'notice';
+  } else {
+    global $base_root;
+    global $base_path;
+    $path = $base_root . $base_path . 'reservation/?ids=' . $pids;
+  }
   
   $commands = array();
   drupal_get_messages();
   $commands[] = bibdk_reservation_ajax_command($isReservable, $class, $path);
+  
+  
   if (!$isReservable) {
     drupal_set_message($text, $type);
-    $commands[] = ajax_command_invoke('#messages', 'hide');
-    $commands[] = ajax_command_html('#messages', theme('status_messages'));
-    $commands[] = ajax_command_invoke('#messages', 'fadeIn', array('fast'));
+    $selector = '.msg-'.$uid;
+    $commands[] = ajax_command_invoke($selector, 'hide');
+    $commands[] = ajax_command_html($selector, theme('status_messages'));
+    $commands[] = ajax_command_invoke($selector, 'fadeIn', array('fast'));
   }
   $page = array('#type' => 'ajax', '#commands' => $commands);
   ajax_deliver($page);

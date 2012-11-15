@@ -39,7 +39,6 @@
         var path = response['path'];
         $(sel).attr('href', path);
         if(reservable){
-            console.log('2');
             $(sel).popupwindow(profiles);
             $(sel).trigger('click', profiles);
         } else {

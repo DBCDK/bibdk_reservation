@@ -19,10 +19,10 @@ function bibdk_reservation_menu() {
   );
   
   // ajax call for for checking reservability
-  $items['reservation/ajax/%'] = array(
+  $items['reservation/ajax/%/%'] = array(
     'title' => 'ajax_check_reservability',
     'page callback' => 'bibdk_reservation_ajax_check_reservability',
-    'page arguments' => array(2),
+    'page arguments' => array(2, 3),
     'access callback' => TRUE,
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
