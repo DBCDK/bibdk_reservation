@@ -133,8 +133,6 @@ function bibdk_reservation_create_wizard_form($form, &$form_state) {
   $step = $form_state['step'];
   drupal_set_title($form_state['step_information'][$step]['title']);
 
-  $form['step_guide'] = bibdk_reservation_step_guide($form, $form_state, $step);
-
   // Get the form elements to display for this step.
   $form = $form_state['step_information'][$step]['form']($form, $form_state);
 
@@ -187,10 +185,7 @@ function bibdk_reservation_create_wizard_form($form, &$form_state) {
     $form['#validate'] = array($form_state['step_information'][$step]['form'] . '_validate');
   }
 
-  // quick hack: move step_guide to the bottom of the form array, so they won't be activated by enter key.
-  $step_guide = $form['step_guide'];
-  unset($form['step_guide']);
-  $form['step_guide'] = $step_guide;
+  $form['step_guide'] = bibdk_reservation_step_guide(array(), $form_state, $step);
 
   unset($form_state['blocked']);
   return $form;
@@ -295,7 +290,7 @@ function bibdk_reservation_manifestation_view($manifestation) {
 }
 
 function bibdk_reservation_step_guide($form, &$form_state, $current_step) {
-  $form['step_guide'] = array(
+  $form = array(
     '#type' => 'container',
     '#attributes' => array(
       'class' => array('form-step-guide'),
@@ -311,7 +306,7 @@ function bibdk_reservation_step_guide($form, &$form_state, $current_step) {
       $classes = array('btn-grey', 'btn'); // These classes is just for test - should be replaced with current
 
 // Create step button for $step
-    $form['step_guide'][$step] = array(
+    $form[$step] = array(
       '#type' => 'submit',
       '#disabled' => ($step > $current_step) ? TRUE : FALSE,
       '#value' => 'step' . $step,
