@@ -109,26 +109,18 @@ function _bibdk_reservation_steps() {
 function bibdk_reservation_create_wizard_form($form, &$form_state) {
   // Initialize a description of the steps for the wizard.
   if (empty($form_state['step'])) {
-    $form_state['step'] = 1;
-
-    $form_state['step_information'] = _bibdk_reservation_steps();
-
     $order = bibdk_reservation_new_order_object();
-    if (!isset($order)) {
-      return;
+    
+    if (bibdk_reservation_check_order_library()){
+      $form_state['step'] = 2;
     }
-
-    // Check if favorite library exists
-    if (isset($_SESSION['bibdk_favourites'])) {
-      $branch = unserialize(current($_SESSION['bibdk_favourites']));
-      BibdkReservationOrderObject::GetObject()->setBranch($branch);
-      $form_state['step'] = 3;
+    else{
+      // if no order library exists - set initial step to 1
+      $form_state['step'] = 1;
     }
+    
+    $form_state['step_information'] = _bibdk_reservation_steps();
   }
-
-  /*if ( $form_state['step'] == 1 && BibdkReservationOrderObject::GetObject()->getBranchId() ) {
-    $form_state['step'] = 2;
-  }*/
 
   $step = $form_state['step'];
   drupal_set_title($form_state['step_information'][$step]['title']);
@@ -189,6 +181,19 @@ function bibdk_reservation_create_wizard_form($form, &$form_state) {
 
   unset($form_state['blocked']);
   return $form;
+}
+
+function bibdk_reservation_check_order_library(){
+  $agencies = _bibdk_favourite_get_from_webservice();
+    if (isset($agencies)){
+      foreach($agencies as $branch){
+        if ($branch->orderLibrary == "TRUE"){
+          BibdkReservationOrderObject::GetObject()->setBranch($branch);
+          return true;
+        }
+      }
+    }
+    return false;
 }
 
 /**
