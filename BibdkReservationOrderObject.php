@@ -4,6 +4,7 @@ class BibdkReservationOrderObject {
 
   private $branchId;
   private $branch;
+  private $favourites;
   private $manifestationIds;
   private $manifestation;
   private $userData;
@@ -50,12 +51,16 @@ class BibdkReservationOrderObject {
     $this->setBranchId($branch->branchId);
   }
 
-  public function unsetBranch() {
-    $this->branch = FALSE;
-  }
-
   public function getBranch() {
     return $this->branch;
+  }
+  
+  public function getFavourites() {
+    return $this->favourites;
+  }
+
+  public function setFavourites($favourites) {
+    $this->favourites = $favourites;
   }
 
   public function setUserData($userData){

@@ -21,7 +21,9 @@ function bibdk_reservation_form_step_1($form, &$form_state) {
   
   if (isset($form_state['values']['anyField']))
     $form['agency_search_result'] = _bibdk_reservation_form_step_1_agency_result(array(), $form_state);
-
+  elseif ($favourites = BibdkReservationOrderObject::GetObject()->getFavourites()){
+      $form['agency_search_result'] = bibdk_reservation_parse_agency_search_result($favourites);
+  }
   return $form;
 }
 
@@ -63,9 +65,16 @@ function _bibdk_reservation_form_step_1_agency_result($form, &$form_state){
     return;
 
   $result = bibdk_vejviser_execute_agency_search($query);
-  if (!isset($result))
-    return;
+  $form += bibdk_reservation_parse_agency_search_result($result);
+  
+  return $form;
+}
 
+function bibdk_reservation_parse_agency_search_result($result){
+  $form = array();
+  if (!isset($result))
+    return array();
+  
   foreach ($result as $branch) {
       $form += bibdk_reservation_view_agency_branch($branch);
   }
