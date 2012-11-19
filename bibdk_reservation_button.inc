@@ -4,53 +4,130 @@
 module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation.field');
 
 /*
- * Implementation of hook_form
- */
-function bibdk_reservation_button_form($form, &$form_state, $entity_ids, $type, $entity_type) {
-  $form_id = 'bibdk_reservation_button_'.$entity_type;
-  $form[$form_id]['entity_id']["#tree"] = true;
-  
-  foreach ($entity_ids as $entity_id) {
-    $form[$form_id]['entity_id'][] = array(
-      '#type' => 'hidden',
-      "#value" => $entity_id,
-    );
-  }
-
-  $form[$form_id]['type'] = array(
-    '#type' => 'hidden',
-    "#value" => $type,
-  );
-  $form[$form_id]['submit'] = array(
-    '#type' => 'submit',
-    '#value' => ($entity_type == "bibdkSubwork") ? t("Order any edition") : t("Order this @type", array("@type" => $type)),
-    '#executes_submit_callback' => TRUE,
-    '#manifestaions' => "test"
-  );
-
-  return $form;
-}
-
-/*
  * Returns a link for reservation flow
  */
-function bibdk_reservation_link($entity_ids, $type, $entity_type) {
-  $text = ($entity_type == "bibdkSubwork") ? t("Order any edition") : t("Order this @type", array("@type" => $type));
+
+function bibdk_reservation_link($entity_ids, $subtype, $entity_type) {
+  $text = ($entity_type == "bibdkSubwork") ? t($subtype) : t("Order this @type", array("@type" => $subtype));
   $path = 'reservation';
   $query = array('ids' => implode(',', $entity_ids));
-  $attributes = array('class' => array('bibdk-popup-link'), 'rel' => 'userhelp');
-  return theme('bibdk_reservation_button', array('link_text' => $text, 'path' => $path, 'query' => $query, 'link_attributes' => $attributes, 'entity_type' => $entity_type)); 
+
+  // This should be moved to the template
+  $attributes['rel'] = 'reservation';
+  $attributes['class'][] = 'bibdk-popup-link';
+  $attributes['class'][] = 'btn';
+  $attributes['class'][] = (isset($entity_type) && $entity_type == 'bibdkManifestation') ? 'btn-grey' : 'btn-blue';
+  if (bibdk_reservation_check_past_reservations() && strtolower($subtype) != 'avis' && strtolower($subtype) != 'tidsskrift') {
+    $attributes['class'][] = 'orderedonce';
+  }
+
+  $link = array(
+    '#theme' => 'link',
+    '#text' => $text,
+    '#path' => $path,
+    '#options' => array(
+      'query' => $query,
+      'attributes' => $attributes,
+      'html' => FALSE,
+    ),
+  );
+  return drupal_render($link);
+}
+
+/**
+ * Checks session for already ordered materials
+ */
+function bibdk_reservation_check_past_reservations() {
+  if (isset($_SESSION['orderedPids'])) {
+    $pids = BibdkReservationOrderObject::GetObject()->getManifestationIds();
+    foreach ($pids as $pid) {
+      if (in_array($pid, $_SESSION['orderedPids'])) {
+        return TRUE;
+        break;
+      }
+    }
+  }
+  else {
+    return FALSE;
+  }
 }
 
 /*
- * Implementation of hook_form_submit
+ * Returns a link for 'reservation'Order any edition' button
  */
-function bibdk_reservation_button_form_submit($form, $form_state) {
-  drupal_set_message(t("You have expressed a wish to reserve @entity_id of type @type", array (
-    "@entity_id" => implode(", ", $form_state['values']['entity_id']), 
-    "@type" => $form_state['values']['type'] 
-  )));
-  /*
-   * TODO : Add entity_id to Orderobject in session
-   */
+
+function bibdk_reservation_order_any_edition_link($collection, $uid) {
+  $uid = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '', $uid));
+  $types = array();
+  foreach ($collection as $type => $ids) {
+    $types[] = _bibdk_reservation_create_type_button($type, $ids, $uid);
+  }
+  $button = theme('bibdk_reservation_order_any_btn', array('types' => $types));
+
+  return $button;
+}
+
+function _bibdk_reservation_create_type_button($type, $ids, $uid) {
+  $text = $type;
+  $path = 'reservation/ajax/' . $uid . '/';
+  $query = implode(',', $ids);
+  $class = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '', $ids[0]));
+
+  // This should be moved to the template
+  $attributes['rel'] = 'userhelp';
+  $attributes['class'][] = 'bibdk-popup-link-' . $class;
+  $attributes['class'][] = 'use-ajax';
+  $link = l($text, $path . $query, array('attributes' => $attributes));
+  return $link;
+}
+
+function bibdk_reservation_ajax_command($reservable, $class, $path) {
+  return array(
+    'command' => 'check_reservability',
+    'reservable' => $reservable,
+    'selector' => $class,
+    'path' => $path,
+  );
+}
+
+/**
+ * ajax callback for order any edition check
+ * If material is not not borrowable a message will appear otherwise the reservation window will pop up
+ */
+function bibdk_reservation_ajax_check_reservability($uid, $pids) {
+  $ids = explode(',', $pids);
+  $id = $ids[0];
+
+  $bibdkWorkEntity = ting_openformat_get_manifestations($ids);
+  $manifestations = $bibdkWorkEntity[$id]->getManifestations();
+  $isReservable = FALSE;
+  foreach ($manifestations as $manifestation) {
+    if ($manifestation->isReservable()) {
+      $isReservable = TRUE;
+    }
+  }
+
+  $class = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '', $id));
+  $commands = array();
+  if (!$isReservable) {
+    $text = t('not_possible_to_borrow_material');
+    $type = 'notice';
+    $path = '';
+    drupal_get_messages();
+    drupal_set_message($text, $type);
+    $selector = '.msg-' . $uid;
+    $commands[] = ajax_command_invoke($selector, 'hide');
+    $commands[] = ajax_command_html($selector, theme('status_messages'));
+    $commands[] = ajax_command_invoke($selector, 'fadeIn', array('fast'));
+  }
+  else {
+    global $base_root;
+    global $base_path;
+    $path = $base_root . $base_path . 'reservation/?ids=' . $pids;
+  }
+
+  $commands[] = bibdk_reservation_ajax_command($isReservable, $class, $path);
+
+  $page = array('#type' => 'ajax', '#commands' => $commands);
+  ajax_deliver($page);
 }

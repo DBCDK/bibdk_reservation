@@ -3,7 +3,7 @@ description = Implementation of reservation functionality on bibdk entities
 package = DBCDK
 ; configure = admin/config/...
 core = 7.x
-version = 0.1
+version = 7.x-0.2
 php = 5.2.4
 
 dependencies[] = bibdk_borchk
@@ -18,5 +18,6 @@ files[] = bibdk_reservation_form_step_3.inc
 files[] = bibdk_reservation_form_step_4.inc
 files[] = bibdk_reservation_form_step_5.inc
 files[] = BibdkReservationOrderObject.php
-files[] = BibdkReservationAgencyFields.php
+;files[] = BibdkReservationAgencyFields.php
 files[] = tests/bibdk_reservation.test
+scripts[] = js/check_reservability.js

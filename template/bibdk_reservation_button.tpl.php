@@ -1,1 +1,0 @@
-<?php print l($link_text, $path, array('query' => $query, 'attributes' => $link_attributes)); ?>

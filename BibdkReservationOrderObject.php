@@ -4,47 +4,65 @@ class BibdkReservationOrderObject {
 
   private $branchId;
   private $branch;
+  private $favourites;
   private $manifestationIds;
   private $manifestation;
   private $userData;
   private $userOrderData;
   private $fields;
   private $needBeforeDate;
+  private $orderParameters;
+  private $orderId;
 
+  public function getOrderId() {
+    return $this->orderId;
+  }
 
-  public function setManifestationIds($ids){
+  public function setOrderId($orderId) {
+    $this->orderId = $orderId;
+  }
+
+    public function setManifestationIds($ids){
     $this->manifestationIds = $ids;
   }
-  
+
   public function getManifestationIds(){
     return $this->manifestationIds;
   }
-  
+
   public function setManifestation($manifestation){
     $this->manifestation = $manifestation;
   }
-  
+
   public function getManifestation(){
     return $this->manifestation;
   }
-  
+
   public function setBranchId($id){
     $this->branchId = "DK-".$id;
   }
-  
+
   public function getBranchId(){
     return $this->branchId;
   }
-  
+
   public function setBranch($branch) {
     $this->branch = $branch;
     $this->setBranchId($branch->branchId);
   }
-  
+
   public function getBranch() {
     return $this->branch;
   }
   
+  public function getFavourites() {
+    return $this->favourites;
+  }
+
+  public function setFavourites($favourites) {
+    $this->favourites = $favourites;
+  }
+
   public function setUserData($userData){
     $this->userData = $userData;
   }
@@ -52,15 +70,15 @@ class BibdkReservationOrderObject {
   public function getUserData(){
     return $this->userData;
   }
-  
+
   public function setUserOrderData($userOrderData){
     $this->userOrderData = $userOrderData;
   }
-  
+
   public function getUserOrderData() {
     return $this->userOrderData;
   }
-   
+
   public function setNeedBeforeDate($needBeforeDate){
     $this->needBeforeDate = $needBeforeDate;
   }
@@ -68,25 +86,34 @@ class BibdkReservationOrderObject {
   public function getNeedBeforDate(){
     return $this->needBeforeDate;
   }
-   
+
+  public function getOrderParameters() {
+    return $this->orderParameters;
+  }
+
+  public function setOrderParameters($orderParameters) {
+    $this->orderParameters = $orderParameters;
+  }
+
+
   public function setFields($fields){
     $this->fields = $fields;
   }
-  
+
   /**
    * @return bibdkReservationAgencyFields
    */
   public function getFields(){
     return $this->fields;
   }
-   
+
   /**
    * @return BibdkReservationOrderObject
    */
   public static function GetObject(){
     return $_SESSION['orderobject'];
   }
-  
+
   /**
    * @return BibdkReservationOrderObject
    */
