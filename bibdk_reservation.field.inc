@@ -92,7 +92,6 @@ function bibdk_reservation_field_formatter_view($entity_type, $entity, $field, $
           $element[$delta]['#markup'] = bibdk_reservation_link($entity->getIDs(), $entity->getSubType(), $entity_type);
         } elseif ($entity->isLink()) {          
           $info = $entity->getAccessInformation();
-          dpm($info);
           $element[$delta]['#markup'] = l(t('accessUrl'),$info[0]['accessUrl'],array('attributes'=>array('target'=>'_blank')));
         }
         break;
