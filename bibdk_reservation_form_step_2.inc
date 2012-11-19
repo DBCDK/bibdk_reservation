@@ -165,7 +165,7 @@ function bibdk_reservation_step_2_permanent_fields($form) {
 function bibdk_reservation_form_step_2_do_policycheck() {
   $pickUpAgencyId = BibdkReservationOrderObject::GetObject()->getBranchId();
   $pid = BibdkReservationOrderObject::GetObject()->getManifestationIds();
-  return bibdk_openorder_do_checkOrderPolicy($pickUpAgencyId, $pid[0]);
+  return bibdk_openorder_do_checkOrderPolicy($pickUpAgencyId, $pid);
 }
 
 /*
