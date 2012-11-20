@@ -184,6 +184,7 @@ function bibdk_reservation_create_wizard_form($form, &$form_state) {
 }
 
 function bibdk_reservation_check_order_library(){
+  // @TODO this method does not belong here .. refactor away
   $agencies = _bibdk_favourite_get_from_webservice();
     if (isset($agencies)){
       BibdkReservationOrderObject::GetObject()->setFavourites($agencies);
