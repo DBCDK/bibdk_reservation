@@ -78,13 +78,14 @@ function bibdk_reservation_step_2_user_form_fields($form, $form_state) {
     if (isset($userParameter['field_type']) && $userParameter['field_type'] == 'password') {
       $value = _bibdk_favourite_mask($value);
     }
-    
+  
     $type = $userParameter['type'];
     $form['userParameters'][$type] = array(
       //'#type' => isset($userParameter['field_type']) ? $userParameter['field_type'] : 'textfield',
       '#type' => 'textfield',
-      '#title' => $userParameter['field_name'],
-      '#description' => isset($userParameter['field_description']) ? $userParameter['field_description'] : NULL,
+      //'#title' => $userParameter['field_name'],
+      '#title' => isset($userParameter['field_description']) ? $userParameter['field_description'] : $userParameter['field_name'],
+      //'#description' => isset($userParameter['field_description']) ? $userParameter['field_description'] : NULL,
       '#required' => $userParameter['required'],
       //'#default_value' => (isset($form_state['values'][$type])) ? $form_state['values'][$type] : "",
       '#default_value' => isset($value) ? $value : "",
