@@ -11,13 +11,13 @@ module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_form_step_4')
  */
 function bibdk_reservation_menu() {
   $items['reservation'] = array(
-    'title' => t('Make reservation'),
+    'title' => t('Make reservation', array(), array(''=>'bibdk_reservation')),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('bibdk_reservation_create_wizard_form'),
     'access callback' => TRUE,
-    'description' => t('Make reservation in 4 steps'),
+    'description' => t('Make reservation in 4 steps', array(), array(''=>'bibdk_reservation')),
   );
-  
+
   // ajax call for for checking reservability
   $items['reservation/ajax/%/%'] = array(
     'title' => 'ajax_check_reservability',
@@ -72,14 +72,14 @@ function _bibdk_reservation_steps() {
       'current_step' => 1,
       'previous_step' => null,
       'next_step' => null,
-      'title' => t('Choose Library'),
+      'title' => t('Choose Library', array(), array(''=>'bibdk_reservation')),
     ),
     2 => array(
       'form' => 'bibdk_reservation_form_step_2',
       'current_step' => 2,
       'previous_step' => 1,
       'next_step' => 3,
-      'title' => t('Add Personal Data'),
+      'title' => t('Add Personal Data', array(), array(''=>'bibdk_reservation')),
     ),
     3 => array(
       'form' => 'bibdk_reservation_form_step_3',
@@ -87,14 +87,14 @@ function _bibdk_reservation_steps() {
       'next button text' => t('Order'), //overriding the default "Next" text on buttons
       'previous_step' => 2,
       'next_step' => 4,
-      'title' => t('Review'),
+      'title' => t('Review', array(), array(''=>'bibdk_reservation')),
     ),
     4 => array(
       'form' => 'bibdk_reservation_form_step_4',
       'current_step' => 3,
       'previous_step' => null,
       'next_step' => 5,
-      'title' => t('Order Complete'),
+      'title' => t('Order Complete', array(), array(''=>'bibdk_reservation')),
     ),
   );
   return $steps;
@@ -110,7 +110,7 @@ function bibdk_reservation_create_wizard_form($form, &$form_state) {
   // Initialize a description of the steps for the wizard.
   if (empty($form_state['step'])) {
     $order = bibdk_reservation_new_order_object();
-    
+
     if (bibdk_reservation_check_order_library()){
       $form_state['step'] = 2;
     }
@@ -118,7 +118,7 @@ function bibdk_reservation_create_wizard_form($form, &$form_state) {
       // if no order library exists - set initial step to 1
       $form_state['step'] = 1;
     }
-    
+
     $form_state['step_information'] = _bibdk_reservation_steps();
   }
 
@@ -137,7 +137,7 @@ function bibdk_reservation_create_wizard_form($form, &$form_state) {
   if ($form_state['step_information'][$step]['previous_step']) {
     $form['navigation']['prev'] = array(
       '#type' => 'submit',
-      '#value' => t('Previous'),
+      '#value' => t('Previous', array(), array(''=>'bibdk_reservation')),
       '#name' => 'prev',
       '#submit' => array('bibdk_reservation_wizard_previous_submit'),
       '#limit_validation_errors' => array(),
@@ -151,7 +151,7 @@ function bibdk_reservation_create_wizard_form($form, &$form_state) {
 // The Next button should be included on every step
     $form['navigation']['next'] = array(
       '#type' => 'submit',
-      '#value' => isset($form_state['step_information'][$step]['next button text']) ? $form_state['step_information'][$step]['next button text'] : t('Next'),
+      '#value' => isset($form_state['step_information'][$step]['next button text']) ? $form_state['step_information'][$step]['next button text'] : t('Next', array(), array(''=>'bibdk_reservation')),
       '#name' => 'next',
       '#submit' => array('bibdk_reservation_wizard_next_submit'),
     );
@@ -159,7 +159,7 @@ function bibdk_reservation_create_wizard_form($form, &$form_state) {
   else if (isset($next_step) && $next_step > $total_steps) {
     /* TODO: Implement in a more clean way */
     // Final submit button
-    $button_text = isset($form_state['step_information'][$step]['next button text']) ? $form_state['step_information'][$step]['next button text'] : t('Finish');
+    $button_text = isset($form_state['step_information'][$step]['next button text']) ? $form_state['step_information'][$step]['next button text'] : t('Finish', array(), array(''=>'bibdk_reservation'));
     $form['navigation']['finish'] = array(
       '#type' => 'markup',
       '#markup' => '<a href="JavaScript:window.close();" class="btn btn-blue form-submit" />' . $button_text . '</a>',
@@ -167,12 +167,12 @@ function bibdk_reservation_create_wizard_form($form, &$form_state) {
      //Add a print button
     $form['navigation']['print'] = array(
       '#type' => 'markup',
-      '#markup' => '<a href="JavaScript:window.print();" class="btn btn-grey form-submit" />' . t('print') . '</a>',
+      '#markup' => '<a href="JavaScript:window.print();" class="btn btn-grey form-submit" />' . t('print', array(), array(''=>'bibdk_reservation')) . '</a>',
     );
   }
 
   // Include each validation function defined for the different steps.
-  
+
   if (function_exists($form_state['step_information'][$step]['form'] . '_validate')) {
     $form['#validate'] = array($form_state['step_information'][$step]['form'] . '_validate');
   }
@@ -316,7 +316,7 @@ function bibdk_reservation_step_guide($form, &$form_state, $current_step) {
     $form[$step] = array(
       '#type' => 'submit',
       '#disabled' => ($step > $current_step) ? TRUE : FALSE,
-      '#value' => 'step' . $step,
+      '#value' => t('step' . $step, array(), array(''=>'bibdk_reservation')),
       '#attributes' => array('class' => $classes),
       '#submit' => array('bibdk_reservation_wizard_goto_step_submit'),
       '#step' => $step,
