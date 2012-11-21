@@ -70,7 +70,8 @@ function bibdk_reservation_order_any_edition_link($collection, $uid) {
 
 function _bibdk_reservation_create_type_button($type, $ids, $uid) {
   $text = $type;
-  $path = 'reservation/ajax/' . $uid . '/';
+  $url_arr = drupal_parse_url('reservation/ajax/' . $uid . '/');
+  $path = $url_arr['path'];
   $query = implode(',', $ids);
   $class = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '', $ids[0]));
 
@@ -124,7 +125,8 @@ function bibdk_reservation_ajax_check_reservability($uid, $pids) {
   else {
     global $base_root;
     global $base_path;
-    $path = $base_root . $base_path . 'reservation/?ids=' . $pids;
+    $root_url = drupal_parse_url($base_root . $base_path . 'reservation/');
+    $path = $root_url['path'] . '?ids=' . $pids;
   }
 
   $commands[] = bibdk_reservation_ajax_command($isReservable, $class, $path);
