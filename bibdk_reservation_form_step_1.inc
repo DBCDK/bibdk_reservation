@@ -7,8 +7,7 @@ function bibdk_reservation_form_step_1($form, &$form_state) {
   );
   $form['step_info']['content'] = array(
     '#type' => 'markup',
-    '#markup' => t('bibdk_reservation_step1_description'),
-    
+    '#markup' => t('bibdk_reservation_step1_description', array(), array('context'=>'bibdk_reservation')),
   );
   
   $form['agency_search_form_container'] = array(
@@ -30,7 +29,7 @@ function bibdk_reservation_form_step_1($form, &$form_state) {
 function bibdk_reservation_form_step_1_validate($form, &$form_state) {
   $query = check_plain($form_state['values']['anyField']);
   if (empty($query)) {
-    form_set_error('anyField', t('You haven\'t entered any search criteria.'));
+    form_set_error('anyField', t("You haven't entered any search criteria.", array(), array('context'=>'bibdk_reservation')));
   }
 }
 
@@ -38,13 +37,13 @@ function bibdk_reservation_agency_search_form($form, &$form_state){
    $form['agency_search_fieldset'] = array(
      '#type' => 'fieldset',
      '#attributes' => array('class' => array('search-form-horizontal', 'header-action-reservation')),
-     '#title' => t('Find Library'),
+     '#title' => t('Find Library', array(), array('context'=>'bibdk_reservation')),
      
    );
    $form['agency_search_fieldset']['anyField'] = array(
     '#type' => 'textfield',
     //'#title' => t('bibdk_reservation_agency_search_description'),
-    '#attributes' => array('placeholder' => t('Library name, zip or city'), 'class'=> array('')),
+    '#attributes' => array('placeholder' => t('Library name, zip or city', array(), array('context'=>'bibdk_reservation')), 'class'=> array('')),
     '#default_value' => isset($form_state['values']['anyField']) ? $form_state['values']['anyField']: NULL,
   );
    $form['agency_search_fieldset']['search'] = array(
@@ -52,7 +51,7 @@ function bibdk_reservation_agency_search_form($form, &$form_state){
     '#prefix' => '<div class="form-wrapper form-actions">', 
     '#submit' => array('bibdk_reservation_wizard_goto_step_submit'),
     '#suffix' => '</div>',
-    '#value' => t('Search'),
+    '#value' => t('Search', array(), array('context'=>'bibdk_reservation')),
     '#step' => 1
   );
 
@@ -88,7 +87,7 @@ function bibdk_reservation_form_step_1_submit($form, &$form_state) {
 
 function bibdk_reservation_agency_branch_get_action_link($branch) {
   $form = array(
-        '#value' => t('select_reservation_library'),
+        '#value' => t('select_reservation_library', array(), array('context'=>'bibdk_reservation')),
         '#name' => 'branch-'.$branch->branchId,
         '#type' => 'submit',
         '#submit' => array('bibdk_reservation_wizard_next_submit'),

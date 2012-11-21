@@ -9,12 +9,12 @@ function bibdk_reservation_form_step_4_form($form, &$form_state, $orderId) {
   // render OrderID
   $form['orderId'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Your order is complete'),
+    '#title' => t('Your order is complete', array(), array('context'=>'bibdk_reservation')),
     '#attributes' => array('class' => array('bottom-space')),
   );
   
   $form['orderId']['container']['markup'] = bibdk_reservation_convert_array_to_table(array(
-      t('Your order ID') => $orderId,
+      t('Your order ID', array(), array('context'=>'bibdk_reservation')) => $orderId,
     ));
   
   // Render the same fields as on step 3
@@ -41,7 +41,7 @@ function bibdk_reservation_form_step_4_do_order() {
     $pid = BibdkReservationOrderObject::GetObject()->getManifestationIds();
     $pickUpAgencyId = BibdkReservationOrderObject::GetObject()->getBranchId();
     watchdog('bibdk_reservation_form_step_4', 'openOrder responded with an error: ' . $error . '. pid: #pid agencyId: #agency', array('#pid' => $pid[0], '#agency' => $pickUpAgencyId), WATCHDOG_ERROR);
-    $result = array('error' => t('An error happened and the order could not be completed.'));
+    $result = array('error' => t('An error happened and the order could not be completed.', array(), array('context'=>'bibdk_reservation')));
   }
   else {
     $result = bibdk_reservation_form_step_4_handle_response($response);

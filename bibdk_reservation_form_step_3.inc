@@ -5,7 +5,7 @@ function bibdk_reservation_form_step_3($form, &$form_state) {
   //Render user parameters
   $form['userParameters'] = array(
     '#type' => 'fieldset',
-    '#title' => t('User Parameters'),
+    '#title' => t('User Parameters', array(), array('context'=>'bibdk_reservation')),
   );
   $user_data_array = BibdkReservationOrderObject::GetObject()->getUserData();
   $form['userParameters']['table'] = bibdk_reservation_convert_array_to_table($user_data_array);
@@ -27,7 +27,7 @@ function bibdk_reservation_form_step_3($form, &$form_state) {
     }
     $form['orderParameters'] = array(
       '#type' => 'fieldset',
-      '#title' => t('Order Parameters'),
+      '#title' => t('Order Parameters', array(), array('context'=>'bibdk_reservation')),
     );
   
     //Render User parameters
@@ -67,7 +67,7 @@ function bibdk_reservation_render_custom_branch_view($branch) {
       ));
   $form = array(
     '#type' => 'fieldset',
-    '#title' => t('Branch'),
+    '#title' => t('Branch', array(), array('context'=>'bibdk_reservation')),
   );
 
   $form['markup'] = array(
@@ -92,7 +92,7 @@ function bibdk_reservation_render_custom_manifestation_view(manifestation $manif
 
   $form = array(
     '#type' => 'fieldset',
-    '#title' => t('Manifestation'),
+    '#title' => t('Manifestation', array(), array('context'=>'bibdk_reservation')),
   );
 
   $form['markup'] = array(
@@ -112,7 +112,7 @@ function bibdk_reservation_convert_array_to_table($array) {
   $table = array(
     '#theme' => 'table',
     '#rows' => $rows,
-    '#empty' => t('No userdata'),
+    '#empty' => t('No userdata', array(), array('context'=>'bibdk_reservation')),
     '#attributes' => array('class' => 'table-data'),
   );
 
