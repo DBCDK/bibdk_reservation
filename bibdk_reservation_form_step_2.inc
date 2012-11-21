@@ -21,7 +21,10 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
   }
   else {
     $form_state['blocked'] = TRUE;
-    $messages = $orderpolicy->getMessages();
+    $messages = $orderpolicy->getOrderPossibleReason();
+    form_set_error('bibdk_reservation_form_step_2', t($messages, array(), array('context'=>'bibdk_reservation')));
+/*
+     $messages = $orderpolicy->getMessages();
     if ($messages) {
       $form['messages_wrapper'] = array(
         '#type' => 'fieldset',
@@ -29,6 +32,7 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
       $form['messages_wrapper']['messages'] = $messages;
     }
     form_set_error('bibdk_reservation_form_step_2', 'The material cannot be borrowed through bibliotek.dk');
+*/
   }
   return $form;
 }
