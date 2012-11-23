@@ -4,16 +4,17 @@
  * implements hook_form
  */
 function bibdk_reservation_form_step_2($form, &$form_state) {
-  
-  //render manifestation 
+
+  //render manifestation
   $manifestation = BibdkReservationOrderObject::GetObject()->getManifestation();
   $form['manifestation'] = bibdk_reservation_render_custom_manifestation_view($manifestation);
 
   //render branch
   $branch = BibdkReservationOrderObject::GetObject()->getBranch();
   $form['branchdata'] = bibdk_reservation_render_custom_branch_view($branch); //bibdk_reservation_step_2_order_branch_fields(array(), $form_state);
-  
+
   $orderpolicy = bibdk_reservation_form_step_2_do_policycheck();
+
   if ($orderpolicy->getOrderPossible()) {
     $form['userdata'] = bibdk_reservation_step_2_user_form_fields(array(), $form_state);
     $form['manifestation_userdata'] = bibdk_reservation_step_2_order_form_fields(array(), $form_state);
@@ -21,18 +22,16 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
   }
   else {
     $form_state['blocked'] = TRUE;
-    $messages = $orderpolicy->getOrderPossibleReason();
-    form_set_error('bibdk_reservation_form_step_2', t($messages, array(), array('context'=>'bibdk_reservation')));
-/*
-     $messages = $orderpolicy->getMessages();
-    if ($messages) {
+    $reason = $orderpolicy->getOrderPossibleReason();
+    $urls = $orderpolicy->getUrls();
+    if ($urls) {
       $form['messages_wrapper'] = array(
         '#type' => 'fieldset',
       );
-      $form['messages_wrapper']['messages'] = $messages;
+      $form['messages_wrapper']['messages'] = $urls;
     }
-    form_set_error('bibdk_reservation_form_step_2', 'The material cannot be borrowed through bibliotek.dk');
-*/
+    form_set_error('bibdk_reservation_form_step_2', t($reason, array(), array('context' => 'bibdk_reservation')));
+
   }
   return $form;
 }
@@ -52,7 +51,7 @@ function bibdk_reservation_manifestation_form_fields($form, &$form_state){
   );
   $form['view_wrapper']['view'] = array(
     '#markup' => bibdk_reservation_manifestation_view($manifestation),
-    
+
   );
   return $form;
 }
@@ -65,7 +64,7 @@ function bibdk_reservation_step_2_user_form_fields($form, $form_state) {
   if (!isset($fields)) {
     return;
   }
-  
+
   $agency = BibdkReservationOrderObject::GetObject()->getBranch();
   //dpm($branch);
 
@@ -77,12 +76,12 @@ function bibdk_reservation_step_2_user_form_fields($form, $form_state) {
     '#markup' => t('Description for user parameters', array(), array('context'=>'bibdk_reservation')),
   );
   foreach ($fields as $userParameter) {
-    
+
     $value = isset($agency->userdata[$userParameter['type']]) ? $agency->userdata[$userParameter['type']] : NULL;
     if (isset($userParameter['field_type']) && $userParameter['field_type'] == 'password') {
       $value = _bibdk_favourite_mask($value);
     }
-  
+
     $type = $userParameter['type'];
     $form['userParameters'][$type] = array(
       //'#type' => isset($userParameter['field_type']) ? $userParameter['field_type'] : 'textfield',
@@ -137,7 +136,7 @@ function bibdk_reservation_step_2_order_branch_fields($form, $form_state) {
   $form['branchParameters'] = array(
     '#type' => 'fieldset',
     '#title' => t('Selected Branch', array(), array('context'=>'bibdk_reservation')),
-    
+
   );
 
   $form['branchParameters']['description'] = array(
@@ -159,7 +158,7 @@ function bibdk_reservation_step_2_order_branch_fields($form, $form_state) {
   $classes[] = 'element-wrapper';
   $classes[] = 'favourite_' . $branch->branchId;
   $classes[] = ( isset($branch->orderLibrary) && $branch->orderLibrary == 'TRUE') ? 'order-agency' : NULL;
-  
+
 
   $form['branchParameters']['selectedBranch']['#markup'] =
       theme('ting_agency_library', array('branchName' => $branch->branchName, 'actions' => NULL, 'add_classes' => $classes, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));

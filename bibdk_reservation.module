@@ -29,6 +29,14 @@ function bibdk_reservation_menu() {
     'file' => 'bibdk_reservation_button.inc'
   );
 
+  $items['reservations/catalogue_url/%'] = array(
+    'title' => 'local_catalogue_url',
+    'page callback' => 'bibdk_reservation_catalog_callback',
+    'page arguments' => array(2),
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+
   return $items;
 }
 
@@ -325,4 +333,11 @@ function bibdk_reservation_step_guide($form, &$form_state, $current_step) {
   }
 
   return $form;
+}
+
+function bibdk_reservation_catalog_callback($lib_id) {
+  //TODO (mmj) call to vip_redirect.stats should be implemented here
+  $agencyId = BibdkOpenorderPolicyResponse::GetObject()->getAgencyId();
+  $url = BibdkOpenorderPolicyResponse::GetObject()->getLookUpUrls($lib_id);
+  drupal_goto($url);
 }
