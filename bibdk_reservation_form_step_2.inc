@@ -114,11 +114,9 @@ function bibdk_reservation_step_2_user_form_fields($form, $form_state) {
     $form['userParameters'][$type] = array(
       //'#type' => isset($userParameter['field_type']) ? $userParameter['field_type'] : 'textfield',
       '#type' => 'textfield',
-      //'#title' => $userParameter['field_name'],
-      '#title' => isset($userParameter['field_description']) ? $userParameter['field_description'] : $userParameter['field_name'],
-      //'#description' => isset($userParameter['field_description']) ? $userParameter['field_description'] : NULL,
+      '#title' => isset($userParameter['field_name']) ? $userParameter['field_name'] : "",
+      '#description' => isset($userParameter['field_description']) ? $userParameter['field_description'] : NULL,
       '#required' => $userParameter['required'],
-      //'#default_value' => (isset($form_state['values'][$type])) ? $form_state['values'][$type] : "",
       '#default_value' => isset($value) ? $value : "",
     );
   }
@@ -388,7 +386,6 @@ function bibdk_reservation_get_agency_fields() {
   $branch = BibdkReservationOrderObject::GetObject()->getBranch();
 
   $fields = $branch->getAgencyFields();
-
   BibdkReservationOrderObject::GetObject()->setFields($fields);
 
   return $fields;
