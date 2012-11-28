@@ -217,7 +217,7 @@ function bibdk_reservation_wizard_previous_submit($form, &$form_state) {
   $form_state['step_information'][$current_step]['stored_values'] = $form_state['values'];
   if ($current_step > 1) {
     isset($form_state['step_information'][$current_step]['previous_step']) ? $current_step = $form_state['step_information'][$current_step]['previous_step'] : $current_step;
-    $form_state['values'] = $form_state['step_information'][$current_step]['stored_values'];
+    $form_state['values'] = isset($form_state['step_information'][$current_step]['stored_values']) ? isset($form_state['step_information'][$current_step]['stored_values']) : array();
     $form_state['step'] = $current_step;
   }
   $form_state['rebuild'] = TRUE;
