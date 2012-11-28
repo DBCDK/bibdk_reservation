@@ -274,8 +274,8 @@ function bibdk_reservation_wizard_goto_step_submit($form, &$form_state) {
  */
 function bibdk_reservation_new_order_object() {
   if (!isset($_REQUEST['ids'])) {
-    drupal_set_message(t("No objects have been chosen", array(), array('context' => 'bibdk_reservation')), 'error');
-    return;
+    drupal_set_message(t('No objects have been chosen', array(), array('context' => 'bibdk_reservation:error')), 'error');
+    return NULL;
   }
   $ids = explode(",", $_REQUEST['ids']);
 

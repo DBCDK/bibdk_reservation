@@ -30,7 +30,7 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
       );
       $form['messages_wrapper']['messages'] = $msgs;
     }
-    form_set_error('bibdk_reservation_form_step_2', t($reason, array(), array('context' => 'bibdk_reservation')));
+    form_set_error('bibdk_reservation_form_step_2', t($reason, array(), array('context' => 'bibdk_reservation:error')));
 
   }
   return $form;
@@ -217,15 +217,15 @@ function bibdk_reservation_form_step_2_do_policycheck() {
 
 function bibdk_reservation_form_step_2_validate($form, &$form_state) {
   if (!empty($form_state['values']['pincode']) && (!is_numeric($form_state['values']['pincode']) || strlen($form_state['values']['pincode']) != 4)) {
-    form_set_error('pincode', t('Pincode needs to be a four digit number', array(), array('context' => 'bibdk_reservation')));
+    form_set_error('pincode', t('Pincode needs to be a four digit number', array(), array('context' => 'bibdk_reservation:error')));
   }
 
   if (!empty($form_state['values']['cpr']) && !is_numeric($form_state['values']['cpr'])) {
-    form_set_error('cpr', t('CPR-number needs to be a valid CPR-number', array(), array('context' => 'bibdk_reservation')));
+    form_set_error('cpr', t('CPR-number needs to be a valid CPR-number', array(), array('context' => 'bibdk_reservation:error')));
   }
 
   if (!empty($form_state['values']['userMail']) && !valid_email_address($form_state['values']['userMail'])) {
-    form_set_error('userEmail', t('Email needs to be a valid email', array(), array('context' => 'bibdk_reservation')));
+    form_set_error('userEmail', t('Email needs to be a valid email', array(), array('context' => 'bibdk_reservation:error')));
   }
 
   if (!form_get_errors()) {
@@ -300,10 +300,10 @@ function bibdk_reservation_borchk_validate($form_state) {
       return;
     }
     if (isset($messages['status'])) {
-      drupal_set_message(t($messages['status'], array(), array('context' => 'bibdk_reservation')), 'warning');
+      drupal_set_message(t($messages['status'], array(), array('context' => 'bibdk_reservation:error')), 'warning');
     }
     if (isset($messages['error'])) {
-      form_set_error("borchk", t($messages['error'], array(), array('context' => 'bibdk_reservation')));
+      form_set_error('borchk', t($messages['error'], array(), array('context' => 'bibdk_reservation:error')));
     }
   }
 }
@@ -321,7 +321,7 @@ function bibdk_reservation_borchk_execute($form_state, $agencySettings) {
   );
   if (!$isBorrowerCheckRequired) {
     if (!$acceptOrderFromUnknownUser) {
-      $messages['status'] = t("Library does not accept reservations form unknown users", array(), array('context' => 'bibdk_reservation'));
+      $messages['status'] = t('Library does not accept reservations form unknown users', array(), array('context' => 'bibdk_reservation:error'));
     }
   }
   else {

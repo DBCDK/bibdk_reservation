@@ -116,7 +116,7 @@ function bibdk_reservation_ajax_check_reservability($uid, $pids) {
     $type = 'notice';
     $path = '';
     drupal_get_messages();
-    drupal_set_message(t($text, array(), array('context'=>'bibdk_reservation')), $type);
+    drupal_set_message(t($text, array(), array('context'=>'bibdk_reservation:error')), $type);
     $selector = '.msg-' . $uid;
     $commands[] = ajax_command_invoke($selector, 'hide');
     $commands[] = ajax_command_html($selector, theme('status_messages'));
