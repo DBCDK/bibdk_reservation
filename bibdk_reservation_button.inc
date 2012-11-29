@@ -8,7 +8,8 @@ module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation.field');
  */
 
 function bibdk_reservation_link($entity_ids, $subtype, $entity_type) {
-  $text = ($entity_type == "bibdkSubwork") ? t($subtype) : t("Order this @type", array("@type" => $subtype));
+  $text = ($entity_type == "bibdkSubwork") ? t($subtype, array(), array('context'=>'bibdk_reservation'))
+                                           : t("Order this @type", array("@type" => $subtype), array('context'=>'bibdk_reservation'));
   $path = 'reservation';
   $query = array('ids' => implode(',', $entity_ids));
 
@@ -69,7 +70,8 @@ function bibdk_reservation_order_any_edition_link($collection, $uid) {
 
 function _bibdk_reservation_create_type_button($type, $ids, $uid) {
   $text = $type;
-  $path = 'reservation/ajax/' . $uid . '/';
+  $url_arr = drupal_parse_url('reservation/ajax/' . $uid . '/');
+  $path = $url_arr['path'];
   $query = implode(',', $ids);
   $class = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '', $ids[0]));
 
@@ -110,11 +112,11 @@ function bibdk_reservation_ajax_check_reservability($uid, $pids) {
   $class = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '', $id));
   $commands = array();
   if (!$isReservable) {
-    $text = t('not_possible_to_borrow_material');
+    $text = t('not_possible_to_borrow_material', array(), array('context'=>'bibdk_reservation'));
     $type = 'notice';
     $path = '';
     drupal_get_messages();
-    drupal_set_message($text, $type);
+    drupal_set_message(t($text, array(), array('context'=>'bibdk_reservation:error')), $type);
     $selector = '.msg-' . $uid;
     $commands[] = ajax_command_invoke($selector, 'hide');
     $commands[] = ajax_command_html($selector, theme('status_messages'));
@@ -123,7 +125,8 @@ function bibdk_reservation_ajax_check_reservability($uid, $pids) {
   else {
     global $base_root;
     global $base_path;
-    $path = $base_root . $base_path . 'reservation/?ids=' . $pids;
+    $root_url = drupal_parse_url($base_root . $base_path . 'reservation/');
+    $path = $root_url['path'] . '?ids=' . $pids;
   }
 
   $commands[] = bibdk_reservation_ajax_command($isReservable, $class, $path);

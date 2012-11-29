@@ -7,30 +7,30 @@ function bibdk_reservation_field_info() {
   return array(
     // Reservation buttons
     'bibdk_mani_reservation_button' => array(
-      'label' => t('Reservation button.'),
-      'description' => t('Reservation button.'),
+      'label' => t('Reservation button.', array(), array('context'=>'bibdk_reservation')),
+      'description' => t('Reservation button.', array(), array('context'=>'bibdk_reservation')),
       'default_widget' => 'hidden',
       'default_formatter' => 'bibdk_reservation_button_default',
       'no_ui' => TRUE,
     ),
     'bibdk_coll_reservation_button' => array(
-      'label' => t('Reservation button.'),
-      'description' => t('Reservation button.'),
+      'label' => t('Reservation button.', array(), array('context'=>'bibdk_reservation')),
+      'description' => t('Reservation button.', array(), array('context'=>'bibdk_reservation')),
       'default_widget' => 'hidden',
       'default_formatter' => 'bibdk_reservation_collection_button',
       'no_ui' => TRUE,
     ),
     'bibdk_sub_reservation_button' => array(
-      'label' => t('Reservation button.'),
-      'description' => t('Reservation button.'),
+      'label' => t('Reservation button.', array(), array('context'=>'bibdk_reservation')),
+      'description' => t('Reservation button.', array(), array('context'=>'bibdk_reservation')),
       'default_widget' => 'hidden',
       'default_formatter' => 'bibdk_reservation_button_default',
       'no_ui' => TRUE,
     ),
     // Reservation info field 
     'bibdk_reservation_info' => array(
-      'label' => t('Reservation info text'),
-      'description' => t('Information related to the reservation process'),
+      'label' => t('Reservation info text', array(), array('context'=>'bibdk_reservation')),
+      'description' => t('Information related to the reservation process', array(), array('context'=>'bibdk_reservation')),
       'default_widget' => 'hidden',
       'default_formatter' => 'bibdk_reservation_information_default',
       'no_ui' => TRUE,
@@ -56,21 +56,21 @@ function bibdk_reservation_field_formatter_info() {
   return array(
     // Reservation button
     'bibdk_reservation_button_default' => array(
-      'label' => t('Default'),
+      'label' => t('Default', array(), array('context'=>'bibdk_reservation')),
       'field types' => array(
         'bibdk_mani_reservation_button',
         'bibdk_sub_reservation_button'
       ),
     ),
     'bibdk_reservation_collection_button' => array(
-      'label' => t('Default'),
+      'label' => t('Default', array(), array('context'=>'bibdk_reservation')),
       'field types' => array(
         'bibdk_coll_reservation_button',
       ),
     ),
     // Information text
     'bibdk_reservation_information_default' => array(
-      'label' => t('Default'),
+      'label' => t('Default', array(), array('context'=>'bibdk_reservation')),
       'field types' => array(
         'bibdk_reservation_info',
       ),
@@ -92,8 +92,7 @@ function bibdk_reservation_field_formatter_view($entity_type, $entity, $field, $
           $element[$delta]['#markup'] = bibdk_reservation_link($entity->getIDs(), $entity->getSubType(), $entity_type);
         } elseif ($entity->isLink()) {          
           $info = $entity->getAccessInformation();
-          dpm($info);
-          $element[$delta]['#markup'] = l(t('accessUrl'),$info[0]['accessUrl'],array('attributes'=>array('target'=>'_blank')));
+          $element[$delta]['#markup'] = l(t('accessUrl', array(), array('context'=>'bibdk_reservation')),$info[0]['accessUrl'],array('attributes'=>array('target'=>'_blank')));
         }
         break;
       case "bibdk_reservation_information_default" :
@@ -114,37 +113,37 @@ function _bibdk_reservation_render_infotext($string) {
   $message = NULL;
   switch ($string) {
     case "linkE17" :
-      $message = t("drupal_text_linkE17");
+      $message = t("drupal_text_linkE17", array(), array('context'=>'bibdk_reservation'));
       break;
     case "oldSBTB" :
-      $message = t("drupal_text_oldSBTB");
+      $message = t("drupal_text_oldSBTB", array(), array('context'=>'bibdk_reservation'));
       break;
     case "picture0" :
-      $message = t("drupal_text_picture0");
+      $message = t("drupal_text_picture0", array(), array('context'=>'bibdk_reservation'));
       break;
     case "picture7" :
-      $message = t("drupal_text_picture7");
+      $message = t("drupal_text_picture7", array(), array('context'=>'bibdk_reservation'));
       break;
     case "picture11" :
-      $message = t("drupal_text_picture11");
+      $message = t("drupal_text_picture11", array(), array('context'=>'bibdk_reservation'));
       break;
     case "picture15" :
-      $message = t("drupal_text_picture15");
+      $message = t("drupal_text_picture15", array(), array('context'=>'bibdk_reservation'));
       break;
     case "saleonly" :
-      $message = t("drupal_text_saleonly");
+      $message = t("drupal_text_saleonly", array(), array('context'=>'bibdk_reservation'));
       break;
     case "usergroupC" :
-      $message = t("drupal_text_usergroupC");
+      $message = t("drupal_text_usergroupC", array(), array('context'=>'bibdk_reservation'));
       break;
     case "usergroupE" :
-      $message = t("drupal_text_usergroupE");
+      $message = t("drupal_text_usergroupE", array(), array('context'=>'bibdk_reservation'));
       break;
     case "newMaterial" :
-      $message = t("drupal_text_newMaterial");
+      $message = t("drupal_text_newMaterial", array(), array('context'=>'bibdk_reservation'));
       break;
     case "oldMaterial" :
-      $message = t("drupal_text_oldMaterial");
+      $message = t("drupal_text_oldMaterial", array(), array('context'=>'bibdk_reservation'));
       break;
   }
   return $message;
