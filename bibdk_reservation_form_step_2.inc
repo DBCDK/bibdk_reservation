@@ -5,7 +5,7 @@
  */
 function bibdk_reservation_form_step_2($form, &$form_state) {
 
-  //render manifestation
+  //render manifestation 
   $manifestation = BibdkReservationOrderObject::GetObject()->getManifestation();
   $form['manifestation'] = bibdk_reservation_render_custom_manifestation_view($manifestation);
 
@@ -31,7 +31,6 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
       $form['messages_wrapper']['messages'] = $msgs;
     }
     form_set_error('bibdk_reservation_form_step_2', t($reason, array(), array('context' => 'bibdk_reservation:error')));
-
   }
   return $form;
 }
@@ -80,7 +79,6 @@ function bibdk_reservation_manifestation_form_fields($form, &$form_state) {
   );
   $form['view_wrapper']['view'] = array(
     '#markup' => bibdk_reservation_manifestation_view($manifestation),
-
   );
   return $form;
 }
@@ -93,8 +91,8 @@ function bibdk_reservation_step_2_user_form_fields($form, $form_state) {
   if (!isset($fields)) {
     return;
   }
-
-  $agency = BibdkReservationOrderObject::GetObject()->getBranch();
+  $favourite = BibdkReservationOrderObject::GetObject()->getFavourite();
+  $userData = $favourite->getUserData();
 
   $form['userParameters'] = array(
     '#type' => 'fieldset',
@@ -104,8 +102,7 @@ function bibdk_reservation_step_2_user_form_fields($form, $form_state) {
     '#markup' => t('Description for user parameters', array(), array('context' => 'bibdk_reservation')),
   );
   foreach ($fields as $userParameter) {
-
-    $value = isset($agency->userdata[$userParameter['type']]) ? $agency->userdata[$userParameter['type']] : NULL;
+    $value = isset($userData[$userParameter['type']]) ? $userData[$userParameter['type']] : NULL;
     if (isset($userParameter['field_type']) && $userParameter['field_type'] == 'password') {
       $value = _bibdk_favourite_mask($value);
     }
@@ -163,7 +160,6 @@ function bibdk_reservation_step_2_order_branch_fields($form, $form_state) {
   $form['branchParameters'] = array(
     '#type' => 'fieldset',
     '#title' => t('Selected Branch', array(), array('context' => 'bibdk_reservation')),
-
   );
 
   $form['branchParameters']['description'] = array(
@@ -185,7 +181,6 @@ function bibdk_reservation_step_2_order_branch_fields($form, $form_state) {
   $classes[] = 'element-wrapper';
   $classes[] = 'favourite_' . $branch->branchId;
   $classes[] = (isset($branch->orderLibrary) && $branch->orderLibrary == 'TRUE') ? 'order-agency' : NULL;
-
 
   $form['branchParameters']['selectedBranch']['#markup'] =
     theme('ting_agency_library', array('branchName' => $branch->branchName, 'actions' => NULL, 'add_classes' => $classes, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
@@ -330,7 +325,7 @@ function bibdk_reservation_borchk_execute($form_state, $agencySettings) {
     $userId = isset($form_state['values'][$userIdKey]) ? $form_state['values'][$userIdKey] : NULL;
     $userPincode = isset($form_state['values']['pincode']) ? $form_state['values']['pincode'] : NULL;
     $response = bibdk_borchk_request($userId, $userPincode, $libraryCode);
-    $messages = bibdk_reservation_borchk_parse_response($response->borrowerCheckResponse->requestStatus, $acceptOrderFromUnknownUser, $acceptOrderAgencyOffline);
+    $messages = bibdk_reservation_borchk_parse_response($response->borrowerCheckResponse->requestStatus->{'$'}, $acceptOrderFromUnknownUser, $acceptOrderAgencyOffline);
   }
   return $messages;
 }
@@ -382,10 +377,8 @@ function bibdk_reservation_borchk_parse_response($response, $acceptOrderFromUnkn
  * @return \bibdkReservationUserInput
  */
 function bibdk_reservation_get_agency_fields() {
-
-  $branch = BibdkReservationOrderObject::GetObject()->getBranch();
-
-  $fields = $branch->getAgencyFields();
+  $favourite = BibdkReservationOrderObject::GetObject()->getFavourite();
+  $fields = $favourite->getAgencyFields();
   BibdkReservationOrderObject::GetObject()->setFields($fields);
 
   return $fields;
