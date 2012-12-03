@@ -204,7 +204,7 @@ function bibdk_reservation_check_order_library() {
         }
       }
     }
-  return false
+  return false;
 }
 
 /**
