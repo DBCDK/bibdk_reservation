@@ -5,7 +5,7 @@
  */
 function bibdk_reservation_form_step_2($form, &$form_state) {
 
-  //render manifestation 
+  //render manifestation
   $manifestation = BibdkReservationOrderObject::GetObject()->getManifestation();
   $form['manifestation'] = bibdk_reservation_render_custom_manifestation_view($manifestation);
 

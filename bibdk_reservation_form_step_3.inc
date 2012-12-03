@@ -82,7 +82,7 @@ function bibdk_reservation_render_custom_manifestation_view(manifestation $manif
   $title = $manifestation->getTitle();
   $contribs = $manifestation->getContributors();
   $author = isset($contribs) && is_array($contribs) ? implode(', ', $contribs) : NULL;
-  $type = $manifestation->getType();
+  $type = $manifestation->getSubType();
 
   $markup = theme('bibdk_reservation_manifestation', array(
     'title' => $title,
