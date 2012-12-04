@@ -14,6 +14,7 @@ class BibdkReservationOrderObject {
   private $needBeforeDate;
   private $orderParameters;
   private $orderId;
+  private $agency;
 
   public function getOrderId() {
     return $this->orderId;
@@ -50,6 +51,7 @@ class BibdkReservationOrderObject {
   public function setBranch($branch) {
     $this->branch = $branch;
     $this->setBranchId($branch->branchId);
+    $this->agency = new TingAgency($branch->branchId);
   }
 
   public function setFavourite(FavouriteAgency $favourite) {
@@ -59,6 +61,10 @@ class BibdkReservationOrderObject {
 
   public function getFavourite() {
     return $this->favourite;
+  }
+  
+  public function getAgency() {
+    return $this->agency;
   }
 
   public function getBranch() {
