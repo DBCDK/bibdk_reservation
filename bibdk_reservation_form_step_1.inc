@@ -74,8 +74,8 @@ function bibdk_reservation_parse_agency_search_result($result){
   if (!isset($result))
     return array();
 
-  foreach ($result as $branch) {
-      $form += bibdk_reservation_view_agency_branch($branch);
+  foreach ($result as $favourite) {
+      $form += bibdk_reservation_view_agency_branch($favourite->getBranch());
   }
   return $form;
 }
