@@ -22,6 +22,10 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
   }
   else {
     $form_state['blocked'] = TRUE;
+    if ( $error = $orderpolicy->getCheckOrderPolicyError() ) {
+      form_set_error('bibdk_reservation_form_step_2', t($error, array(), array('context' => 'bibdk_reservation:error')));
+      return $form;
+    }
     $reason = $orderpolicy->getOrderPossibleReason();
     $msgs = _bibdk_reservation_generate_policy_messages();
     if ($msgs) {
@@ -375,7 +379,7 @@ function bibdk_reservation_borchk_parse_response($response, $acceptOrderFromUnkn
 /**
  * Get fields required by Agency
  *
- * @return 
+ * @return
  */
 function bibdk_reservation_get_agency_fields() {
   $agency = BibdkReservationOrderObject::GetObject()->getAgency();
@@ -385,7 +389,7 @@ function bibdk_reservation_get_agency_fields() {
   $fields = $agency->getAgencyFields();
   if (!empty($fields)) {
     BibdkReservationOrderObject::GetObject()->setFields($fields);
-  }  
+  }
 
   return $fields;
 }
