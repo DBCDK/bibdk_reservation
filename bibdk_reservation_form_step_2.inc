@@ -293,8 +293,10 @@ function bibdk_reservation_form_step_2_submit($form, &$form_state) {
  * Validate up against Borchk
  */
 function bibdk_reservation_borchk_validate($form_state) {
-  if ($form_state['clicked_button']['#name'] != 'prev') {
+  if ($form_state['clicked_button']['#name'] == 'next' ) {
+    // @TODO check that object is set
     $agencySettings = BibdkReservationOrderObject::GetObject()->getFields();
+ 
     $messages = bibdk_reservation_borchk_execute($form_state, $agencySettings);
     if (!isset($messages)) {
       return;
@@ -311,7 +313,7 @@ function bibdk_reservation_borchk_validate($form_state) {
 /**
  * Execute service request to borchk
  */
-function bibdk_reservation_borchk_execute($form_state, $agencySettings) {
+function bibdk_reservation_borchk_execute($form_state, $agencySettings) { 
   $acceptOrderFromUnknownUser = $agencySettings->acceptOrderFromUnknownUser();
   $acceptOrderAgencyOffline = $agencySettings->acceptOrderAgencyOffline();
   $isBorrowerCheckRequired = $agencySettings->isBorrowerCheckRequired();
