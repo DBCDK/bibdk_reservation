@@ -64,7 +64,6 @@ function _bibdk_reservation_generate_policy_messages() {
   return $msgs;
 }
 
-
 function bibdk_reservation_manifestation_form_fields($form, &$form_state) {
   $form = array(
     '#type' => 'fieldset',
@@ -92,7 +91,9 @@ function bibdk_reservation_step_2_user_form_fields($form, $form_state) {
     return;
   }
   $favourite = BibdkReservationOrderObject::GetObject()->getFavourite();
-  $userData = $favourite->getUserData();
+  if (!empty($favourite)) {
+    $userData = $favourite->getUserData();
+  }
 
   $form['userParameters'] = array(
     '#type' => 'fieldset',
@@ -169,11 +170,11 @@ function bibdk_reservation_step_2_order_branch_fields($form, $form_state) {
   );
 
   $moreinfo = theme('ting_agency_more_info', array('branch' => $branch,
-      'openingHours' => theme('ting_agency_opening_hours', array('branch' => $branch,)),
-      //'tools' => theme('ting_agency_tools', array('branch' => $branch)),
-      'address' => theme('ting_agency_address', array('branch' => $branch)),
-      'contact' => theme('ting_agency_contact', array('branch' => $branch)),
-    )
+    'openingHours' => theme('ting_agency_opening_hours', array('branch' => $branch,)),
+    //'tools' => theme('ting_agency_tools', array('branch' => $branch)),
+    'address' => theme('ting_agency_address', array('branch' => $branch)),
+    'contact' => theme('ting_agency_contact', array('branch' => $branch)),
+      )
   );
 
   //$classes[] = 'selected_branch';
@@ -183,7 +184,7 @@ function bibdk_reservation_step_2_order_branch_fields($form, $form_state) {
   $classes[] = (isset($branch->orderLibrary) && $branch->orderLibrary == 'TRUE') ? 'order-agency' : NULL;
 
   $form['branchParameters']['selectedBranch']['#markup'] =
-    theme('ting_agency_library', array('branchName' => $branch->branchName, 'actions' => NULL, 'add_classes' => $classes, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
+      theme('ting_agency_library', array('branchName' => $branch->branchName, 'actions' => NULL, 'add_classes' => $classes, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
 
   return $form;
 }
@@ -360,12 +361,12 @@ function bibdk_reservation_borchk_parse_response($response, $acceptOrderFromUnkn
     case 'borrowercheck_not_allowed' :
     default :
       //watchdog(WATCHDOG_ERROR, 'Unknown response from openOrder', array('response' => $response));
-    if ($acceptOrderAgencyOffline) {
-      $message['status'] = t('We could not check your status', array(), array('context' => 'bibdk_reservation'));
-    }
-    else {
-      $message['error'] = t('Service Unavailable. We can not make reservation right know', array(), array('context' => 'bibdk_reservation'));
-    }
+      if ($acceptOrderAgencyOffline) {
+        $message['status'] = t('We could not check your status', array(), array('context' => 'bibdk_reservation'));
+      }
+      else {
+        $message['error'] = t('Service Unavailable. We can not make reservation right know', array(), array('context' => 'bibdk_reservation'));
+      }
       break;
   }
   return $message;
@@ -374,12 +375,17 @@ function bibdk_reservation_borchk_parse_response($response, $acceptOrderFromUnkn
 /**
  * Get fields required by Agency
  *
- * @return \bibdkReservationUserInput
+ * @return 
  */
 function bibdk_reservation_get_agency_fields() {
-  $favourite = BibdkReservationOrderObject::GetObject()->getFavourite();
-  $fields = $favourite->getAgencyFields();
-  BibdkReservationOrderObject::GetObject()->setFields($fields);
+  $agency = BibdkReservationOrderObject::GetObject()->getAgency();
+  if (!is_object($agency)) {
+    return NULL;
+  }
+  $fields = $agency->getAgencyFields();
+  if (!empty($fields)) {
+    BibdkReservationOrderObject::GetObject()->setFields($fields);
+  }  
 
   return $fields;
 }
