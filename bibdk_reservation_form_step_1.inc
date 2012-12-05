@@ -21,7 +21,10 @@ function bibdk_reservation_form_step_1($form, &$form_state) {
   if (isset($form_state['values']['anyField']))
     $form['agency_search_result'] = _bibdk_reservation_form_step_1_agency_result(array(), $form_state);
   elseif ($favourites = BibdkReservationOrderObject::GetObject()->getFavourites()){
-      $form['agency_search_result'] = bibdk_reservation_parse_agency_search_result($favourites);
+      foreach ($favourites as $favourite){
+        $branches = $favourite->getBranch();
+      }
+      $form['agency_search_result'] = bibdk_reservation_parse_agency_search_result($branches);
   }
   return $form;
 }
@@ -69,13 +72,19 @@ function _bibdk_reservation_form_step_1_agency_result($form, &$form_state){
   return $form;
 }
 
+/**
+ * Parse agency search result into form elements
+ *
+ * @param $result array of TingClientAgencyBranch objects
+ * @return array formarray
+ */
 function bibdk_reservation_parse_agency_search_result($result){
   $form = array();
   if (!isset($result))
     return array();
 
-  foreach ($result as $favourite) {
-      $form += bibdk_reservation_view_agency_branch($favourite->getBranch());
+  foreach ($result as $branch) {
+      $form += bibdk_reservation_view_agency_branch($branch);
   }
   return $form;
 }
@@ -98,9 +107,12 @@ function bibdk_reservation_agency_branch_get_action_link($branch) {
 }
 
 /**
- * the form to be displayed on profile tab
- * */
-function bibdk_reservation_view_agency_branch($branch) {
+ * Render the view of an agency branch and wrap it in an form element
+ * 
+ * @param TingClientAgencyBranch $branch
+ * @return mixed
+ */
+function bibdk_reservation_view_agency_branch(TingClientAgencyBranch $branch) {
   // check if given branch is set as order-agency
   $order_class = ( isset($branch->orderLibrary) && $branch->orderLibrary == 'TRUE') ? 'order-agency' : '';
 
