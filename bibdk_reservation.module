@@ -190,21 +190,21 @@ function bibdk_reservation_create_wizard_form($form, &$form_state) {
   $form['step_guide'] = bibdk_reservation_step_guide(array(), $form_state, $step);
 
   unset($form_state['blocked']);
+
   return $form;
 }
 
 function bibdk_reservation_check_order_library() {
-  // @TODO this method does not belong here .. refactor away
-  $agencies = _bibdk_favourite_get_from_webservice();
-  if (isset($agencies)) {
-    BibdkReservationOrderObject::GetObject()->setFavourites($agencies);
-    foreach ($agencies as $branch) {
-      if ($branch->orderLibrary == "TRUE") {
-        BibdkReservationOrderObject::GetObject()->setBranch($branch);
-        return true;
+  $favourites = _bibdk_favourite_get_from_webservice();
+    if (isset($favourites)){
+      BibdkReservationOrderObject::GetObject()->setFavourites($favourites);
+      foreach($favourites as $favourite){
+        if ($favourite->getOrderAgency() ){
+          BibdkReservationOrderObject::GetObject()->setFavourite($favourite);
+          return true;
+        }
       }
     }
-  }
   return false;
 }
 
@@ -217,7 +217,7 @@ function bibdk_reservation_wizard_previous_submit($form, &$form_state) {
   $form_state['step_information'][$current_step]['stored_values'] = $form_state['values'];
   if ($current_step > 1) {
     isset($form_state['step_information'][$current_step]['previous_step']) ? $current_step = $form_state['step_information'][$current_step]['previous_step'] : $current_step;
-    $form_state['values'] = isset($form_state['step_information'][$current_step]['stored_values']) ? isset($form_state['step_information'][$current_step]['stored_values']) : array();
+    $form_state['values'] = isset($form_state['step_information'][$current_step]['stored_values']) ? $form_state['step_information'][$current_step]['stored_values'] : array();
     $form_state['step'] = $current_step;
   }
   $form_state['rebuild'] = TRUE;

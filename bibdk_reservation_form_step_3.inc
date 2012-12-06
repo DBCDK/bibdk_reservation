@@ -82,7 +82,7 @@ function bibdk_reservation_render_custom_manifestation_view(manifestation $manif
   $title = $manifestation->getTitle();
   $contribs = $manifestation->getContributors();
   $author = isset($contribs) && is_array($contribs) ? implode(', ', $contribs) : NULL;
-  $type = $manifestation->getType();
+  $type = $manifestation->getSubType();
 
   $markup = theme('bibdk_reservation_manifestation', array(
     'title' => $title,
@@ -105,8 +105,8 @@ function bibdk_reservation_render_custom_manifestation_view(manifestation $manif
 function bibdk_reservation_convert_array_to_table($array) {
   foreach ($array as $key => $value) {
     $rows[]['data'] = array(
-      array('data' => $key, 'class' => array(''), 'header' => TRUE),
-      array('data' => $value, 'class' => array('')),
+      array('data' => t($key, array(), array('context'=>'bibdk_reservation')), 'class' => array(''), 'header' => TRUE),
+      array('data' => check_plain($value), 'class' => array('')),
     );
   }
   $table = array(
