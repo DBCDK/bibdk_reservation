@@ -99,6 +99,7 @@ function bibdk_reservation_ajax_command($reservable, $class, $path) {
 function bibdk_reservation_ajax_check_reservability($uid, $pids) {
   $ids = explode(',', $pids);
   $id = $ids[0];
+  $infotext = array();
 
   $bibdkWorkEntity = ting_openformat_get_manifestations($ids);
   $manifestations = $bibdkWorkEntity[$id]->getManifestations();
@@ -106,17 +107,24 @@ function bibdk_reservation_ajax_check_reservability($uid, $pids) {
   foreach ($manifestations as $manifestation) {
     if ($manifestation->isReservable()) {
       $isReservable = TRUE;
+    } else {
+      $infotext[] = _bibdk_reservation_render_infotext( $manifestation->getInfotext() );
     }
   }
 
   $class = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '', $id));
   $commands = array();
   if (!$isReservable) {
-    $text = t('not_possible_to_borrow_material', array(), array('context'=>'bibdk_reservation'));
     $type = 'notice';
     $path = '';
     drupal_get_messages();
-    drupal_set_message(t($text, array(), array('context'=>'bibdk_reservation:error')), $type);
+    $text = t('not_possible_to_borrow_material', array(), array('context'=>'bibdk_reservation'));
+    if ( sizeof($infotext) > 0 ) {
+      $text = implode( t(' OR ', array(), array('context'=>'bibdk_reservation')), $infotext);
+      drupal_set_message($text, $type);
+    } else {
+      drupal_set_message(t($text, array(), array('context'=>'bibdk_reservation:error')), $type);
+    }
     $selector = '.msg-' . $uid;
     $commands[] = ajax_command_invoke($selector, 'hide');
     $commands[] = ajax_command_html($selector, theme('status_messages'));
