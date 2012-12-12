@@ -18,7 +18,7 @@ function bibdk_reservation_link($entity_ids, $subtype, $entity_type) {
   $attributes['class'][] = 'bibdk-popup-link';
   $attributes['class'][] = 'btn';
   $attributes['class'][] = (isset($entity_type) && $entity_type == 'bibdkManifestation') ? 'btn-grey' : 'btn-blue';
-  if (bibdk_reservation_check_past_reservations() && strtolower($subtype) != 'avis' && strtolower($subtype) != 'tidsskrift') {
+  if (bibdk_reservation_check_past_reservations($entity_ids) && !(strtolower($subtype) == 'avis' || strtolower($subtype) == 'tidsskrift')) {
     $attributes['class'][] = 'orderedonce';
   }
 
@@ -38,19 +38,16 @@ function bibdk_reservation_link($entity_ids, $subtype, $entity_type) {
 /**
  * Checks session for already ordered materials
  */
-function bibdk_reservation_check_past_reservations() {
+function bibdk_reservation_check_past_reservations($entity_ids) {
   if (isset($_SESSION['orderedPids'])) {
-    $pids = BibdkReservationOrderObject::GetObject()->getManifestationIds();
-    foreach ($pids as $pid) {
+    foreach ($entity_ids as $pid) {
       if (in_array($pid, $_SESSION['orderedPids'])) {
         return TRUE;
         break;
       }
     }
   }
-  else {
-    return FALSE;
-  }
+  return FALSE;
 }
 
 /*
