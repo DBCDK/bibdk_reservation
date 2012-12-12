@@ -130,6 +130,9 @@ function bibdk_reservation_step_2_user_form_fields($form, $form_state) {
  */
 function bibdk_reservation_step_2_order_form_fields($form, $form_state) {
   $manifestation = BibdkReservationOrderObject::GetObject()->getManifestation();
+  // Quickfix to make sure no Order Fields are present for articles.
+  if ($manifestation->getSubType() == 'Tidsskriftsartikel' || $manifestation->getSubType() == 'Avisartikel')
+    return;
   $fields = bibdk_reservation_get_agency_fields()->getOrderParametersForType($manifestation->getOrsOrderMaterialType());
   if (!isset($fields)) {
     return $form;
