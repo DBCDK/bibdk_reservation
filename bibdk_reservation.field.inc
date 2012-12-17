@@ -27,7 +27,7 @@ function bibdk_reservation_field_info() {
       'default_formatter' => 'bibdk_reservation_button_default',
       'no_ui' => TRUE,
     ),
-    // Reservation info field 
+    // Reservation info field
     'bibdk_reservation_info' => array(
       'label' => t('Reservation info text', array(), array('context'=>'bibdk_reservation')),
       'description' => t('Information related to the reservation process', array(), array('context'=>'bibdk_reservation')),
@@ -90,7 +90,7 @@ function bibdk_reservation_field_formatter_view($entity_type, $entity, $field, $
           //$button_form = drupal_get_form("bibdk_reservation_button_form", $entity->getIDs(), $entity->getType(), $entity_type);
           //$element[$delta]['#markup'] = drupal_render($button_form);
           $element[$delta]['#markup'] = bibdk_reservation_link($entity->getIDs(), $entity->getSubType(), $entity_type);
-        } elseif ($entity->isLink()) {          
+        } elseif ($entity->isLink()) {
           $info = $entity->getAccessInformation();
           $element[$delta]['#markup'] = l(t('accessUrl', array(), array('context'=>'bibdk_reservation')),$info[0]['accessUrl'],array('attributes'=>array('target'=>'_blank')));
         }
@@ -112,6 +112,12 @@ function bibdk_reservation_field_formatter_view($entity_type, $entity, $field, $
 function _bibdk_reservation_render_infotext($string) {
   $message = NULL;
   switch ($string) {
+    case "noAccess" :
+      $message = t("drupal_text_noAccess", array(), array('context'=>'bibdk_reservation'));
+      break;
+    case "restrictedAccess" :
+      $message = t("drupal_text_restrictedAccess", array(), array('context'=>'bibdk_reservation'));
+      break;
     case "linkE17" :
       $message = t("drupal_text_linkE17", array(), array('context'=>'bibdk_reservation'));
       break;
