@@ -73,9 +73,13 @@ function _bibdk_reservation_create_type_button($type, $ids, $uid) {
   $class = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '', $ids[0]));
 
   // This should be moved to the template
-  $attributes['rel'] = 'userhelp';
+  $attributes['rel'] = 'reservation';
+  $attributes['class'][] = 'bibdk-popup-order-work';
   $attributes['class'][] = 'bibdk-popup-link-' . $class;
   $attributes['class'][] = 'use-ajax';
+  if (bibdk_reservation_check_past_reservations($ids) && !(strtolower($type) == 'avis' || strtolower($type) == 'tidsskrift')) {
+    $attributes['class'][] = 'orderedOnceWork';
+  }
   $link = l($text, $path . $query, array('attributes' => $attributes));
   return $link;
 }
