@@ -151,6 +151,18 @@ function _bibdk_reservation_render_infotext($string) {
     case "oldMaterial" :
       $message = t("drupal_text_oldMaterial", array(), array('context'=>'bibdk_reservation'));
       break;
+    case "noLendingLibraries" :
+      $message = t("drupal_text_noLendingLibraries", array(), array('context'=>'bibdk_reservation'));
+      break;
+    case "link" :
+      $message = t("drupal_text_link", array(), array('context'=>'bibdk_reservation'));
+      break;
+    case "plusLink" :
+      $message = t("drupal_text_plusLink", array(), array('context'=>'bibdk_reservation'));
+      break;
+    case "saleonly" :
+      $message = t("drupal_text_saleonly", array(), array('context'=>'bibdk_reservation'));
+      break;
   }
   return $message;
 }
