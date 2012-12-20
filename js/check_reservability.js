@@ -1,5 +1,5 @@
-/* 
- * add this function to Drupal.ajax.prototype commands 
+/*
+ * add this function to Drupal.ajax.prototype commands
  * to use it as standard drupal #ajax
  */
 
@@ -24,16 +24,18 @@
                 onUnload:null // function to call when the window is closed
             }
             ,
-            userhelp: {
-                height:500,
-                width:780,
+            reservation: {
+                height:650,
+                width:495,
                 center:0,
                 createnew:0,
                 scrollbars:1,
-                status:1
+                status:1,
+                left:15,
+                top:15
             }
         };
-        
+
         var reservable = response['reservable'];
         var sel = '.bibdk-popup-link-' + response['selector'];
         var path = response['path'];
