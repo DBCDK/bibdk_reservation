@@ -7,7 +7,7 @@ function bibdk_reservation_form_step_1($form, &$form_state) {
   );
   $form['step_info']['content'] = array(
     '#type' => 'markup',
-    '#markup' => t('bibdk_reservation_step1_description', array(), array('context'=>'bibdk_reservation')),
+    '#markup' => t('bibdk_reservation_step1_description', array(), array('context' => 'bibdk_reservation')),
   );
 
   $form['agency_search_form_container'] = array(
@@ -20,11 +20,11 @@ function bibdk_reservation_form_step_1($form, &$form_state) {
 
   if (isset($form_state['values']['anyField']))
     $form['agency_search_result'] = _bibdk_reservation_form_step_1_agency_result(array(), $form_state);
-  elseif ($favourites = BibdkReservationOrderObject::GetObject()->getFavourites()){
-      foreach ($favourites as $favourite){
-        $branches = $favourite->getBranch();
-      }
-      $form['agency_search_result'] = bibdk_reservation_parse_agency_search_result($branches);
+  elseif ($favourites = BibdkReservationOrderObject::GetObject()->getFavourites()) {
+    foreach ($favourites as $favourite) {
+      $branches = $favourite->getBranch();
+    }
+    $form['agency_search_result'] = bibdk_reservation_parse_agency_search_result($branches);
   }
   return $form;
 }
@@ -32,36 +32,35 @@ function bibdk_reservation_form_step_1($form, &$form_state) {
 function bibdk_reservation_form_step_1_validate($form, &$form_state) {
   $query = check_plain($form_state['values']['anyField']);
   if (empty($query)) {
-    form_set_error('anyField', t("You haven't entered any search criteria.", array(), array('context'=>'bibdk_reservation:error')));
+    form_set_error('anyField', t("You haven't entered any search criteria.", array(), array('context' => 'bibdk_reservation:error')));
   }
 }
 
-function bibdk_reservation_agency_search_form($form, &$form_state){
-   $form['agency_search_fieldset'] = array(
-     '#type' => 'fieldset',
-     '#attributes' => array('class' => array('search-form-horizontal', 'header-action-reservation')),
-     '#title' => t('Find Library', array(), array('context'=>'bibdk_reservation')),
-
-   );
-   $form['agency_search_fieldset']['anyField'] = array(
+function bibdk_reservation_agency_search_form($form, &$form_state) {
+  $form['agency_search_fieldset'] = array(
+    '#type' => 'fieldset',
+    '#attributes' => array('class' => array('search-form-horizontal', 'header-action-reservation')),
+    '#title' => t('Find Library', array(), array('context' => 'bibdk_reservation')),
+  );
+  $form['agency_search_fieldset']['anyField'] = array(
     '#type' => 'textfield',
     //'#title' => t('bibdk_reservation_agency_search_description'),
-    '#attributes' => array('placeholder' => t('Library name, zip or city', array(), array('context'=>'bibdk_reservation')), 'class'=> array('')),
-    '#default_value' => isset($form_state['values']['anyField']) ? $form_state['values']['anyField']: NULL,
+    '#attributes' => array('placeholder' => t('Library name, zip or city', array(), array('context' => 'bibdk_reservation')), 'class' => array('')),
+    '#default_value' => isset($form_state['values']['anyField']) ? $form_state['values']['anyField'] : NULL,
   );
-   $form['agency_search_fieldset']['search'] = array(
+  $form['agency_search_fieldset']['search'] = array(
     '#type' => 'submit',
     '#prefix' => '<div class="form-wrapper form-actions">',
     '#submit' => array('bibdk_reservation_wizard_goto_step_submit'),
     '#suffix' => '</div>',
-    '#value' => t('Search', array(), array('context'=>'bibdk_reservation')),
+    '#value' => t('Search', array(), array('context' => 'bibdk_reservation')),
     '#step' => 1
   );
 
-   return $form;
+  return $form;
 }
 
-function _bibdk_reservation_form_step_1_agency_result($form, &$form_state){
+function _bibdk_reservation_form_step_1_agency_result($form, &$form_state) {
   $query = check_plain($form_state['values']['anyField']);
   if (!isset($query))
     return;
@@ -78,13 +77,20 @@ function _bibdk_reservation_form_step_1_agency_result($form, &$form_state){
  * @param $result array of TingClientAgencyBranch objects
  * @return array formarray
  */
-function bibdk_reservation_parse_agency_search_result($result){
+function bibdk_reservation_parse_agency_search_result($result) {
   $form = array();
+
   if (!isset($result))
     return array();
 
-  foreach ($result as $branch) {
+// @TODO .. this is not an array ask søren why
+  if (is_array($result)) {
+    foreach ($result as $branch) {
       $form += bibdk_reservation_view_agency_branch($branch);
+    }
+  }
+  else {
+    $form += bibdk_reservation_view_agency_branch($result);
   }
   return $form;
 }
@@ -96,13 +102,13 @@ function bibdk_reservation_form_step_1_submit($form, &$form_state) {
 
 function bibdk_reservation_agency_branch_get_action_link($branch) {
   $form = array(
-        '#value' => t('select_reservation_library', array(), array('context'=>'bibdk_reservation')),
-        '#name' => 'branch-'.$branch->branchId,
-        '#type' => 'submit',
-        '#submit' => array('bibdk_reservation_wizard_next_submit'),
-        '#step' => 2,
-        '#branch' => $branch,
-      );
+    '#value' => t('select_reservation_library', array(), array('context' => 'bibdk_reservation')),
+    '#name' => 'branch-' . $branch->branchId,
+    '#type' => 'submit',
+    '#submit' => array('bibdk_reservation_wizard_next_submit'),
+    '#step' => 2,
+    '#branch' => $branch,
+  );
   return $form;
 }
 
