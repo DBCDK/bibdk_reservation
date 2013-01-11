@@ -303,6 +303,7 @@ function bibdk_reservation_borchk_validate($form_state) {
     }
     if (isset($messages['status'])) {
       drupal_set_message(t($messages['status'], array(), array('context' => 'bibdk_reservation:error')), 'warning');
+      
     }
     if (isset($messages['error'])) {
       form_set_error('borchk', t($messages['error'], array(), array('context' => 'bibdk_reservation:error')));
@@ -323,7 +324,8 @@ function bibdk_reservation_borchk_execute($form_state, $agencySettings) {
   );
   if (!$isBorrowerCheckRequired) {
     if (!$acceptOrderFromUnknownUser) {
-      $messages['status'] = t('Library does not accept reservations form unknown users', array(), array('context' => 'bibdk_reservation:error'));
+     // $messages['status'] = t('Library does not accept reservations form unknown users', array(), array('context' => 'bibdk_reservation:error'));
+      $messages['error'] = t('Library does not accept reservations form unknown users', array(), array('context' => 'bibdk_reservation:error'));
     }
   }
   else {
