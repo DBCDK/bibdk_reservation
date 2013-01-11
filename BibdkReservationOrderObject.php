@@ -55,14 +55,14 @@ class BibdkReservationOrderObject {
   }
 
   public function setFavourite(FavouriteAgency $favourite) {
-    $this->favourite = $favourite;
+    $this->favourite = serialize($favourite);
     $this->setBranch($favourite->getBranch());
   }
 
   public function getFavourite() {
-    return $this->favourite;
+    return unserialize($this->favourite);
   }
-  
+
   public function getAgency() {
     return $this->agency;
   }
@@ -72,7 +72,13 @@ class BibdkReservationOrderObject {
   }
 
   public function getFavourites() {
-    return $this->favourites;
+    $ret = array();
+    if (is_array($this->favourites)) {
+      foreach ($this->favourites as $favourite) {
+        $ret[] = unserialize($favourite);
+      }
+    } 
+    return $ret;
   }
 
   public function setFavourites($favourites) {
