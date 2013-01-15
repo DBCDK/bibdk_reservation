@@ -22,7 +22,7 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
   }
   else {
     $form_state['blocked'] = TRUE;
-    if ( $error = $orderpolicy->getCheckOrderPolicyError() ) {
+    if ($error = $orderpolicy->getCheckOrderPolicyError()) {
       form_set_error('bibdk_reservation_form_step_2', t($error, array(), array('context' => 'bibdk_reservation:error')));
       return $form;
     }
@@ -108,7 +108,7 @@ function bibdk_reservation_step_2_user_form_fields($form, $form_state) {
   );
   foreach ($fields as $userParameter) {
     $value = isset($userData[$userParameter['type']]) ? $userData[$userParameter['type']] : NULL;
-    
+
     $type = $userParameter['type'];
     $form['userParameters'][$type] = array(
       //'#type' => isset($userParameter['field_type']) ? $userParameter['field_type'] : 'textfield',
@@ -128,8 +128,9 @@ function bibdk_reservation_step_2_user_form_fields($form, $form_state) {
 function bibdk_reservation_step_2_order_form_fields($form, $form_state) {
   $manifestation = BibdkReservationOrderObject::GetObject()->getManifestation();
   // Quickfix to make sure no Order Fields are present for articles.
-  if ($manifestation->getSubType() == 'Tidsskriftsartikel' || $manifestation->getSubType() == 'Avisartikel')
-    return;
+  if ($manifestation->getSubType() == 'Tidsskriftsartikel' || $manifestation->getSubType() == 'Avisartikel') {
+    return NULL;
+  }
   $fields = bibdk_reservation_get_agency_fields()->getOrderParametersForType($manifestation->getOrsOrderMaterialType());
   if (!isset($fields)) {
     return $form;
@@ -174,11 +175,11 @@ function bibdk_reservation_step_2_order_branch_fields($form, $form_state) {
   );
 
   $moreinfo = theme('ting_agency_more_info', array('branch' => $branch,
-    'openingHours' => theme('ting_agency_opening_hours', array('branch' => $branch,)),
-    //'tools' => theme('ting_agency_tools', array('branch' => $branch)),
-    'address' => theme('ting_agency_address', array('branch' => $branch)),
-    'contact' => theme('ting_agency_contact', array('branch' => $branch)),
-      )
+      'openingHours' => theme('ting_agency_opening_hours', array('branch' => $branch,)),
+      //'tools' => theme('ting_agency_tools', array('branch' => $branch)),
+      'address' => theme('ting_agency_address', array('branch' => $branch)),
+      'contact' => theme('ting_agency_contact', array('branch' => $branch)),
+    )
   );
 
   //$classes[] = 'selected_branch';
@@ -188,7 +189,7 @@ function bibdk_reservation_step_2_order_branch_fields($form, $form_state) {
   $classes[] = (isset($branch->orderLibrary) && $branch->orderLibrary == 'TRUE') ? 'order-agency' : NULL;
 
   $form['branchParameters']['selectedBranch']['#markup'] =
-      theme('ting_agency_library', array('branchName' => $branch->branchName, 'actions' => NULL, 'add_classes' => $classes, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
+    theme('ting_agency_library', array('branchName' => $branch->branchName, 'actions' => NULL, 'add_classes' => $classes, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
 
   return $form;
 }
@@ -293,17 +294,17 @@ function bibdk_reservation_form_step_2_submit($form, &$form_state) {
  * Validate up against Borchk
  */
 function bibdk_reservation_borchk_validate($form_state) {
-  if ($form_state['clicked_button']['#name'] == 'next' ) {
+  if ($form_state['clicked_button']['#name'] == 'next') {
     // @TODO check that object is set
     $agencySettings = BibdkReservationOrderObject::GetObject()->getFields();
- 
+
     $messages = bibdk_reservation_borchk_execute($form_state, $agencySettings);
     if (!isset($messages)) {
       return;
     }
     if (isset($messages['status'])) {
       drupal_set_message(t($messages['status'], array(), array('context' => 'bibdk_reservation:error')), 'warning');
-      
+
     }
     if (isset($messages['error'])) {
       form_set_error('borchk', t($messages['error'], array(), array('context' => 'bibdk_reservation:error')));
@@ -314,7 +315,7 @@ function bibdk_reservation_borchk_validate($form_state) {
 /**
  * Execute service request to borchk
  */
-function bibdk_reservation_borchk_execute($form_state, $agencySettings) { 
+function bibdk_reservation_borchk_execute($form_state, $agencySettings) {
   $acceptOrderFromUnknownUser = $agencySettings->acceptOrderFromUnknownUser();
   $acceptOrderAgencyOffline = $agencySettings->acceptOrderAgencyOffline();
   $isBorrowerCheckRequired = $agencySettings->isBorrowerCheckRequired();
@@ -324,7 +325,7 @@ function bibdk_reservation_borchk_execute($form_state, $agencySettings) {
   );
   if (!$isBorrowerCheckRequired) {
     if (!$acceptOrderFromUnknownUser) {
-     // $messages['status'] = t('Library does not accept reservations form unknown users', array(), array('context' => 'bibdk_reservation:error'));
+      // $messages['status'] = t('Library does not accept reservations form unknown users', array(), array('context' => 'bibdk_reservation:error'));
       $messages['error'] = t('Library does not accept reservations form unknown users', array(), array('context' => 'bibdk_reservation:error'));
     }
   }
