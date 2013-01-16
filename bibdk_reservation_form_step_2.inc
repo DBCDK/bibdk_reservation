@@ -41,7 +41,6 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
 
 function _bibdk_reservation_generate_policy_messages() {
   $msgs = array();
-  //TODO (mmj) theoretically several urls can be available but currently only one is delivered
   if (BibdkOpenorderPolicyResponse::GetObject()->getLookUpUrl()) {
     $url = drupal_parse_url('reservations/catalogue_url/0');
     $msgs['lookUpUrl'] = array(
@@ -196,11 +195,15 @@ function bibdk_reservation_step_2_order_branch_fields($form, $form_state) {
 
 function bibdk_reservation_step_2_permanent_fields($form) {
   $date = strtotime(date("Y-m-d") . " +3 month");
+  $format = 'd-m-Y';
   $form['needBeforeDate'] = array(
-    '#type' => 'date',
+    '#type' => 'date_select',
     '#title' => t('Is of no interest after', array(), array('context' => 'bibdk_reservation')),
     '#required' => FALSE,
-    '#default_value' => array('year' => date('Y', $date), 'month' => date('n', $date), 'day' => date('j', $date)),
+    '#date_label_position' => 'within',
+    '#date_format' => $format,
+    '#default_value' => $date, #array('year' => date('Y', $date), 'month' => date('n', $date), 'day' => date('j', $date)),
+    '#date_year_range' => '0:+3',
   );
   return $form;
 }
