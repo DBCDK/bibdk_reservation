@@ -194,15 +194,15 @@ function bibdk_reservation_step_2_order_branch_fields($form, $form_state) {
 }
 
 function bibdk_reservation_step_2_permanent_fields($form) {
-  $date = strtotime(date("Y-m-d") . " +3 month");
-  $format = 'd-m-Y';
+  $timestamp = strtotime(date('Y-m-d') . '+ 3 month');
+  $date = date('Y-m-d', $timestamp);
   $form['needBeforeDate'] = array(
     '#type' => 'date_select',
     '#title' => t('Is of no interest after', array(), array('context' => 'bibdk_reservation')),
     '#required' => FALSE,
     '#date_label_position' => 'within',
-    '#date_format' => $format,
-    '#default_value' => $date, #array('year' => date('Y', $date), 'month' => date('n', $date), 'day' => date('j', $date)),
+    '#date_format' => 'd-m-Y',
+    '#default_value' => $date,
     '#date_year_range' => '0:+3',
   );
   return $form;
