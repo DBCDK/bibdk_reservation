@@ -16,7 +16,7 @@ function bibdk_reservation_form_step_3($form, &$form_state) {
 
   //render branch
   $branch = BibdkReservationOrderObject::GetObject()->getBranch();
-  $form['branchdata'] = bibdk_reservation_render_custom_branch_view($branch); //bibdk_reservation_step_2_order_branch_fields(array(), $form_state);
+  $form['branchdata'] = bibdk_reservation_render_custom_branch_view($branch, $form_state['step']); //bibdk_reservation_step_2_order_branch_fields(array(), $form_state);
 
   // Render order parameters
   $orderParamWithLabel = array();
@@ -53,7 +53,7 @@ function bibdk_reservation_form_step_3_validate($form, &$form_state) {
   }
 }
 
-function bibdk_reservation_render_custom_branch_view($branch) {
+function bibdk_reservation_render_custom_branch_view($branch, $step) {
   $name = $branch->branchName;
   $address = $branch->postalAddress;
   $postalCode = $branch->postalCode;
@@ -75,12 +75,14 @@ function bibdk_reservation_render_custom_branch_view($branch) {
     '#attributes' => array('class' => array('form-item'))
   );
 
-  $form['branchParameters']['chg_lib_btn'] = array(
-    '#type' => 'submit',
-    '#value' => t('Pick another library', array(), array('context' => 'bibdk_reservation')),
-    '#submit' => array('bibdk_reservation_wizard_previous_submit'),
-    '#limit_validation_errors' => array(),
-  );
+  if ($step == 2) {
+    $form['branchParameters']['chg_lib_btn'] = array(
+      '#type' => 'submit',
+      '#value' => t('Pick another library', array(), array('context' => 'bibdk_reservation')),
+      '#submit' => array('bibdk_reservation_wizard_previous_submit'),
+      '#limit_validation_errors' => array(),
+    );
+  }
 
   return $form;
 }
