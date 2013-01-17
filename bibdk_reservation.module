@@ -320,13 +320,13 @@ function bibdk_reservation_step_guide($form, &$form_state, $current_step) {
     if ($step < $current_step) {
       $classes = array('active');
     }
-    else if ($step == $current_step) {
+    else if ($step == $current_step || $current_step == 4) {
       $classes = array('btn-grey', 'btn');
     } // These classes is just for test - should be replaced with current
-// Create step button for $step
+    // Create step button for $step
     $form[$step] = array(
       '#type' => 'submit',
-      '#disabled' => ($step > $current_step) ? TRUE : FALSE,
+      '#disabled' => ($step > $current_step || $current_step == 4) ? TRUE : FALSE,
       '#value' => t('step' . $step, array(), array('context' => 'bibdk_reservation')),
       '#attributes' => array('class' => $classes),
       '#submit' => array('bibdk_reservation_wizard_goto_step_submit'),
