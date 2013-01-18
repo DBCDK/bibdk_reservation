@@ -174,11 +174,11 @@ function bibdk_reservation_step_2_order_branch_fields($form, $form_state) {
   );
 
   $moreinfo = theme('ting_agency_more_info', array('branch' => $branch,
-      'openingHours' => theme('ting_agency_opening_hours', array('branch' => $branch,)),
-      //'tools' => theme('ting_agency_tools', array('branch' => $branch)),
-      'address' => theme('ting_agency_address', array('branch' => $branch)),
-      'contact' => theme('ting_agency_contact', array('branch' => $branch)),
-    )
+    'openingHours' => theme('ting_agency_opening_hours', array('branch' => $branch,)),
+    //'tools' => theme('ting_agency_tools', array('branch' => $branch)),
+    'address' => theme('ting_agency_address', array('branch' => $branch)),
+    'contact' => theme('ting_agency_contact', array('branch' => $branch)),
+      )
   );
 
   //$classes[] = 'selected_branch';
@@ -188,7 +188,7 @@ function bibdk_reservation_step_2_order_branch_fields($form, $form_state) {
   $classes[] = (isset($branch->orderLibrary) && $branch->orderLibrary == 'TRUE') ? 'order-agency' : NULL;
 
   $form['branchParameters']['selectedBranch']['#markup'] =
-    theme('ting_agency_library', array('branchName' => $branch->branchName, 'actions' => NULL, 'add_classes' => $classes, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
+      theme('ting_agency_library', array('branchName' => $branch->branchName, 'actions' => NULL, 'add_classes' => $classes, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
 
   return $form;
 }
@@ -307,7 +307,6 @@ function bibdk_reservation_borchk_validate($form_state) {
     }
     if (isset($messages['status'])) {
       drupal_set_message(t($messages['status'], array(), array('context' => 'bibdk_reservation:error')), 'warning');
-
     }
     if (isset($messages['error'])) {
       form_set_error('borchk', t($messages['error'], array(), array('context' => 'bibdk_reservation:error')));
