@@ -194,7 +194,7 @@ function bibdk_reservation_create_wizard_form($form, &$form_state) {
   return $form;
 }
 
-function bibdk_reservation_check_order_library($form_state) {
+function bibdk_reservation_check_order_library(&$form_state) {
   $favourites = _bibdk_favourite_get_from_webservice();
   $ret = FALSE;
   if (!empty($favourites)) {
@@ -216,7 +216,9 @@ function bibdk_reservation_check_order_library($form_state) {
       $current_favouriteid = BibdkReservationOrderObject::GetObject()->getFavourite()->getAgencyId();      
       foreach ($favourites as $favourite) {
         if ($favourite->getAgencyId() == $selected_branch_id && !empty($current_favouriteid)) {
-          BibdkReservationOrderObject::GetObject()->setFavourite($favourite);          
+          BibdkReservationOrderObject::GetObject()->setFavourite($favourite); 
+          // reset input - some fields are repeated
+          $form_state['input'] = array();
         }
       }
     }
