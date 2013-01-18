@@ -118,7 +118,7 @@ function _bibdk_reservation_steps() {
  */
 function bibdk_reservation_create_wizard_form($form, &$form_state) {
   // Initialize a description of the steps for the wizard.
-  if (empty($form_state['step']) || $form_state['input']['favourite_selected']) {
+  if (empty($form_state['step']) || !empty($form_state['input']['favourite_selected'])) {
     $order = bibdk_reservation_new_order_object();
 
     if (bibdk_reservation_check_order_library($form_state)) {
