@@ -30,6 +30,11 @@ function bibdk_reservation_form_step_1($form, &$form_state) {
 }
 
 function bibdk_reservation_form_step_1_validate($form, &$form_state) {
+  // if clicked button is a branch selector; don't validate on search field - it comes from a search result
+  if( strpos($form_state['clicked_button']['#name'], 'branch-') === 0 ) {
+    return;
+  }
+  
   $query = check_plain($form_state['values']['anyField']);
   if (empty($query)) {
     form_set_error('anyField', t("You haven't entered any search criteria.", array(), array('context' => 'bibdk_reservation:error')));
