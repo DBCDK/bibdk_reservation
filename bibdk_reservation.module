@@ -118,10 +118,10 @@ function _bibdk_reservation_steps() {
  */
 function bibdk_reservation_create_wizard_form($form, &$form_state) {
   // Initialize a description of the steps for the wizard.
-  if (empty($form_state['step'])) {
+  if (empty($form_state['step']) || $form_state['input']['favourite_selected']) {
     $order = bibdk_reservation_new_order_object();
 
-    if (bibdk_reservation_check_order_library()) {
+    if (bibdk_reservation_check_order_library($form_state)) {
       $form_state['step'] = 2;
     }
     else {
@@ -194,9 +194,9 @@ function bibdk_reservation_create_wizard_form($form, &$form_state) {
   return $form;
 }
 
-function bibdk_reservation_check_order_library() {
+function bibdk_reservation_check_order_library($form_state) {
   $favourites = _bibdk_favourite_get_from_webservice();
-
+  $ret = FALSE;
   if (!empty($favourites)) {
     foreach ($favourites as $favourite) {
       $serialized_favs[] = serialize($favourite);
@@ -206,11 +206,22 @@ function bibdk_reservation_check_order_library() {
     foreach ($favourites as $favourite) {
       if ($favourite->getOrderAgency()) {
         BibdkReservationOrderObject::GetObject()->setFavourite($favourite);
-        return true;
+        $ret = TRUE;
+      }
+    }
+    
+    $selected_branch_id = isset($form_state['input']['favouriteselector']) ? $form_state['input']['favouriteselector'] : NULL;
+    // special case; order library changed to another favourite
+    if (isset($selected_branch_id)) {
+      $current_favouriteid = BibdkReservationOrderObject::GetObject()->getFavourite()->getAgencyId();      
+      foreach ($favourites as $favourite) {
+        if ($favourite->getAgencyId() == $selected_branch_id && !empty($current_favouriteid)) {
+          BibdkReservationOrderObject::GetObject()->setFavourite($favourite);          
+        }
       }
     }
   }
-  return false;
+  return $ret;
 }
 
 /**

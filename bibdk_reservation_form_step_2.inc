@@ -11,7 +11,13 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
 
   //render branch
   $branch = BibdkReservationOrderObject::GetObject()->getBranch();
+
   $form['branchdata'] = bibdk_reservation_render_custom_branch_view($branch, $form_state['step']); //bibdk_reservation_step_2_order_branch_fields(array(), $form_state);
+
+
+  //$form['branchdata'] = bibdk_reservation_render_custom_branch_view($branch); //bibdk_reservation_step_2_order_branch_fields(array(), $form_state);
+  $form['branchdata']['favouriteselector'] = bibdk_reservation_favourite_selector();
+  $form['branchdata']['hidden_favourite'] = bibdk_reservation_hidden_favourite();
 
   $orderpolicy = bibdk_reservation_form_step_2_do_policycheck();
 
@@ -37,6 +43,47 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
     form_set_error('bibdk_reservation_form_step_2', t($reason, array(), array('context' => 'bibdk_reservation:error')));
   }
   return $form;
+}
+
+/** \brief Hidden field to determine whether favourite has changed
+ * 
+ * @return array; form element hidden 
+ */
+function bibdk_reservation_hidden_favourite() {
+  return array(
+    '#name' => 'favourite_selected',
+    '#type' => 'hidden',
+    '#default_value' => 0,
+    '#attributes' => array('class' => array('hidden_selector')),
+  );
+}
+
+/** \ brief Dropdown list to select another favourite library
+ *
+ * @return array; form element dropdown box 
+ */
+function bibdk_reservation_favourite_selector() {
+  $options = bibdk_reservation_get_favourites_for_selector();
+
+  return array(
+    '#type' => 'select',
+    '#title' => t('Select another favourite library'),
+    '#options' => $options,
+    '#default_value' => BibdkReservationOrderObject::GetObject()->getFavourite()->getAgencyId(),
+    '#attributes' => array('class' => array(drupal_html_class('reservation_favourite_selector'))),
+  );
+}
+
+/** \brief Get options for favourite select list
+ *
+ * @return array; [agencyId]=>[branchName]
+ */
+function bibdk_reservation_get_favourites_for_selector() {
+  $favourites = BibdkReservationOrderObject::GetObject()->getFavourites();
+  foreach ($favourites as $favourite) {
+    $ret[$favourite->getAgencyId()] = $favourite->getBranch()->branchName;
+  }
+  return $ret;
 }
 
 function _bibdk_reservation_generate_policy_messages() {
