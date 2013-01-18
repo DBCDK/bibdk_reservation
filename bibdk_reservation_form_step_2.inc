@@ -64,7 +64,11 @@ function bibdk_reservation_hidden_favourite() {
  */
 function bibdk_reservation_favourite_selector() {
   $options = bibdk_reservation_get_favourites_for_selector();
-
+  // data check
+  if( empty($options) ) {
+    return;
+  }
+  
   return array(
     '#type' => 'select',
     '#title' => t('Select another favourite library'),
@@ -79,6 +83,7 @@ function bibdk_reservation_favourite_selector() {
  * @return array; [agencyId]=>[branchName]
  */
 function bibdk_reservation_get_favourites_for_selector() {
+  $ret = array();
   $favourites = BibdkReservationOrderObject::GetObject()->getFavourites();
   foreach ($favourites as $favourite) {
     $ret[$favourite->getAgencyId()] = $favourite->getBranch()->branchName;
@@ -384,7 +389,8 @@ function bibdk_reservation_borchk_execute($form_state, $agencySettings) {
     $userId = isset($form_state['values'][$userIdKey]) ? $form_state['values'][$userIdKey] : NULL;
     $userPincode = isset($form_state['values']['pincode']) ? $form_state['values']['pincode'] : NULL;
     $response = bibdk_borchk_request($userId, $userPincode, $libraryCode);
-    $messages = bibdk_reservation_borchk_parse_response($response->borrowerCheckResponse->requestStatus->{'$'}, $acceptOrderFromUnknownUser, $acceptOrderAgencyOffline);
+   
+    $messages = bibdk_reservation_borchk_parse_response($response->borrowerCheckResponse->requestStatus, $acceptOrderFromUnknownUser, $acceptOrderAgencyOffline);
   }
   return $messages;
 }
