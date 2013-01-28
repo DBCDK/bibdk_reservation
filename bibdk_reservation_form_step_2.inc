@@ -11,7 +11,13 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
 
   //render branch
   $branch = BibdkReservationOrderObject::GetObject()->getBranch();
-  $form['branchdata'] = bibdk_reservation_render_custom_branch_view($branch); //bibdk_reservation_step_2_order_branch_fields(array(), $form_state);
+
+  $form['branchdata'] = bibdk_reservation_render_custom_branch_view($branch, $form_state['step']); //bibdk_reservation_step_2_order_branch_fields(array(), $form_state);
+
+
+  //$form['branchdata'] = bibdk_reservation_render_custom_branch_view($branch); //bibdk_reservation_step_2_order_branch_fields(array(), $form_state);
+  $form['branchdata']['favouriteselector'] = bibdk_reservation_favourite_selector();
+  $form['branchdata']['hidden_favourite'] = bibdk_reservation_hidden_favourite();
 
   $orderpolicy = bibdk_reservation_form_step_2_do_policycheck();
 
@@ -39,9 +45,54 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
   return $form;
 }
 
+/** \brief Hidden field to determine whether favourite has changed
+ * 
+ * @return array; form element hidden 
+ */
+function bibdk_reservation_hidden_favourite() {
+  return array(
+    '#name' => 'favourite_selected',
+    '#type' => 'hidden',
+    '#default_value' => 0,
+    '#attributes' => array('class' => array('hidden_selector')),
+  );
+}
+
+/** \ brief Dropdown list to select another favourite library
+ *
+ * @return array; form element dropdown box 
+ */
+function bibdk_reservation_favourite_selector() {
+  $options = bibdk_reservation_get_favourites_for_selector();
+  // data check
+  if( empty($options) ) {
+    return;
+  }
+  
+  return array(
+    '#type' => 'select',
+    '#title' => t('Select another favourite library'),
+    '#options' => $options,
+    '#default_value' => BibdkReservationOrderObject::GetObject()->getFavourite()->getAgencyId(),
+    '#attributes' => array('class' => array(drupal_html_class('reservation_favourite_selector'))),
+  );
+}
+
+/** \brief Get options for favourite select list
+ *
+ * @return array; [agencyId]=>[branchName]
+ */
+function bibdk_reservation_get_favourites_for_selector() {
+  $ret = array();
+  $favourites = BibdkReservationOrderObject::GetObject()->getFavourites();
+  foreach ($favourites as $favourite) {
+    $ret[$favourite->getAgencyId()] = $favourite->getBranch()->branchName;
+  }
+  return $ret;
+}
+
 function _bibdk_reservation_generate_policy_messages() {
   $msgs = array();
-  //TODO (mmj) theoretically several urls can be available but currently only one is delivered
   if (BibdkOpenorderPolicyResponse::GetObject()->getLookUpUrl()) {
     $url = drupal_parse_url('reservations/catalogue_url/0');
     $msgs['lookUpUrl'] = array(
@@ -175,11 +226,11 @@ function bibdk_reservation_step_2_order_branch_fields($form, $form_state) {
   );
 
   $moreinfo = theme('ting_agency_more_info', array('branch' => $branch,
-      'openingHours' => theme('ting_agency_opening_hours', array('branch' => $branch,)),
-      //'tools' => theme('ting_agency_tools', array('branch' => $branch)),
-      'address' => theme('ting_agency_address', array('branch' => $branch)),
-      'contact' => theme('ting_agency_contact', array('branch' => $branch)),
-    )
+    'openingHours' => theme('ting_agency_opening_hours', array('branch' => $branch,)),
+    //'tools' => theme('ting_agency_tools', array('branch' => $branch)),
+    'address' => theme('ting_agency_address', array('branch' => $branch)),
+    'contact' => theme('ting_agency_contact', array('branch' => $branch)),
+      )
   );
 
   //$classes[] = 'selected_branch';
@@ -189,18 +240,22 @@ function bibdk_reservation_step_2_order_branch_fields($form, $form_state) {
   $classes[] = (isset($branch->orderLibrary) && $branch->orderLibrary == 'TRUE') ? 'order-agency' : NULL;
 
   $form['branchParameters']['selectedBranch']['#markup'] =
-    theme('ting_agency_library', array('branchName' => $branch->branchName, 'actions' => NULL, 'add_classes' => $classes, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
+      theme('ting_agency_library', array('branchName' => $branch->branchName, 'actions' => NULL, 'add_classes' => $classes, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
 
   return $form;
 }
 
 function bibdk_reservation_step_2_permanent_fields($form) {
-  $date = strtotime(date("Y-m-d") . " +3 month");
+  $timestamp = strtotime(date('Y-m-d') . '+ 3 month');
+  $date = date('Y-m-d', $timestamp);
   $form['needBeforeDate'] = array(
-    '#type' => 'date',
+    '#type' => 'date_select',
     '#title' => t('Is of no interest after', array(), array('context' => 'bibdk_reservation')),
     '#required' => FALSE,
-    '#default_value' => array('year' => date('Y', $date), 'month' => date('n', $date), 'day' => date('j', $date)),
+    '#date_label_position' => 'within',
+    '#date_format' => 'd-m-Y',
+    '#default_value' => $date,
+    '#date_year_range' => '0:+3',
   );
   return $form;
 }
@@ -304,7 +359,6 @@ function bibdk_reservation_borchk_validate($form_state) {
     }
     if (isset($messages['status'])) {
       drupal_set_message(t($messages['status'], array(), array('context' => 'bibdk_reservation:error')), 'warning');
-
     }
     if (isset($messages['error'])) {
       form_set_error('borchk', t($messages['error'], array(), array('context' => 'bibdk_reservation:error')));
@@ -335,7 +389,8 @@ function bibdk_reservation_borchk_execute($form_state, $agencySettings) {
     $userId = isset($form_state['values'][$userIdKey]) ? $form_state['values'][$userIdKey] : NULL;
     $userPincode = isset($form_state['values']['pincode']) ? $form_state['values']['pincode'] : NULL;
     $response = bibdk_borchk_request($userId, $userPincode, $libraryCode);
-    $messages = bibdk_reservation_borchk_parse_response($response->borrowerCheckResponse->requestStatus->{'$'}, $acceptOrderFromUnknownUser, $acceptOrderAgencyOffline);
+   
+    $messages = bibdk_reservation_borchk_parse_response($response->borrowerCheckResponse->requestStatus, $acceptOrderFromUnknownUser, $acceptOrderAgencyOffline);
   }
   return $messages;
 }
