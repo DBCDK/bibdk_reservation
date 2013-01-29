@@ -390,7 +390,7 @@ function bibdk_reservation_borchk_execute($form_state, $agencySettings) {
     $userPincode = isset($form_state['values']['pincode']) ? $form_state['values']['pincode'] : NULL;
     $response = bibdk_borchk_request($userId, $userPincode, $libraryCode);
    
-    $messages = bibdk_reservation_borchk_parse_response($response->borrowerCheckResponse->requestStatus, $acceptOrderFromUnknownUser, $acceptOrderAgencyOffline);
+    $messages = bibdk_reservation_borchk_parse_response($response->borrowerCheckResponse->requestStatus->{'$'}, $acceptOrderFromUnknownUser, $acceptOrderAgencyOffline);
   }
   return $messages;
 }
