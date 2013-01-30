@@ -74,7 +74,7 @@ function _bibdk_reservation_create_type_button($type, $ids, $uid) {
 
   // This should be moved to the template
   $attributes['rel'] = 'reservation';
-  $attributes['class'][] = 'bibdk-popup-link';
+  $attributes['class'][] = 'bibdk-popup-order-work';
   $attributes['class'][] = 'bibdk-popup-link-' . $class;
   $attributes['class'][] = 'use-ajax';
   if (bibdk_reservation_check_past_reservations($ids) && !(strtolower($type) == 'avis' || strtolower($type) == 'tidsskrift')) {
