@@ -251,7 +251,7 @@ function bibdk_reservation_step_2_permanent_fields($form) {
   $form['needBeforeDate'] = array(
     '#type' => 'date_select',
     '#title' => t('Is of no interest after', array(), array('context' => 'bibdk_reservation')),
-    '#required' => FALSE,
+    '#required' => TRUE,
     '#date_label_position' => 'within',
     '#date_format' => 'd-m-Y',
     '#default_value' => $date,
@@ -330,11 +330,9 @@ function bibdk_reservation_form_step_2_submit($form, &$form_state) {
   }
 
   // Parse static fields
-  $year = $form_state['values']['needBeforeDate']['year'];
-  $month = $form_state['values']['needBeforeDate']['month'];
-  $day = $form_state['values']['needBeforeDate']['day'];
-  $date = date("Y-m-d\TH:i:s", strtotime("$year-$month-$day"));
-  $userData['Need before Date'] = "$day/$month/$year";
+  $input_date = $form_state['values']['needBeforeDate'];
+  $date = date("Y-m-d\TH:i:s", strtotime($input_date));
+  $userData['Need before Date'] = implode('/', array_reverse(explode('-', $input_date)));
 
   // Save all user input
   BibdkReservationOrderObject::GetObject()->setUserData($userData);
