@@ -146,7 +146,7 @@ function bibdk_reservation_step_2_user_form_fields($form, $form_state) {
     return;
   }
   $favourite = BibdkReservationOrderObject::GetObject()->getFavourite();
-  if (!empty($favourite) & !$new_branch_selector) {
+  if (!empty($favourite) && !$new_branch_selector) {
     $userData = $favourite->getUserData();
   }
   $form['userParameters'] = array(
