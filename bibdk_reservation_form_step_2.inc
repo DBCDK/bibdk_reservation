@@ -4,7 +4,6 @@
  * implements hook_form
  */
 function bibdk_reservation_form_step_2($form, &$form_state) {
-
   //render manifestation
   $manifestation = BibdkReservationOrderObject::GetObject()->getManifestation();
   $form['manifestation'] = bibdk_reservation_render_custom_manifestation_view($manifestation);
@@ -13,7 +12,6 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
   $branch = BibdkReservationOrderObject::GetObject()->getBranch();
 
   $form['branchdata'] = bibdk_reservation_render_custom_branch_view($branch, $form_state['step']); //bibdk_reservation_step_2_order_branch_fields(array(), $form_state);
-
 
   //$form['branchdata'] = bibdk_reservation_render_custom_branch_view($branch); //bibdk_reservation_step_2_order_branch_fields(array(), $form_state);
   $form['branchdata']['favouriteselector'] = bibdk_reservation_favourite_selector();
@@ -46,10 +44,11 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
 }
 
 /** \brief Hidden field to determine whether favourite has changed
- * 
- * @return array; form element hidden 
+ *
+ * @return array; form element hidden
  */
 function bibdk_reservation_hidden_favourite() {
+  return array();
   return array(
     '#name' => 'favourite_selected',
     '#type' => 'hidden',
@@ -60,7 +59,7 @@ function bibdk_reservation_hidden_favourite() {
 
 /** \ brief Dropdown list to select another favourite library
  *
- * @return array; form element dropdown box 
+ * @return array; form element dropdown box
  */
 function bibdk_reservation_favourite_selector() {
   $options = bibdk_reservation_get_favourites_for_selector();
@@ -68,7 +67,7 @@ function bibdk_reservation_favourite_selector() {
   if( empty($options) ) {
     return;
   }
-  
+
   return array(
     '#type' => 'select',
     '#title' => t('Select another favourite library'),
@@ -141,15 +140,15 @@ function bibdk_reservation_manifestation_form_fields($form, &$form_state) {
  * Render user fields;
  */
 function bibdk_reservation_step_2_user_form_fields($form, $form_state) {
+  $new_branch_selector = ( !empty($form_state['triggering_element']['#new_branch_selector']) ) ? $form_state['triggering_element']['#new_branch_selector'] : FALSE;
   $fields = bibdk_reservation_get_agency_fields()->getUserParameters();
   if (!isset($fields)) {
     return;
   }
   $favourite = BibdkReservationOrderObject::GetObject()->getFavourite();
-  if (!empty($favourite)) {
+  if (!empty($favourite) & !$new_branch_selector) {
     $userData = $favourite->getUserData();
   }
-
   $form['userParameters'] = array(
     '#type' => 'fieldset',
     '#title' => t('User Parameters', array(), array('context' => 'bibdk_reservation')),
@@ -387,7 +386,7 @@ function bibdk_reservation_borchk_execute($form_state, $agencySettings) {
     $userId = isset($form_state['values'][$userIdKey]) ? $form_state['values'][$userIdKey] : NULL;
     $userPincode = isset($form_state['values']['pincode']) ? $form_state['values']['pincode'] : NULL;
     $response = bibdk_borchk_request($userId, $userPincode, $libraryCode);
-   
+
     $messages = bibdk_reservation_borchk_parse_response($response->borrowerCheckResponse->requestStatus->{'$'}, $acceptOrderFromUnknownUser, $acceptOrderAgencyOffline);
   }
   return $messages;
