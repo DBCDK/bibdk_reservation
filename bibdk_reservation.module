@@ -198,8 +198,8 @@ function bibdk_reservation_check_order_library(&$form_state) {
   $favourites = _bibdk_favourite_get_from_webservice();
   $ret = FALSE;
   if (!empty($favourites)) {
-    foreach ($favourites as $favourite) {
-      $serialized_favs[] = serialize($favourite);
+    foreach ($favourites as $bibnr => $favourite) {
+      $serialized_favs[$bibnr] = serialize($favourite);
     }
     //BibdkReservationOrderObject::GetObject()->setFavourites($favourites);
     BibdkReservationOrderObject::GetObject()->setFavourites($serialized_favs);
@@ -209,14 +209,14 @@ function bibdk_reservation_check_order_library(&$form_state) {
         $ret = TRUE;
       }
     }
-    
+
     $selected_branch_id = isset($form_state['input']['favouriteselector']) ? $form_state['input']['favouriteselector'] : NULL;
     // special case; order library changed to another favourite
     if (isset($selected_branch_id)) {
-      $current_favouriteid = BibdkReservationOrderObject::GetObject()->getFavourite()->getAgencyId();      
+      $current_favouriteid = BibdkReservationOrderObject::GetObject()->getFavourite()->getAgencyId();
       foreach ($favourites as $favourite) {
         if ($favourite->getAgencyId() == $selected_branch_id && !empty($current_favouriteid)) {
-          BibdkReservationOrderObject::GetObject()->setFavourite($favourite); 
+          BibdkReservationOrderObject::GetObject()->setFavourite($favourite);
           // reset input - some fields are repeated
           $form_state['input'] = array();
         }
@@ -247,7 +247,6 @@ function bibdk_reservation_wizard_next_submit($form, &$form_state) {
   $current_step = $form_state['step'];
   /* Call custom submit function for current step */
   $current_submit_function = $form_state['step_information'][$current_step]['form'] . '_submit';
-
   if (function_exists($current_submit_function)) {
     call_user_func_array($current_submit_function, array($form, $form_state));
   }

@@ -140,15 +140,23 @@ function bibdk_reservation_manifestation_form_fields($form, &$form_state) {
  * Render user fields;
  */
 function bibdk_reservation_step_2_user_form_fields($form, $form_state) {
-  $new_branch_selector = ( !empty($form_state['triggering_element']['#new_branch_selector']) ) ? $form_state['triggering_element']['#new_branch_selector'] : FALSE;
+
   $fields = bibdk_reservation_get_agency_fields()->getUserParameters();
   if (!isset($fields)) {
     return;
   }
-  $favourite = BibdkReservationOrderObject::GetObject()->getFavourite();
-  if (!empty($favourite) && !$new_branch_selector) {
-    $userData = $favourite->getUserData();
+
+  $favourites = BibdkReservationOrderObject::GetObject()->getFavourites();
+
+  $branch = BibdkReservationOrderObject::GetObject()->getBranch();
+
+  $userData = array();
+  foreach ($favourites as $branchid => $favourite) {
+    if ( $branchid == $branch->branchId ) {
+      $userData = $favourite->getUserData();
+    }
   }
+
   $form['userParameters'] = array(
     '#type' => 'fieldset',
     '#title' => t('User Parameters', array(), array('context' => 'bibdk_reservation')),
@@ -157,9 +165,8 @@ function bibdk_reservation_step_2_user_form_fields($form, $form_state) {
     '#markup' => t('Description for user parameters', array(), array('context' => 'bibdk_reservation')),
   );
   foreach ($fields as $userParameter) {
-    $value = isset($userData[$userParameter['type']]) ? $userData[$userParameter['type']] : NULL;
-
     $type = $userParameter['type'];
+    $value = isset($userData[$type]) ? $userData[$type] : NULL;
     $form['userParameters'][$type] = array(
       //'#type' => isset($userParameter['field_type']) ? $userParameter['field_type'] : 'textfield',
       '#type' => 'textfield',

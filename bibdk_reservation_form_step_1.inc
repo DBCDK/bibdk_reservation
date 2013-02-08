@@ -88,7 +88,7 @@ function bibdk_reservation_parse_agency_search_result($result) {
   if (!isset($result))
     return array();
 
-// @TODO .. this is not an array ask søren why
+// @TODO .. this is not an array ask soeren why
   if (is_array($result)) {
     foreach ($result as $branch) {
       $form += bibdk_reservation_view_agency_branch($branch);
@@ -113,7 +113,6 @@ function bibdk_reservation_agency_branch_get_action_link($branch) {
     '#submit' => array('bibdk_reservation_wizard_next_submit'),
     '#step' => 2,
     '#branch' => $branch,
-    '#new_branch_selector' => '1',
   );
   return $form;
 }
