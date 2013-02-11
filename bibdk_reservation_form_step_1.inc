@@ -34,7 +34,7 @@ function bibdk_reservation_form_step_1_validate($form, &$form_state) {
   if( strpos($form_state['clicked_button']['#name'], 'branch-') === 0 ) {
     return;
   }
-  
+
   $query = check_plain($form_state['values']['anyField']);
   if (empty($query)) {
     form_set_error('anyField', t("You haven't entered any search criteria.", array(), array('context' => 'bibdk_reservation:error')));
@@ -88,7 +88,7 @@ function bibdk_reservation_parse_agency_search_result($result) {
   if (!isset($result))
     return array();
 
-// @TODO .. this is not an array ask søren why
+// @TODO .. this is not an array ask soeren why
   if (is_array($result)) {
     foreach ($result as $branch) {
       $form += bibdk_reservation_view_agency_branch($branch);
@@ -119,7 +119,7 @@ function bibdk_reservation_agency_branch_get_action_link($branch) {
 
 /**
  * Render the view of an agency branch and wrap it in an form element
- * 
+ *
  * @param TingClientAgencyBranch $branch
  * @return mixed
  */

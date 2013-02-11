@@ -74,10 +74,10 @@ class BibdkReservationOrderObject {
   public function getFavourites() {
     $ret = array();
     if (is_array($this->favourites)) {
-      foreach ($this->favourites as $favourite) {
-        $ret[] = unserialize($favourite);
+      foreach ($this->favourites as $bibnr => $favourite) {
+        $ret[$bibnr] = unserialize($favourite);
       }
-    } 
+    }
     return $ret;
   }
 
