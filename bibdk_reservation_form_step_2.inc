@@ -48,7 +48,6 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
  * @return array; form element hidden
  */
 function bibdk_reservation_hidden_favourite() {
-  return array();
   return array(
     '#name' => 'favourite_selected',
     '#type' => 'hidden',
