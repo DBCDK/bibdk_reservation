@@ -48,7 +48,6 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
  * @return array; form element hidden
  */
 function bibdk_reservation_hidden_favourite() {
-  return array();
   return array(
     '#name' => 'favourite_selected',
     '#type' => 'hidden',
@@ -160,15 +159,29 @@ function bibdk_reservation_step_2_user_form_fields($form, $form_state) {
   $form['userParameters'] = array(
     '#type' => 'fieldset',
     '#title' => t('User Parameters', array(), array('context' => 'bibdk_reservation')),
+    '#attributes' => array('class' => array(drupal_html_class('bibdk_reservation_title'))),
   );
+  
+  // checkbox to unmask password fields
+  $form['userParameters']['checkbox'] = array(
+    '#title' => t('Show_masked_input'),
+    '#type' => 'checkbox',
+    '#attributes' => array('class' => array(drupal_html_class('bibdk_unmask_password_field'))),
+  );
+  
+  
   $form['userParameters']['description'] = array(
     '#markup' => t('Description for user parameters', array(), array('context' => 'bibdk_reservation')),
+    '#prefix' => '<div class="bibdk_clear">',
+    '#suffix' => '</div>',
   );
+  
   foreach ($fields as $userParameter) {
     $type = $userParameter['type'];
     $value = isset($userData[$type]) ? $userData[$type] : NULL;
     $form['userParameters'][$type] = array(
       //'#type' => isset($userParameter['field_type']) ? $userParameter['field_type'] : 'textfield',
+      '#attributes' => array('class' => array((isset($userParameter['field_type']) && $userParameter['field_type'] == 'password') ? drupal_html_class('bibdk_password_field') : '')),
       '#type' => 'textfield',
       '#title' => isset($userParameter['field_name']) ? $userParameter['field_name'] : "",
       '#description' => isset($userParameter['field_description']) ? $userParameter['field_description'] : NULL,

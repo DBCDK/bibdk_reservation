@@ -1,9 +1,9 @@
 name = Bibdk Reservation
 description = Implementation of reservation functionality on bibdk entities
-package = DBCDK
+package = Bibliotek.dk
 ; configure = admin/config/...
 core = 7.x
-version = 7.x-0.9
+version = 7.x-0.10
 php = 5.2.4
 
 dependencies[] = bibdk_borchk
