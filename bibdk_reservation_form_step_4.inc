@@ -1,5 +1,12 @@
 <?php
 function bibdk_reservation_form_step_4($form, &$form_state) {
+
+  if ( !BibdkReservationOrderObject::GetObject()->getFields()->isBorrowerCheckRequired() ) {
+    if ( !BibdkReservationOrderObject::GetObject()->getFields()->acceptOrderFromUnknownUser() ) {
+      drupal_set_message(check_plain(BibdkReservationOrderObject::GetObject()->getFields()->getAcceptOrderFromUnknownUserText()), 'status');
+    }
+  }
+
   $orderId = BibdkReservationOrderObject::GetObject()->getOrderId();
   return bibdk_reservation_form_step_4_form($form,$form_state, $orderId);
 }
