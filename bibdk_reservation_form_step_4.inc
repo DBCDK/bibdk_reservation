@@ -1,12 +1,6 @@
 <?php
 function bibdk_reservation_form_step_4($form, &$form_state) {
 
-  if ( !BibdkReservationOrderObject::GetObject()->getFields()->isBorrowerCheckRequired() ) {
-    if ( !BibdkReservationOrderObject::GetObject()->getFields()->acceptOrderFromUnknownUser() ) {
-      drupal_set_message(check_plain(BibdkReservationOrderObject::GetObject()->getFields()->getAcceptOrderFromUnknownUserText()), 'status');
-    }
-  }
-
   $orderId = BibdkReservationOrderObject::GetObject()->getOrderId();
   return bibdk_reservation_form_step_4_form($form,$form_state, $orderId);
 }
@@ -53,6 +47,7 @@ function bibdk_reservation_form_step_4_do_order() {
     $result = array('error' => t('An error happened and the order could not be completed.', array(), array('context'=>'bibdk_reservation')));
   }
   else {
+    drupal_set_message(check_plain(BibdkReservationOrderObject::GetObject()->getBranch()->getIllOrderReceiptText()), 'status');
     $result = bibdk_reservation_form_step_4_handle_response($response);
     module_invoke_all('bibdk_reservation_complete', $pids, $result);
   }
