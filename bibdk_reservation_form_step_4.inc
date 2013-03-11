@@ -25,6 +25,8 @@ function bibdk_reservation_form_step_4_form($form, &$form_state, $orderId) {
 }
 
 function bibdk_reservation_form_step_4_do_order() {
+  global $language;
+  $lang = $language->language;
   $params = array();
   $pids = BibdkReservationOrderObject::GetObject()->getManifestationIds();
   $userdata = BibdkReservationOrderObject::GetObject()->getUserOrderData();
@@ -47,7 +49,7 @@ function bibdk_reservation_form_step_4_do_order() {
     $result = array('error' => t('An error happened and the order could not be completed.', array(), array('context'=>'bibdk_reservation')));
   }
   else {
-    drupal_set_message(check_plain(BibdkReservationOrderObject::GetObject()->getBranch()->getIllOrderReceiptText()), 'status');
+    drupal_set_message(check_plain(BibdkReservationOrderObject::GetObject()->getBranch()->getIllOrderReceiptText($lang)), 'status');
     $result = bibdk_reservation_form_step_4_handle_response($response);
     module_invoke_all('bibdk_reservation_complete', $pids, $result);
   }
