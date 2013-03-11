@@ -3,13 +3,26 @@
 //include field info for button and infotext
 module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation.field');
 
-/*
- * Returns a link for reservation flow
- */
 
+/**
+ * Returns a link for reservation flow.
+ * If more than one pid is present in $entity_ids a button will be
+ *
+ * @param $entity_ids
+ * @param $subtype
+ * @param $entity_type
+ * @return bool|string
+ */
 function bibdk_reservation_link($entity_ids, $subtype, $entity_type) {
-  $text = ($entity_type == "bibdkSubwork") ? t($subtype, array(), array('context'=>'bibdk_reservation'))
-                                           : t("Order this @type", array("@type" => $subtype), array('context'=>'bibdk_reservation'));
+  $manifestations = explode(',', implode(',', $entity_ids));
+
+  if (count($manifestations) >= 2) {
+    $text = t("order_any_edition", array(), array('context' => 'bibdk_reservation'));
+  }
+  else {
+    $text = ($entity_type == "bibdkSubwork") ? t($subtype, array(), array('context' => 'bibdk_reservation')) : t("Order this @type", array("@type" => $subtype), array('context' => 'bibdk_reservation'));
+  }
+
   $path = 'reservation';
   $query = array('ids' => implode(',', $entity_ids));
 
@@ -50,10 +63,13 @@ function bibdk_reservation_check_past_reservations($entity_ids) {
   return FALSE;
 }
 
-/*
+/**
  * Returns a link for 'reservation'Order any edition' button
+ *
+ * @param $collection
+ * @param $uid
+ * @return string
  */
-
 function bibdk_reservation_order_any_edition_link($collection, $uid) {
   $uid = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '', $uid));
   $types = array();
@@ -65,6 +81,14 @@ function bibdk_reservation_order_any_edition_link($collection, $uid) {
   return $button;
 }
 
+/**
+ * Returns button with material type
+ *
+ * @param $type
+ * @param $ids
+ * @param $uid
+ * @return string
+ */
 function _bibdk_reservation_create_type_button($type, $ids, $uid) {
   $text = $type;
   $url_arr = drupal_parse_url('reservation/ajax/' . $uid . '/');
@@ -84,6 +108,12 @@ function _bibdk_reservation_create_type_button($type, $ids, $uid) {
   return $link;
 }
 
+/**
+ * @param $reservable
+ * @param $class
+ * @param $path
+ * @return array
+ */
 function bibdk_reservation_ajax_command($reservable, $class, $path) {
   return array(
     'command' => 'check_reservability',
@@ -109,11 +139,12 @@ function bibdk_reservation_ajax_check_reservability($uid, $pids) {
     $infocode = $manifestation->getInfotext();
     if ($manifestation->isReservable()) {
       $isReservable = TRUE;
-      if ( $infocode == 'picture7' || $infocode == 'picture11' || $infocode == 'picture15' || $infocode == 'usergroupC' || $infocode == 'usergroupE' || $infocode == 'noLendingLibraries' || $infocode == 'saleonly' ) {
-        $infotext[] = _bibdk_reservation_render_infotext( $infocode );
+      if ($infocode == 'picture7' || $infocode == 'picture11' || $infocode == 'picture15' || $infocode == 'usergroupC' || $infocode == 'usergroupE' || $infocode == 'noLendingLibraries' || $infocode == 'saleonly') {
+        $infotext[] = _bibdk_reservation_render_infotext($infocode);
       }
-    } else {
-      $infotext[] = _bibdk_reservation_render_infotext( $infocode );
+    }
+    else {
+      $infotext[] = _bibdk_reservation_render_infotext($infocode);
     }
   }
   $infotext = array_unique($infotext);
@@ -124,9 +155,9 @@ function bibdk_reservation_ajax_check_reservability($uid, $pids) {
   $type = 'notice';
   if (!$isReservable) {
     $path = '';
-    $text = t('not_possible_to_borrow_material', array(), array('context'=>'bibdk_reservation'));
-    if ( sizeof($infotext) > 0 ) {
-      $text = implode( t(' OR ', array(), array('context'=>'bibdk_reservation')), $infotext);
+    $text = t('not_possible_to_borrow_material', array(), array('context' => 'bibdk_reservation'));
+    if (sizeof($infotext) > 0) {
+      $text = implode(t(' OR ', array(), array('context' => 'bibdk_reservation')), $infotext);
     }
     $commands = _bibdk_reservation_ajax_infotext($text, $type, $selector);
   }
@@ -135,8 +166,8 @@ function bibdk_reservation_ajax_check_reservability($uid, $pids) {
     global $base_path;
     $root_url = drupal_parse_url($base_root . $base_path . 'reservation/');
     $path = $root_url['path'] . '?ids=' . $pids;
-    if ( sizeof($infotext) > 0 ) {
-      $text = implode( t(' OR ', array(), array('context'=>'bibdk_reservation')), $infotext);
+    if (sizeof($infotext) > 0) {
+      $text = implode(t(' OR ', array(), array('context' => 'bibdk_reservation')), $infotext);
       $commands = _bibdk_reservation_ajax_infotext($text, $type, $selector);
     }
   }
@@ -147,11 +178,17 @@ function bibdk_reservation_ajax_check_reservability($uid, $pids) {
   ajax_deliver($page);
 }
 
+/**
+ * @param $text
+ * @param $type
+ * @param $selector
+ * @return array
+ */
 function _bibdk_reservation_ajax_infotext($text, $type, $selector) {
-    drupal_get_messages();
-    drupal_set_message($text, $type);
-    $commands[] = ajax_command_invoke($selector, 'hide');
-    $commands[] = ajax_command_html($selector, theme('status_messages'));
-    $commands[] = ajax_command_invoke($selector, 'fadeIn', array('fast'));
-    return $commands;
+  drupal_get_messages();
+  drupal_set_message($text, $type);
+  $commands[] = ajax_command_invoke($selector, 'hide');
+  $commands[] = ajax_command_html($selector, theme('status_messages'));
+  $commands[] = ajax_command_invoke($selector, 'fadeIn', array('fast'));
+  return $commands;
 }
