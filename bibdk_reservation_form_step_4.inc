@@ -5,33 +5,35 @@ function bibdk_reservation_form_step_4($form, &$form_state) {
 }
 
 function bibdk_reservation_form_step_4_form($form, &$form_state, $orderId) {
-  
+
   // render OrderID
   $form['orderId'] = array(
     '#type' => 'fieldset',
     '#title' => t('Your order is complete', array(), array('context'=>'bibdk_reservation')),
     '#attributes' => array('class' => array('bottom-space')),
   );
-  
+
   $form['orderId']['container']['markup'] = bibdk_reservation_convert_array_to_table(array(
       t('Your order ID', array(), array('context'=>'bibdk_reservation')) => $orderId,
     ));
-  
+
   // Render the same fields as on step 3
   $form = bibdk_reservation_form_step_3($form, $form_state);
-  
+
   return $form;
 }
 
 function bibdk_reservation_form_step_4_do_order() {
   $params = array();
+  $pids = BibdkReservationOrderObject::GetObject()->getManifestationIds();
   $userdata = BibdkReservationOrderObject::GetObject()->getUserOrderData();
   $orderdata = BibdkReservationOrderObject::GetObject()->getOrderParameters();
+
   $params += (isset($userdata)) ? $userdata : array();
   $params += (isset($orderdata)) ? $orderdata : array();
   $params += array(
-    'pid' => BibdkReservationOrderObject::GetObject()->getManifestationIds(),
-    'pickUpAgencyId' => BibdkReservationOrderObject::GetObject()->getBranchId(), 
+    'pid' => $pids,
+    'pickUpAgencyId' => BibdkReservationOrderObject::GetObject()->getBranchId(),
     'needBeforeDate' => BibdkReservationOrderObject::GetObject()->getNeedBeforDate(),
   );
   bibdk_reservation_form_step_4_register_pid();
@@ -45,6 +47,7 @@ function bibdk_reservation_form_step_4_do_order() {
   }
   else {
     $result = bibdk_reservation_form_step_4_handle_response($response);
+    module_invoke_all('bibdk_reservation_complete', $pids, $result);
   }
   return $result;
 }
