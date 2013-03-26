@@ -219,6 +219,11 @@ function bibdk_reservation_step_2_order_form_fields($form, $form_state) {
   if ($manifestation->getSubType() == 'Tidsskriftsartikel' || $manifestation->getSubType() == 'Avisartikel') {
     return NULL;
   }
+  $valid_fields = bibdk_reservation_get_agency_fields();
+  if( empty($valid_fields) ){
+    return $form;
+  }
+  
   $fields = bibdk_reservation_get_agency_fields()->getOrderParametersForType($manifestation->getOrsOrderMaterialType());
   if (!isset($fields)) {
     return $form;
