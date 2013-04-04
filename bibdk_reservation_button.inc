@@ -129,6 +129,7 @@ function bibdk_reservation_ajax_command($reservable, $class, $path) {
  */
 function bibdk_reservation_ajax_check_reservability($uid, $pids) {
   global $language;
+  $language_prefix = ( !empty($language->prefix) ) ? $language->prefix . '/' : '';
   $ids = explode(',', $pids);
   $id = $ids[0];
   $infotext = array();
@@ -165,7 +166,7 @@ function bibdk_reservation_ajax_check_reservability($uid, $pids) {
   else {
     global $base_root;
     global $base_path;
-    $root_url = drupal_parse_url($base_root . $base_path . $language->prefix . '/reservation/');
+    $root_url = drupal_parse_url($base_root . $base_path . $language_prefix . 'reservation/');
     $path = $root_url['path'] . '?ids=' . $pids;
     if (sizeof($infotext) > 0) {
       $text = implode(t(' OR ', array(), array('context' => 'bibdk_reservation')), $infotext);
