@@ -90,7 +90,7 @@ function bibdk_reservation_order_any_edition_link($collection, $uid) {
  * @return string
  */
 function _bibdk_reservation_create_type_button($type, $ids, $uid) {
-  $text = $type;
+  $text = t($type, array(), array('context' => 'material_type'));
   $url_arr = drupal_parse_url('reservation/ajax/' . $uid . '/');
   $path = $url_arr['path'];
   $query = implode(',', $ids);
@@ -128,6 +128,8 @@ function bibdk_reservation_ajax_command($reservable, $class, $path) {
  * If material is not not borrowable a message will appear otherwise the reservation window will pop up
  */
 function bibdk_reservation_ajax_check_reservability($uid, $pids) {
+  global $language;
+  $language_prefix = ( !empty($language->prefix) ) ? $language->prefix . '/' : '';
   $ids = explode(',', $pids);
   $id = $ids[0];
   $infotext = array();
@@ -164,7 +166,7 @@ function bibdk_reservation_ajax_check_reservability($uid, $pids) {
   else {
     global $base_root;
     global $base_path;
-    $root_url = drupal_parse_url($base_root . $base_path . 'reservation/');
+    $root_url = drupal_parse_url($base_root . $base_path . $language_prefix . 'reservation/');
     $path = $root_url['path'] . '?ids=' . $pids;
     if (sizeof($infotext) > 0) {
       $text = implode(t(' OR ', array(), array('context' => 'bibdk_reservation')), $infotext);
