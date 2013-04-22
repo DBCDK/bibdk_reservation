@@ -419,8 +419,8 @@ function bibdk_reservation_borchk_execute($form_state, $agencySettings) {
   );
   if (!$isBorrowerCheckRequired) {
     if (!$acceptOrderFromUnknownUser) {
-      // $messages['status'] = t('Library does not accept reservations form unknown users', array(), array('context' => 'bibdk_reservation:error'));
-      $messages['error'] = t('Library does not accept reservations form unknown users', array(), array('context' => 'bibdk_reservation:error'));
+      // just a notice - it just mean that the library reserves the right to trash the reservation.
+      $messages['status'] = t('Library does not accept reservations form unknown users', array(), array('context' => 'bibdk_reservation:error'));
     }
   }
   else {
