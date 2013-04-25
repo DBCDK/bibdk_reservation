@@ -12,7 +12,6 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
   $branch = BibdkReservationOrderObject::GetObject()->getBranch();
 
   $form['branchdata'] = bibdk_reservation_render_custom_branch_view($branch, $form_state['step']); //bibdk_reservation_step_2_order_branch_fields(array(), $form_state);
-
   //$form['branchdata'] = bibdk_reservation_render_custom_branch_view($branch); //bibdk_reservation_step_2_order_branch_fields(array(), $form_state);
   $form['branchdata']['favouriteselector'] = bibdk_reservation_favourite_selector();
   $form['branchdata']['hidden_favourite'] = bibdk_reservation_hidden_favourite();
@@ -63,7 +62,7 @@ function bibdk_reservation_hidden_favourite() {
 function bibdk_reservation_favourite_selector() {
   $fav_options = bibdk_reservation_get_favourites_for_selector();
   // data check
-  if( empty($fav_options) ) {
+  if (empty($fav_options)) {
     return;
   }
 
@@ -145,68 +144,68 @@ function bibdk_reservation_step_2_user_form_fields($form, $form_state) {
   $userData = null;
   //$favourites = BibdkReservationOrderObject::GetObject()->getFavourites();
   $branch = BibdkReservationOrderObject::GetObject()->getBranch();
-  /*foreach ($favourites as $branchid => $favourite) {
+  /* foreach ($favourites as $branchid => $favourite) {
     if ( $branchid == $branch->branchId ) {
-      $userData = $favourite->getUserData();
+    $userData = $favourite->getUserData();
     }
-  }*/
+    } */
   $fields = bibdk_reservation_get_agency_fields();
   //$form['userParameters'] = ting_agency_userdata_form($form, $form_state, $fields, $userData);
   global $user;
   if (ding_user_is_provider_user($user))
-      $form['userParameters'] = bibdk_favourite_user_form_fields($form, $form_state, $branch->branchId);
+    $form['userParameters'] = bibdk_favourite_user_form_fields($form, $form_state, $branch->branchId);
   else
     $form['userParameters'] = ting_agency_userdata_form($form, $form_state, $fields);
   //$fields = bibdk_reservation_get_agency_fields()->getUserParameters();
-  /*if (!isset($fields)) {
+  /* if (!isset($fields)) {
     return;
-  }
-
-  $favourites = BibdkReservationOrderObject::GetObject()->getFavourites();
-
-  $branch = BibdkReservationOrderObject::GetObject()->getBranch();
-
-  $userData = array();
-  foreach ($favourites as $branchid => $favourite) {
-    if ( $branchid == $branch->branchId ) {
-      $userData = $favourite->getUserData();
     }
-  }
 
-  $form['userParameters'] = array(
+    $favourites = BibdkReservationOrderObject::GetObject()->getFavourites();
+
+    $branch = BibdkReservationOrderObject::GetObject()->getBranch();
+
+    $userData = array();
+    foreach ($favourites as $branchid => $favourite) {
+    if ( $branchid == $branch->branchId ) {
+    $userData = $favourite->getUserData();
+    }
+    }
+
+    $form['userParameters'] = array(
     '#type' => 'fieldset',
     '#title' => t('User Parameters', array(), array('context' => 'bibdk_reservation')),
     '#attributes' => array('class' => array(drupal_html_class('bibdk_reservation_title'))),
-  );
+    );
 
-  // checkbox to unmask password fields
-  $form['userParameters']['checkbox'] = array(
+    // checkbox to unmask password fields
+    $form['userParameters']['checkbox'] = array(
     '#title' => t('Show_masked_input'),
     '#type' => 'checkbox',
     '#attributes' => array('class' => array(drupal_html_class('bibdk_unmask_password_field'))),
-  );
+    );
 
 
-  $form['userParameters']['description'] = array(
+    $form['userParameters']['description'] = array(
     '#markup' => t('Description for user parameters', array(), array('context' => 'bibdk_reservation')),
     '#prefix' => '<div class="bibdk_clear">',
     '#suffix' => '</div>',
-  );
+    );
 
-  foreach ($fields as $userParameter) {
+    foreach ($fields as $userParameter) {
     $type = $userParameter['type'];
     $value = isset($userData[$type]) ? $userData[$type] : NULL;
     $form['userParameters'][$type] = array(
-      //'#type' => isset($userParameter['field_type']) ? $userParameter['field_type'] : 'textfield',
-      '#attributes' => array('class' => array((isset($userParameter['field_type']) && $userParameter['field_type'] == 'password') ? drupal_html_class('bibdk_password_field') : '')),
-      '#type' => 'textfield',
-      '#title' => isset($userParameter['field_name']) ? $userParameter['field_name'] : "",
-      '#description' => isset($userParameter['field_description']) ? $userParameter['field_description'] : NULL,
-      '#required' => $userParameter['required'],
-      '#default_value' => isset($value) ? $value : "",
+    //'#type' => isset($userParameter['field_type']) ? $userParameter['field_type'] : 'textfield',
+    '#attributes' => array('class' => array((isset($userParameter['field_type']) && $userParameter['field_type'] == 'password') ? drupal_html_class('bibdk_password_field') : '')),
+    '#type' => 'textfield',
+    '#title' => isset($userParameter['field_name']) ? $userParameter['field_name'] : "",
+    '#description' => isset($userParameter['field_description']) ? $userParameter['field_description'] : NULL,
+    '#required' => $userParameter['required'],
+    '#default_value' => isset($value) ? $value : "",
     );
-  }
-  */
+    }
+   */
   return $form;
 }
 
@@ -220,10 +219,10 @@ function bibdk_reservation_step_2_order_form_fields($form, $form_state) {
     return NULL;
   }
   $valid_fields = bibdk_reservation_get_agency_fields();
-  if( empty($valid_fields) ){
+  if (empty($valid_fields)) {
     return $form;
   }
-  
+
   $fields = bibdk_reservation_get_agency_fields()->getOrderParametersForType($manifestation->getOrsOrderMaterialType());
   if (!isset($fields)) {
     return $form;
