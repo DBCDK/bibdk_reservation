@@ -85,7 +85,10 @@ function bibdk_reservation_get_favourites_for_selector() {
   $ret = array();
   $favourites = BibdkReservationOrderObject::GetObject()->getFavourites();
   foreach ($favourites as $favourite) {
-    $ret[$favourite->getAgencyId()] = $favourite->getBranch()->branchName;
+    $branch = $favourite->getBranch();
+    if (is_object($branch)) {
+      $ret[$favourite->getAgencyId()] = $favourite->getBranch()->branchName;
+    }
   }
   return $ret;
 }
