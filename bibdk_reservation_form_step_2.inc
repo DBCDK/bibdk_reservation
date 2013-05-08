@@ -339,7 +339,6 @@ function bibdk_reservation_form_step_2_validate($form, &$form_state) {
 
 function bibdk_reservation_form_step_2_submit($form, &$form_state) {
   $userParameters = BibdkReservationOrderObject::GetObject()->getFields()->getUserParameters();
-  $idKey = BibdkReservationOrderObject::GetObject()->getFields()->getUserIdKey();
 
   // Parse userParameters
   foreach ($userParameters as $key => $userParameter) {
@@ -348,8 +347,8 @@ function bibdk_reservation_form_step_2_submit($form, &$form_state) {
     $value = (isset($userParameter['field_type']) && $userParameter['field_type'] == 'password') ? preg_replace("/./", "*", $form_state['values'][$type]) : $form_state['values'][$type];
     if (!empty($value)) {
       $userData[$name] = $value;
-      if ($type == $idKey) {
-        $userOrderData['userId'] = $form_state['values'][$type];
+      if (in_array($type, array('cpr', 'userId', 'cardno', 'customId'))) {
+        $userOrderData['userId'] = isset($userOrderData['userId']) ? $userOrderData['userId'] : $form_state['values'][$type];
       }
       else {
         $userOrderData[$type] = $form_state['values'][$type];
@@ -386,6 +385,8 @@ function bibdk_reservation_form_step_2_submit($form, &$form_state) {
     BibdkReservationOrderObject::GetObject()->setOrderParameters($orderParameters);
   }
 }
+
+
 
 /**
  * Validate up against Borchk
