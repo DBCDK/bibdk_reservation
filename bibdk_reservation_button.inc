@@ -20,7 +20,8 @@ function bibdk_reservation_link($entity_ids, $subtype, $entity_type) {
     $text = t("order_any_edition", array(), array('context' => 'bibdk_reservation'));
   }
   else {
-    $text = ($entity_type == "bibdkSubwork") ? t($subtype, array(), array('context' => 'bibdk_reservation')) : t("Order this @type", array("@type" => $subtype), array('context' => 'bibdk_reservation'));
+    $translated_sub = t($subtype, array(), array('context' => 'bibdk_reservation'));
+    $text = ($entity_type == "bibdkSubwork") ? $translated_sub : t("Order this @type", array("@type" => $translated_sub), array('context' => 'bibdk_reservation'));
   }
 
   $path = 'reservation';
@@ -90,7 +91,7 @@ function bibdk_reservation_order_any_edition_link($collection, $uid) {
  * @return string
  */
 function _bibdk_reservation_create_type_button($type, $ids, $uid) {
-  $text = t($type, array(), array('context' => 'material_type'));
+  $text = t($type, array(), array('context' => 'bibdk_reservation'));
   $url_arr = drupal_parse_url('reservation/ajax/' . $uid . '/');
   $path = $url_arr['path'];
   $query = implode(',', $ids);
