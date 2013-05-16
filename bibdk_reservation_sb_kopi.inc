@@ -254,7 +254,7 @@ function bibdk_reservation_sbkopi_parse_response($xml) {
     if ($nodelist->length >= 1) {
       $reply['field'] = $nodelist->item(0)->nodeName;
       // add diagnostics to message
-      $reply['message'] .= $nodelist->item(0)->firstChild->nodeValue;
+      $reply['message'] .= isset($nodelist->item(0)->firstChild->nodeValue) ? $nodelist->item(0)->firstChild->nodeValue : '';
     }
   }
   
