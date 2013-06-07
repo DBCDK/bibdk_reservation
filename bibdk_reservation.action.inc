@@ -1,0 +1,35 @@
+<?php
+
+
+/** Implements hook_ting_openformat_actions
+ * Add actions to work, subwork and manifestations
+ * @param $type
+ * @param $entity
+ * @param $view_mode
+ * @param $langcode
+ * @return array
+ */
+function bibdk_reservation_ting_openformat_actions($type, $entity, $view_mode, $langcode) {
+  $element = array();
+  switch ($type) {
+    case "bibdkManifestation" :
+      if ($entity->isReservable()) {
+        $element['reservation']=  array(
+          '#markup' => bibdk_reservation_link($entity->getIDs(), $entity->getSubType(), $entity_type),
+          '#weight' => -1,
+        );
+      }
+      elseif ($entity->isLink()) {
+        $info = $entity->getAccessInformation();
+        $element['reservation'] = array(
+          '#markup' => l(t('accessUrl', array(), array('context' => 'bibdk_reservation')), $info[0]['accessUrl'], array('attributes' => array('target' => '_blank'))),
+          '#weight' => -1,
+        );
+      }
+      break;
+    case "bibdk_reservation_collection_button" :
+      // TODO: add collection reservation button to actions
+      break;
+  }
+  return $element;
+}
