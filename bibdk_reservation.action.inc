@@ -15,7 +15,7 @@ function bibdk_reservation_ting_openformat_actions($type, $entity, $view_mode, $
     case "bibdkManifestation" :
       if ($entity->isReservable()) {
         $element['reservation']=  array(
-          '#markup' => bibdk_reservation_link($entity->getIDs(), $entity->getSubType(), $entity_type),
+          '#markup' => bibdk_reservation_link($entity->getIDs(), $entity->getSubType(), $type),
           '#weight' => -1,
         );
       }

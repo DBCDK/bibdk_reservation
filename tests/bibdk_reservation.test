@@ -1,2 +1,56 @@
-<?php 
-//TODO : WRITE UNITTEST
+<?php
+
+class BibdkReservationTestCase extends DrupalWebTestCase {
+
+  public static function getInfo() {
+    return array(
+      'name' => t('Bibdk Reservation test'),
+      'description' => t('Test Reservation functionality'),
+      'group' => t('Bibliotek.dk - Reservation'),
+    );
+  }
+
+  public function setUp() {
+    parent::setUp('ting_openformat', 'devel');
+    variable_set('ting_search_url', 'lakiseks.dbc.dk/openbibdk/0.5/');
+    variable_set('bibdk_provider_webservice_url', $this->getAbsoluteUrl('bibdk_webservice'));
+    variable_set('bibdk_provider_security_code', 'securityCode');
+    variable_set('search_active_modules', array('ting_openformat' => 'ting_openformat'));
+    variable_set('search_default_module', 'ting_openformat');
+    user_role_grant_permissions(DRUPAL_ANONYMOUS_RID, array('access content', 'search content'));
+    menu_rebuild();
+
+  }
+
+  public function testRunner(){
+    $this->_testActionHook();
+
+  }
+
+  /**
+   * Test that hook_ting_openformat_actions is correctly implemented
+   */
+  private function _testActionHook(){
+    // confim reservation button is not present
+    $this->drupalGet('work/870970-basis:25294424');
+    $this->assertNoLink(t('Order this Cd (musik)'));
+    // confim reservation link is not present //870970-basis%3A29908966
+    $this->drupalGet('work/874310-katalog:DBB0038373');
+    $this->assertNoLink(t('accessUrl'));
+
+    // activate reservation module
+    module_enable(array('bibdk_reservation'));
+    menu_rebuild();
+
+    // confim reservation button is present
+    $this->drupalGet('work/870970-basis:25294424');
+    $this->assertLink(t('Order this Cd (musik)'));
+
+    // confim reservation link is present
+    $this->drupalGet('work/874310-katalog:DBB0038373');
+    $this->assertLink(t('accessUrl'));
+  }
+
+
+
+}
