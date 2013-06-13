@@ -484,6 +484,12 @@ function bibdk_reservation_form_step_2_submit($form, &$form_state) {
  */
 function bibdk_reservation_borchk_validate($form_state) {
   if ($form_state['clicked_button']['#name'] == 'next') {
+    
+    //Save sbselfpickup in usersetting
+    global $user;
+    //$value = isset($form_state['values']['self_pickup']) ? $form_state['values']['self_pickup'] : 0;
+    $response = ding_provider_invoke('user', 'set_setting', $user->name, 'sbselfpickup', isset($form_state['values']['self_pickup']) ? $form_state['values']['self_pickup'] : 0 );
+    
     // @TODO check that object is set
     $agencySettings = BibdkReservationOrderObject::GetObject()->getFields();
 

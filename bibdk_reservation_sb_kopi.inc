@@ -73,8 +73,7 @@ function bibdk_reservation_sbkopi_validate($form, &$form_state) {
       break;
     }
   }
-
-
+   
   if (!$old && !$new) {
     return array('field' => 'form', 'message' => 'sb_kopi_fill_out_the_form_please');
   }
@@ -145,6 +144,7 @@ function bibdk_reservation_sanitize_for_order_copy(&$form, $form_state) {
     '#title' => t('sb_selvhenter', array(), array('context' => 'bibdk_reservation')),
     '#type' => 'checkbox',
     '#weight' => 100,
+    '#default_value' => _bibdk_reservation_sbkopi_openuser_search_setup(),
   );
   $form['userdata']['userParameters']['userfields']['self_pickup'] = $element;
 
@@ -259,5 +259,59 @@ function bibdk_reservation_sbkopi_parse_response($xml) {
   }
   
   return $reply;
+}
+
+function _bibdk_reservation_sbkopi_openuser_search_setup() {
+   global $user;
+   //Get sbselfpickup in usersetting
+   $response = _bibdk_reservation_openuser_parse_userinfo(ding_provider_invoke('user', 'get_setting', $user->name, 'sbselfpickup'));
+   return (isset($response['oui:settingType']) ? $response['oui:settingString'] : FALSE);
+ }
+ 
+ /**
+ * @param $xml xml from request to openuserinfo 
+ * @return array 
+ */
+function _bibdk_reservation_openuser_parse_userinfo($xml) {
+  $xpath = _bibdk_reservation_load_userinfo($xml);
+
+  if (empty($xpath)) {
+    return FALSE;
+  }
+  
+  $query = '//oui:settingString';
+  $nodelist = $xpath->query($query);
+  
+  // check if empty nodelist
+  if (empty($nodelist)) {
+    return array();
+  }
+  
+  //parse retur xml
+  foreach ($nodelist as $node) {
+    if (!empty($node->childNodes)) {
+      foreach ($node->childNodes as $child) {
+        $sbselfpickup[$child->nodeName] = $child->nodeValue;
+      }
+      if (!empty($sbselfpickup)) {
+        $sbselfpickup[$sbselfpickup['oui:settingType']] = $sbselfpickup;
+      }
+    }
+  }
+  $resonsevalue = isset($sbselfpickup['oui:settingType']) ? $sbselfpickup : FALSE;
+  return $resonsevalue;
+}
+
+function _bibdk_reservation_load_userinfo($xml) {
+  $dom = new DomDocument();
+  if (!@$dom->loadXML($xml)) {
+    if (variable_get('bibdk_provider_enable_logging')) {
+      watchdog('_bibdk_reservation', t('BIBDK userinfo could not load response: %xml', array('%xml' => var_export($xml, TRUE))), array(), WATCHDOG_ERROR);
+    }
+    return array();
+  }
+  $xpath = new DomXPATH($dom);
+  $xpath->registerNamespace('oui', 'http://oss.dbc.dk/ns/openuserinfo');
+  return $xpath;
 }
 
