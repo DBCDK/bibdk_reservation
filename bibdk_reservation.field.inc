@@ -27,6 +27,7 @@ function bibdk_reservation_field_info() {
       'default_formatter' => 'bibdk_reservation_button_default',
       'no_ui' => TRUE,
     ),
+    /** I think the following field is irrelevant - should be deleted on refactoring /svi */
     // Reservation info field
     'bibdk_reservation_info' => array(
       'label' => t('Reservation info text', array(), array('context'=>'bibdk_reservation')),

@@ -6,6 +6,7 @@ core = 7.x
 version = 7.x-0.15
 php = 5.2.4
 
+dependencies[] = bibdk_favourite
 dependencies[] = bibdk_borchk
 dependencies[] = bibdk_openorder
 dependencies[] = ting_client
