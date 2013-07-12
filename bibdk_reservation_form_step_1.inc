@@ -128,18 +128,25 @@ function bibdk_reservation_view_agency_branch(TingClientAgencyBranch $branch) {
   $order_class = ( isset($branch->orderLibrary) && $branch->orderLibrary == 'TRUE') ? 'order-agency' : '';
 
   $form['#title'] = $branch->branchName;
-
+  
   $moreinfo = theme('ting_agency_more_info', array('branch' => $branch,
     'openingHours' => theme('ting_agency_opening_hours', array('branch' => $branch,)),
-    //'tools' => theme('ting_agency_tools', array('branch' => $branch)),
+    'tools' => theme('ting_agency_tools', array('branch' => $branch)),
     'address' => theme('ting_agency_address', array('branch' => $branch)),
+    'pickupallowed' => theme('ting_agency_pickup_allowed', array('branch' => $branch)),
+    'librarydkcontact' => theme('ting_agency_librarydk_contact', array('branch' => $branch)),
     'contact' => theme('ting_agency_contact', array('branch' => $branch)),
-      )
+    )
   );
+  
   $classes = array();
   $classes[] = 'favourite_' . $branch->branchId;
   $classes[] = ( isset($branch->orderLibrary) && $branch->orderLibrary == 'TRUE') ? 'order-agency' : NULL;
-  $form[$branch->branchId]['action'] = bibdk_reservation_agency_branch_get_action_link($branch);
+ 
+  if ( $branch->pickupAllowed ) {
+    //set button for reservation library
+    $form[$branch->branchId]['action'] = bibdk_reservation_agency_branch_get_action_link($branch);
+  }
   $form[$branch->branchId]['library']['#markup'] =
       theme('ting_agency_library', array('branchName' => $branch->branchName, 'actions' => drupal_render($form[$branch->branchId]['action']), 'add_classes' => $classes, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
 
