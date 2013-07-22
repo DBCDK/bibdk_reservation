@@ -86,7 +86,7 @@ function bibdk_reservation_render_custom_branch_view($branch, $form_state) {
   return $form;
 }
 
-function bibdk_reservation_render_custom_manifestation_view(manifestation $manifestation) {
+function bibdk_reservation_render_custom_manifestation_view(Manifestation $manifestation) {
   $title = $manifestation->getTitle();
   $contribs = $manifestation->getContributors();
   $author = isset($contribs) && is_array($contribs) ? implode(', ', $contribs) : NULL;
