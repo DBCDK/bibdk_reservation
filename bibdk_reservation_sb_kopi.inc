@@ -262,6 +262,10 @@ function bibdk_reservation_sbkopi_parse_response($xml) {
 }
 
 function _bibdk_reservation_sbkopi_openuser_search_setup() {
+  if (user_is_anonymous()){
+     return FALSE;
+   }
+   
    global $user;
    //Get sbselfpickup in usersetting
    $response = _bibdk_reservation_openuser_parse_userinfo(ding_provider_invoke('user', 'get_setting', $user->name, 'sbselfpickup'));
