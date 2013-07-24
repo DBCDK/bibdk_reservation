@@ -41,7 +41,7 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
   }
 
   $sbkopi = BibdkReservationOrderObject::GetObject()->getSbKopi();
-
+  
   if (!empty($sbkopi)) {
     return bibdk_reservation_sanitize_for_order_copy($form, $form_state);
   }
@@ -162,10 +162,12 @@ function bibdk_reservation_step_2_user_form_fields($form, $form_state) {
   //$form['userParameters'] = ting_agency_userdata_form($form, $form_state, $fields, $userData);
   global $user;
   if (ding_user_is_provider_user($user)) {
-    $form['userParameters']['userfields'] = bibdk_favourite_user_form_fields($form, $form_state, $branch->branchId);
+    $fields = bibdk_favourite_user_form_fields($form, $form_state, $branch->branchId);
+    $form['userParameters']['userfields'] = $fields;
   }
   else {
-    $form['userParameters']['userfields'] = ting_agency_userdata_form($form, $form_state, $fields);
+    $fields = ting_agency_userdata_form($form, $form_state, $fields);
+    $form['userParameters']['userfields'] = $fields;
   }
   //$fields = bibdk_reservation_get_agency_fields()->getUserParameters();
   /* if (!isset($fields)) {
