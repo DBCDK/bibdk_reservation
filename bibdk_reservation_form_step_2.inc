@@ -400,7 +400,14 @@ function bibdk_reservation_form_step_2_create_sbuser($form, $form_state) {
   curl_setopt_array($ch, array(CURLOPT_POST => TRUE, CURLOPT_POSTFIELDS => $body, CURLOPT_HTTPHEADER => $headers, CURLOPT_RETURNTRANSFER => TRUE));
   $response = curl_exec($ch);
   
-  //@TODO check if response === FALSE 
+  if ($response === FALSE) {
+    // request FAILED
+    $reply = array();
+    $reply['status'] = 'error';
+    $reply['message'] = t('Internal error please contact site administrator if problem persists',array(),array('context'=>'bibdk_sbkopi'));
+    watchdog('curl_error', 'curl_exec returned FALSE for %post', array('%post' => $body));
+    return $reply;
+  }
   return bibdk_reservation_sbkopi_parse_response($response);
 }
 
