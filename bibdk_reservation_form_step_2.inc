@@ -354,24 +354,6 @@ function bibdk_reservation_form_step_2_create_sbuser($form, $form_state) {
   return bibdk_reservation_sbkopi_parse_response($response);
 }
 
-// this is a first go at implementing statsbiblioteket as an webservice-client
-function bibdk_reservation_form_step_2_create_sbuser_OLD($form, &$form_state) {
-  $params = array(
-    'action' => 'createUserRequest',
-    'PersonCivilRegistrationIdentifier' => $form_state['values']['bestil_kopi_cpr_number'],
-    'PersonGivenName' => $form_state['values']['bestil_kopi_firstname'],
-    'PersonSurnameName' => $form_state['values']['bestil_kopi_lastname'],
-    'MailAddress' => $form_state['values']['bestil_kopi_e_mail'],
-  );
-
-  $form_state['values']['userId'] = $form_state['values']['bestil_kopi_cpr_number'];
-
-  $client = new ting_client_class();
-  $response = $client->do_request('statsbib', $params);
-
-  return $response;
-}
-
 /*
  * Implements hook_form_submit
  */
@@ -382,7 +364,7 @@ function bibdk_reservation_form_step_2_submit($form, &$form_state) {
   }
 
   $userParameters = BibdkReservationOrderObject::GetObject()->getFields()->getUserParameters();
-
+  
   // Parse userParameters
   foreach ($userParameters as $key => $userParameter) {
     $type = $userParameter['type'];
@@ -437,12 +419,6 @@ function bibdk_reservation_form_step_2_submit($form, &$form_state) {
  */
 function bibdk_reservation_borchk_validate($form_state) {
   if ($form_state['clicked_button']['#name'] == 'next') {
-    
-    //Save sbselfpickup in usersetting
-    global $user;
-    //$value = isset($form_state['values']['self_pickup']) ? $form_state['values']['self_pickup'] : 0;
-    $response = ding_provider_invoke('user', 'set_setting', $user->name, 'sbselfpickup', isset($form_state['values']['self_pickup']) ? $form_state['values']['self_pickup'] : 0 );
-    
     // @TODO check that object is set
     $agencySettings = BibdkReservationOrderObject::GetObject()->getFields();
 
