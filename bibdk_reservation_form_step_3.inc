@@ -50,6 +50,12 @@ function bibdk_reservation_form_step_3_validate($form, &$form_state) {
       BibdkReservationOrderObject::GetObject()->setOrderId($orderId);
     }
   }
+  // either way set sb_kopi selfpickup setting if needed
+  $sb_value = BibdkReservationOrderObject::GetObject()->getArticleDirect();
+  if (module_exists('bibdk_usersettings')) {
+    bibdk_usersettings_user_settings_set('bibdk_actions_sb_selfpickup',$sb_value);
+  }
+  
 }
 
 function bibdk_reservation_render_custom_branch_view($branch, $form_state) {
