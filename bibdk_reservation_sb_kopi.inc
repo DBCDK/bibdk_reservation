@@ -332,15 +332,8 @@ function bibdk_reservation_sbkopi_parse_response($xml) {
  * @return boolean 
  */
 function _bibdk_reservation_sbkopi_get_value() {
-  if (user_is_anonymous()) {
-    return FALSE;
-  }
-
-  global $user;
-  //Get sbselfpickup in usersetting
-  $response = _bibdk_reservation_openuser_parse_userinfo(ding_provider_invoke('user', 'get_setting', $user->name, 'sbselfpickup'));
-  return (isset($response['oui:settingType']) ? $response['oui:settingString'] : FALSE);
-}
+  return bibdk_usersettings_user_settings_get('bibdk_actions_sb_selfpickup', 0); 
+ }
 
 /** \brief Parse response from openuserinfo (@see bibdk_provider::user_get_setting)
  * @param $xml xml from request to openuserinfo 
@@ -393,4 +386,3 @@ function _bibdk_reservation_load_userinfo($xml) {
   $xpath->registerNamespace('oui', 'http://oss.dbc.dk/ns/openuserinfo');
   return $xpath;
 }
-
