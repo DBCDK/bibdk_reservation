@@ -55,13 +55,13 @@ function bibdk_reservation_form_step_3_validate($form, &$form_state) {
 
 function bibdk_reservation_render_custom_branch_view($branch, $step) {
   global $language;
-  $name = $branch->getBranchName($language->language);
+  $shortname = $branch->getBranchShortName($language->language);
   $address = $branch->postalAddress;
   $postalCode = $branch->postalCode;
   $city = $branch->city;
-
+    
   $markup = theme('bibdk_reservation_agency', array(
-    'name' => $name,
+    'name' => $shortname,
     'address' => $address,
     'postalCode' => $postalCode,
     'city' => $city,

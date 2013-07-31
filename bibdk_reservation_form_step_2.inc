@@ -88,7 +88,7 @@ function bibdk_reservation_get_favourites_for_selector() {
   foreach ($favourites as $favourite) {
     $branch = $favourite->getBranch();
     if (is_object($branch)) {
-      $ret[$favourite->getAgencyId()] = $branch->getBranchName($language->language);
+      $ret[$favourite->getAgencyId()] = $branch->getBranchShortName($language->language);
     }
   }
   return $ret;
@@ -269,7 +269,7 @@ function bibdk_reservation_step_2_order_branch_fields($form, $form_state) {
     '#attributes' => array('class' => array('form-wrapper', 'form-item')),
     '#markup' => t('Description for selected branch', array(), array('context' => 'bibdk_reservation')),
   );
-
+  
   $moreinfo = theme('ting_agency_more_info', array('branch' => $branch,
     'openingHours' => theme('ting_agency_opening_hours', array('branch' => $branch,)),
     //'tools' => theme('ting_agency_tools', array('branch' => $branch)),
@@ -277,7 +277,7 @@ function bibdk_reservation_step_2_order_branch_fields($form, $form_state) {
     'contact' => theme('ting_agency_contact', array('branch' => $branch)),
       )
   );
-
+    
   //$classes[] = 'selected_branch';
   $classes = array();
   $classes[] = 'element-wrapper';
