@@ -53,7 +53,7 @@ function bibdk_reservation_form_step_3_validate($form, &$form_state) {
   }
 }
 
-function bibdk_reservation_render_custom_branch_view($branch, $form_state) {
+function bibdk_reservation_render_custom_branch_view($branch, $step) {
   global $language;
   $name = $branch->getBranchName($language->language);
   $address = $branch->postalAddress;
