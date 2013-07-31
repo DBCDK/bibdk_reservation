@@ -82,12 +82,13 @@ function bibdk_reservation_favourite_selector() {
  * @return array; [agencyId]=>[branchName]
  */
 function bibdk_reservation_get_favourites_for_selector() {
+  global $language;
   $ret = array();
   $favourites = BibdkReservationOrderObject::GetObject()->getFavourites();
   foreach ($favourites as $favourite) {
     $branch = $favourite->getBranch();
     if (is_object($branch)) {
-      $ret[$favourite->getAgencyId()] = $branch->branchShortName;
+      $ret[$favourite->getAgencyId()] = $branch->getBranchShortName($language->language);
     }
   }
   return $ret;
