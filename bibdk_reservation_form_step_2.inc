@@ -82,12 +82,13 @@ function bibdk_reservation_favourite_selector() {
  * @return array; [agencyId]=>[branchName]
  */
 function bibdk_reservation_get_favourites_for_selector() {
+  global $language;
   $ret = array();
   $favourites = BibdkReservationOrderObject::GetObject()->getFavourites();
   foreach ($favourites as $favourite) {
     $branch = $favourite->getBranch();
     if (is_object($branch)) {
-      $ret[$favourite->getAgencyId()] = $branch->branchName;
+      $ret[$favourite->getAgencyId()] = $branch->getBranchName($language->language);
     }
   }
   return $ret;
@@ -282,9 +283,10 @@ function bibdk_reservation_step_2_order_branch_fields($form, $form_state) {
   $classes[] = 'element-wrapper';
   $classes[] = 'favourite_' . $branch->branchId;
   $classes[] = (isset($branch->orderLibrary) && $branch->orderLibrary == 'TRUE') ? 'order-agency' : NULL;
-
+  
+  global $language;
   $form['branchParameters']['selectedBranch']['#markup'] =
-      theme('ting_agency_library', array('branchName' => $branch->branchName, 'actions' => NULL, 'add_classes' => $classes, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
+      theme('ting_agency_library', array('branchName' => $branch->getBranchName($language->language), 'actions' => NULL, 'add_classes' => $classes, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
 
   return $form;
 }

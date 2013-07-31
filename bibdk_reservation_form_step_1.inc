@@ -124,10 +124,11 @@ function bibdk_reservation_agency_branch_get_action_link($branch) {
  * @return mixed
  */
 function bibdk_reservation_view_agency_branch(TingClientAgencyBranch $branch) {
+  global $language;
   // check if given branch is set as order-agency
   $order_class = ( isset($branch->orderLibrary) && $branch->orderLibrary == 'TRUE') ? 'order-agency' : '';
 
-  $form['#title'] = $branch->branchName;
+  $form['#title'] = $branch->getBranchName($language->language);
   
   $moreinfo = theme('ting_agency_more_info', array('branch' => $branch,
     'openingHours' => theme('ting_agency_opening_hours', array('branch' => $branch,)),
@@ -148,7 +149,7 @@ function bibdk_reservation_view_agency_branch(TingClientAgencyBranch $branch) {
     $form[$branch->branchId]['action'] = bibdk_reservation_agency_branch_get_action_link($branch);
   }
   $form[$branch->branchId]['library']['#markup'] =
-      theme('ting_agency_library', array('branchName' => $branch->branchName, 'actions' => drupal_render($form[$branch->branchId]['action']), 'add_classes' => $classes, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
+      theme('ting_agency_library', array('branchName' => $branch->getBranchName($language->language), 'actions' => drupal_render($form[$branch->branchId]['action']), 'add_classes' => $classes, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
 
   // place branch on top if set as order-agency
   if (isset($branch->orderLibrary) && $branch->orderLibrary == 'TRUE') {
