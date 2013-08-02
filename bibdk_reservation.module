@@ -352,7 +352,6 @@ function bibdk_reservation_step_guide($form, &$form_state, $current_step) {
 }
 
 function bibdk_reservation_catalog_callback($lib_id) {
-  //TODO (mmj) call to vip_redirect.stats should be implemented here
   $agencyId = BibdkOpenorderPolicyResponse::GetObject()->getAgencyId();
   $url = BibdkOpenorderPolicyResponse::GetObject()->getLookUpUrls($lib_id);
   drupal_goto($url);
