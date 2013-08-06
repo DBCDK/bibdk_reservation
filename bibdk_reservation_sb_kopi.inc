@@ -171,7 +171,35 @@ function bibdk_reservation_sanitize_for_order_copy(&$form, $form_state) {
   // set remaining elements
   _bibdk_reservation_sbkopi_set_elements($form, $form_state);
   bibdk_reservation_set_sbkopi_type_description($form, $form_state);
+  bibdk_reservation_set_sbkopi_general_description($form, $form_state);
   return $form;
+}
+
+function bibdk_reservation_set_sbkopi_general_description(&$form, $form_state) {
+  $form['general_description'] = array(
+    '#type' => 'container',
+    '#weight' => 100,
+  );
+
+  $form['general_description']['text'] = array(
+    '#markup' => bibdk_reservation_sbkopi_get_general_description_txt(),
+  );
+}
+
+function bibdk_reservation_sbkopi_get_general_description_txt() {
+  $type = BibdkReservationOrderObject::GetObject()->getSbKopi();
+  if (!isset($type)) {
+    return;
+  }
+
+  // electronic copy
+  if ($type == 'FREE') {
+    return t('sbkopi_electronic_copy_general_description', array(), array('context' => 'bibdk_reservation'));
+  }
+  // printed copy
+  elseif ($type == 'PAY') {
+    return t('sbkopi_printed_copy_general_description', array(), array('context' => 'bibdk_reservation'));
+  }
 }
 
 /** \brief Set a form element for displaying description text
@@ -182,9 +210,10 @@ function bibdk_reservation_sanitize_for_order_copy(&$form, $form_state) {
 function bibdk_reservation_set_sbkopi_type_description(&$form, $form_state) {
   $form['branchdata']['type'] = array(
     '#type' => 'container',
-    '#attributes' => array(
+    /* '#attributes' => array(
       'class' => array(drupal_html_class('sbkopi_description_container')),
-    ),
+      ), */
+    '#weight' => -1,
   );
   $form['branchdata']['type']['text'] = array(
     '#markup' => bibdk_reservation_sbkopi_get_description_txt(),
@@ -253,6 +282,13 @@ function _bibdk_reservation_sbkopi_set_elements(&$form, $form_state) {
     '#href' => '#',
     '#attributes' => array('class' => array(drupal_html_class('switch_views'))),
     '#weight' => -100,
+  );
+
+  $elements['kopi_bestil']['help_no_member'] = array(
+    '#type' => 'container',
+  );
+  $elements['kopi_bestil']['help_no_member']['text'] = array(
+    '#markup' => t('sbkopi_help_new_member', array(), array('context' => 'bibdk_reservation_sb_kopi')),
   );
 
   foreach ($bestil_kopi_elements as $element_name) {
@@ -332,8 +368,8 @@ function bibdk_reservation_sbkopi_parse_response($xml) {
  * @return boolean 
  */
 function _bibdk_reservation_sbkopi_get_value() {
-  return bibdk_usersettings_user_settings_get('bibdk_actions_sb_selfpickup', 0); 
- }
+  return bibdk_usersettings_user_settings_get('bibdk_actions_sb_selfpickup', 0);
+}
 
 /** \brief Parse response from openuserinfo (@see bibdk_provider::user_get_setting)
  * @param $xml xml from request to openuserinfo 
