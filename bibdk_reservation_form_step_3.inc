@@ -1,7 +1,6 @@
 <?php
 
 function bibdk_reservation_form_step_3($form, &$form_state) {
-
   //Render user parameters
   $form['userParameters'] = array(
     '#type' => 'fieldset',
@@ -16,7 +15,7 @@ function bibdk_reservation_form_step_3($form, &$form_state) {
 
   //render branch
   $branch = BibdkReservationOrderObject::GetObject()->getBranch();
-  $form['branchdata'] = bibdk_reservation_render_custom_branch_view($branch, $form_state['step']); //bibdk_reservation_step_2_order_branch_fields(array(), $form_state);
+  $form['branchdata'] = bibdk_reservation_render_custom_branch_view($branch, $form_state); //bibdk_reservation_step_2_order_branch_fields(array(), $form_state);
 
   // Render order parameters
   $orderParamWithLabel = array();
@@ -51,9 +50,15 @@ function bibdk_reservation_form_step_3_validate($form, &$form_state) {
       BibdkReservationOrderObject::GetObject()->setOrderId($orderId);
     }
   }
+  // either way set sb_kopi selfpickup setting if needed
+  $sb_value = BibdkReservationOrderObject::GetObject()->getArticleDirect();
+  if (module_exists('bibdk_usersettings')) {
+    bibdk_usersettings_user_settings_set('bibdk_actions_sb_selfpickup',$sb_value);
+  }
+  
 }
 
-function bibdk_reservation_render_custom_branch_view($branch, $step) {
+function bibdk_reservation_render_custom_branch_view($branch, $form_state) {
   global $language;
   $shortname = $branch->getBranchShortName($language->language);
   $address = $branch->postalAddress;
@@ -76,7 +81,7 @@ function bibdk_reservation_render_custom_branch_view($branch, $step) {
     '#attributes' => array('class' => array('form-item'))
   );
 
-  if ($step == 2) {
+  if ($form_state['step'] == 2 ) {
     $form['branchParameters']['chg_lib_btn'] = array(
       '#type' => 'submit',
       '#value' => t('Pick another library', array(), array('context' => 'bibdk_reservation')),
