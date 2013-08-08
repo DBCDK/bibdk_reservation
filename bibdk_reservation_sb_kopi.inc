@@ -179,6 +179,9 @@ function bibdk_reservation_set_sbkopi_general_description(&$form, $form_state) {
   $form['general_description'] = array(
     '#type' => 'container',
     '#weight' => 100,
+    '#attributes' => array(
+      'class' => array(drupal_html_class('sbkopi_description_container')),
+      ),
   );
 
   $form['general_description']['text'] = array(
@@ -208,14 +211,19 @@ function bibdk_reservation_sbkopi_get_general_description_txt() {
  * @param type $form_state 
  */
 function bibdk_reservation_set_sbkopi_type_description(&$form, $form_state) {
-  $form['branchdata']['type'] = array(
+  $form['manifestation']['#weight'] = -4;
+  $form['branchdata']['#weight'] = -2; 
+  $form['userdata']['#weight'] = -1;
+   
+  $form['sb_kopi']['#weight'] = -3;
+  
+  $form['sb_kopi']['type'] = array(
     '#type' => 'container',
-    /* '#attributes' => array(
+     '#attributes' => array(
       'class' => array(drupal_html_class('sbkopi_description_container')),
-      ), */
-    '#weight' => -1,
+      ),
   );
-  $form['branchdata']['type']['text'] = array(
+  $form['sb_kopi']['type']['text'] = array(
     '#markup' => bibdk_reservation_sbkopi_get_description_txt(),
   );
 }
