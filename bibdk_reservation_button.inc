@@ -28,7 +28,7 @@ function bibdk_reservation_link($entity_ids, $subtype, $entity_type) {
   $query = array('ids' => implode(',', $entity_ids));
 
   // This should be moved to the template
-  $attributes['rel'] = 'reservation';
+  $attributes['data-rel'] = 'reservation';
   $attributes['class'][] = 'bibdk-popup-link';
   $attributes['class'][] = 'btn';
   $attributes['class'][] = (isset($entity_type) && $entity_type == 'bibdkManifestation') ? 'btn-grey' : 'btn-blue';
@@ -98,7 +98,7 @@ function _bibdk_reservation_create_type_button($type, $ids, $uid) {
   $class = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '', $ids[0]));
 
   // This should be moved to the template
-  $attributes['rel'] = 'reservation';
+  $attributes['data-rel'] = 'reservation';
   $attributes['class'][] = 'bibdk-popup-order-work';
   $attributes['class'][] = 'bibdk-popup-link-' . $class;
   $attributes['class'][] = 'use-ajax';
