@@ -292,8 +292,12 @@ function _bibdk_reservation_sbkopi_set_elements(&$form, $form_state) {
     '#weight' => -100,
   );
 
+  
   $elements['kopi_bestil']['help_no_member'] = array(
     '#type' => 'container',
+    '#attributes' => array(
+      'class' => array(drupal_html_class('sbkopi_description_container')),
+      ),
   );
   $elements['kopi_bestil']['help_no_member']['text'] = array(
     '#markup' => t('sbkopi_help_new_member', array(), array('context' => 'bibdk_reservation_sb_kopi')),
