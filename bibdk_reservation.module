@@ -31,10 +31,9 @@ function bibdk_reservation_menu() {
     'file' => 'bibdk_reservation_button.inc'
   );
 
-  $items['reservations/catalogue_url/%'] = array(
+  $items['reservations/catalogue_url'] = array(
     'title' => 'local_catalogue_url',
     'page callback' => 'bibdk_reservation_catalog_callback',
-    'page arguments' => array(2),
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
   );
@@ -312,13 +311,13 @@ function bibdk_reservation_wizard_goto_step_submit($form, &$form_state) {
  */
 function bibdk_reservation_new_order_object() {
   BibdkReservationOrderObject::reset();
-  
+
   if (!isset($_REQUEST['ids'])) {
     drupal_set_message(t('No objects have been chosen', array(), array('context' => 'bibdk_reservation:error')), 'error');
     return NULL;
   }
   $ids = explode(",", $_REQUEST['ids']);
- 
+
   BibdkReservationOrderObject::GetObject()->setManifestationIds($ids);
 
   $manifestation = bibdk_reservation_get_manifestation($ids);
@@ -373,8 +372,14 @@ function bibdk_reservation_step_guide($form, &$form_state, $current_step) {
   return $form;
 }
 
-function bibdk_reservation_catalog_callback($lib_id) {
-  $agencyId = BibdkOpenorderPolicyResponse::GetObject()->getAgencyId();
-  $url = BibdkOpenorderPolicyResponse::GetObject()->getLookUpUrls($lib_id);
+function bibdk_reservation_catalog_callback() {
+
+  if (!isset($_GET['url']) && !isset($_GET['agency_id'])){
+    drupal_set_message(t('invalid url or agency_id'), 'ERROR');
+    return '';
+  }
+  $agencyId = check_plain($_GET['agency_id']);
+  $url = check_plain($_GET['url']);
+  bibdk_openorder_do_incrementRedirectStat($agencyId);
   drupal_goto($url);
 }

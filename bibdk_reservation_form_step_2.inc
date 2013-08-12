@@ -41,7 +41,7 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
   }
 
   $sbkopi = BibdkReservationOrderObject::GetObject()->getSbKopi();
-  
+
   if (!empty($sbkopi)) {
     return bibdk_reservation_sanitize_for_order_copy($form, $form_state);
   }
@@ -102,14 +102,18 @@ function bibdk_reservation_get_favourites_for_selector() {
 
 function _bibdk_reservation_generate_policy_messages() {
   $msgs = array();
-  if (BibdkOpenorderPolicyResponse::GetObject()->getLookUpUrl()) {
-    $url = drupal_parse_url('reservations/catalogue_url/0');
+  $lookup_url = BibdkOpenorderPolicyResponse::GetObject()->getLookUpUrl();
+  if (isset($lookup_url)) {
+    $agencyId = BibdkOpenorderPolicyResponse::GetObject()->getAgencyId();
     $msgs['lookUpUrl'] = array(
       '#theme' => 'link',
       '#text' => t('link_to_local_library_lookup_url', array(), array('context' => 'bibdk_reservation')),
-      '#path' => $url['path'],
+      '#path' => 'reservations/catalogue_url',
       '#options' => array(
-        'attributes' => array(),
+        'query' => array('url' => $lookup_url, 'agency_id' => $agencyId),
+        'attributes' => array(
+          'target' => '_blank',
+        ),
         'html' => FALSE,
       ),
     );
@@ -150,7 +154,7 @@ function bibdk_reservation_manifestation_form_fields($form, &$form_state) {
  * Render user fields;
  */
 function bibdk_reservation_step_2_user_form_fields($form, $form_state) {
-  $userData = null;  
+  $userData = null;
   $branch = BibdkReservationOrderObject::GetObject()->getBranch();
   $fields = bibdk_reservation_get_agency_fields();
 
@@ -222,7 +226,7 @@ function bibdk_reservation_step_2_order_branch_fields($form, $form_state) {
     '#attributes' => array('class' => array('form-wrapper', 'form-item')),
     '#markup' => t('Description for selected branch', array(), array('context' => 'bibdk_reservation')),
   );
-  
+
   $moreinfo = theme('ting_agency_more_info', array('branch' => $branch,
     'openingHours' => theme('ting_agency_opening_hours', array('branch' => $branch,)),
     //'tools' => theme('ting_agency_tools', array('branch' => $branch)),
@@ -230,13 +234,13 @@ function bibdk_reservation_step_2_order_branch_fields($form, $form_state) {
     'contact' => theme('ting_agency_contact', array('branch' => $branch)),
       )
   );
-    
+
   //$classes[] = 'selected_branch';
   $classes = array();
   $classes[] = 'element-wrapper';
   $classes[] = 'favourite_' . $branch->branchId;
   $classes[] = (isset($branch->orderLibrary) && $branch->orderLibrary == 'TRUE') ? 'order-agency' : NULL;
-  
+
   global $language;
   $form['branchParameters']['selectedBranch']['#markup'] =
       theme('ting_agency_library', array('branchName' => $branch->getBranchName($language->language), 'actions' => NULL, 'add_classes' => $classes, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
@@ -293,7 +297,7 @@ function bibdk_reservation_form_step_2_validate(&$form, &$form_state) {
     elseif (isset($sb_user) && $sb_user == 'NEW') {
       // @TODO create the user here, and validate that all went well
       $reply = bibdk_reservation_form_step_2_create_sbuser($form, $form_state);
- 
+
       if ($reply['status'] == 'error'){
         form_set_error($reply['field'],t($reply['message'],array(), array('context' => 'bibdk_reservation:error')));
       }
@@ -322,10 +326,10 @@ function bibdk_reservation_form_step_2_create_sbuser($form, $form_state) {
 
   $ch = curl_init('https://webservice.statsbiblioteket.dk/ws-create-user1/CreateUser');
 
-  $body = '<SOAP:Envelope xmlns:SOAP="http://schemas.xmlsoap.org/soap/envelope/" 
+  $body = '<SOAP:Envelope xmlns:SOAP="http://schemas.xmlsoap.org/soap/envelope/"
     SOAP:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
-    xmlns:CU="http://statsbiblioteket.dk/xws/createuser_v1" 
-    xmlns:CPR="http://rep.oio.dk/cpr.dk/xml/schemas/core/2005/03/18/" 
+    xmlns:CU="http://statsbiblioteket.dk/xws/createuser_v1"
+    xmlns:CPR="http://rep.oio.dk/cpr.dk/xml/schemas/core/2005/03/18/"
     xmlns:DKCC="http://rep.oio.dk/ebxml/xml/schemas/dkcc/2003/02/13/">
   <SOAP:Body>
   <CU:CreateUserRequest>
@@ -344,7 +348,7 @@ function bibdk_reservation_form_step_2_create_sbuser($form, $form_state) {
 
   curl_setopt_array($ch, array(CURLOPT_POST => TRUE, CURLOPT_POSTFIELDS => $body, CURLOPT_HTTPHEADER => $headers, CURLOPT_RETURNTRANSFER => TRUE));
   $response = curl_exec($ch);
-  
+
   if ($response === FALSE) {
     // request FAILED
     $reply = array();
@@ -366,7 +370,7 @@ function bibdk_reservation_form_step_2_submit($form, &$form_state) {
   }
 
   $userParameters = BibdkReservationOrderObject::GetObject()->getFields()->getUserParameters();
-  
+
   // Parse userParameters
   foreach ($userParameters as $key => $userParameter) {
     $type = $userParameter['type'];
@@ -398,11 +402,11 @@ function bibdk_reservation_form_step_2_submit($form, &$form_state) {
   if (isset($userOrderData['pincode'])) {
     unset($userOrderData['pincode']);
   }
-  
+
   $input_date = $form_state['values']['needBeforeDate'];
   $date = date("Y-m-d\TH:i:s", strtotime($input_date));
   $userData['Need before Date'] = implode('/', array_reverse(explode('-', $input_date)));
-  
+
   // Save all user input
   BibdkReservationOrderObject::GetObject()->setUserData($userData);
   BibdkReservationOrderObject::GetObject()->setUserOrderData($userOrderData);
