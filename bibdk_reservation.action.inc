@@ -16,14 +16,14 @@ function bibdk_reservation_ting_openformat_actions($type, $entity, $view_mode, $
       if ($entity->isReservable()) {
         $element['reservation']=  array(
           '#markup' => bibdk_reservation_link($entity->getIDs(), $entity->getSubType(), $type),
-          '#weight' => -1,
+          '#weight' => -2,
         );
       }
       elseif ($entity->isLink()) {
         $info = $entity->getAccessInformation();
         $element['reservation'] = array(
           '#markup' => l(t('accessUrl', array(), array('context' => 'bibdk_reservation')), $info[0]['accessUrl'], array('attributes' => array('target' => '_blank'))),
-          '#weight' => -1,
+          '#weight' => -2,
         );
       }
       break;

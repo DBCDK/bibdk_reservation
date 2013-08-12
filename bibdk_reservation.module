@@ -7,6 +7,7 @@ module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_form_step_2')
 module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_form_step_3');
 module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_form_step_4');
 
+include_once 'bibdk_reservation_sb_kopi.inc';
 /**
  * Implements hook_menu();
  */
@@ -118,9 +119,15 @@ function _bibdk_reservation_steps() {
  * @return array $form
  */
 function bibdk_reservation_create_wizard_form($form, &$form_state) {
+    BibdkReservationOrderObject::GetObject()->setSbKopi(FALSE);
+  if (isset($_GET['bestil_kopi'])) {
+    // include methods
+    BibdkReservationOrderObject::GetObject()->setSbKopi($_GET['bestil_kopi']);
+  }
+
   // Initialize a description of the steps for the wizard.
   if (empty($form_state['step']) || !empty($form_state['input']['favourite_selected'])) {
-    $order = bibdk_reservation_new_order_object();
+    bibdk_reservation_new_order_object();
 
     if (bibdk_reservation_check_order_library($form_state)) {
       $form_state['step'] = 2;
@@ -196,6 +203,20 @@ function bibdk_reservation_create_wizard_form($form, &$form_state) {
 }
 
 function bibdk_reservation_check_order_library(&$form_state) {
+  $sb_copy = BibdkReservationOrderObject::GetObject()->getSbKopi();
+  if (!empty($sb_copy)) {
+    // this is an order for 'statsbiblioteket' (820010)
+    $agencyId = 820010;
+    // fake a favourite agency
+    $agency['oui:agencyId'] = $agencyId;
+    $agency['oui:orderAgency'] = TRUE;
+    // set favourite
+    $favourite = new FavouriteAgency($agency);
+    BibdkReservationOrderObject::GetObject()->setFavourite($favourite);
+
+    return TRUE;
+  }
+
   $favourites = _bibdk_favourite_get_from_webservice();
   $ret = FALSE;
   if (!empty($favourites)) {
@@ -290,18 +311,19 @@ function bibdk_reservation_wizard_goto_step_submit($form, &$form_state) {
  * Creates the BibdkReservationOrderObject and saves the manifestation IDs to it
  */
 function bibdk_reservation_new_order_object() {
+  BibdkReservationOrderObject::reset();
+  
   if (!isset($_REQUEST['ids'])) {
     drupal_set_message(t('No objects have been chosen', array(), array('context' => 'bibdk_reservation:error')), 'error');
     return NULL;
   }
   $ids = explode(",", $_REQUEST['ids']);
-
-  $order = BibdkReservationOrderObject::SetObject();
-  $order->setManifestationIds($ids);
+ 
+  BibdkReservationOrderObject::GetObject()->setManifestationIds($ids);
 
   $manifestation = bibdk_reservation_get_manifestation($ids);
-  $order->setManifestation($manifestation);
-  return $order;
+  BibdkReservationOrderObject::GetObject()->setManifestation($manifestation);
+  return BibdkReservationOrderObject::GetObject();
 }
 
 function bibdk_reservation_get_manifestation($id) {
@@ -352,7 +374,6 @@ function bibdk_reservation_step_guide($form, &$form_state, $current_step) {
 }
 
 function bibdk_reservation_catalog_callback($lib_id) {
-  //TODO (mmj) call to vip_redirect.stats should be implemented here
   $agencyId = BibdkOpenorderPolicyResponse::GetObject()->getAgencyId();
   $url = BibdkOpenorderPolicyResponse::GetObject()->getLookUpUrls($lib_id);
   drupal_goto($url);

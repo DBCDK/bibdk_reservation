@@ -3,7 +3,7 @@ description = Implementation of reservation functionality on bibdk entities
 package = Bibliotek.dk
 ; configure = admin/config/...
 core = 7.x
-version = 7.x-0.17
+version = 7.x-0.18
 php = 5.2.4
 
 dependencies[] = bibdk_favourite
@@ -19,6 +19,8 @@ files[] = bibdk_reservation_form_step_2.inc
 files[] = bibdk_reservation_form_step_3.inc
 files[] = bibdk_reservation_form_step_4.inc
 files[] = bibdk_reservation_form_step_5.inc
+;files[] = bibdk_reservation_sb_kopi.inc
 files[] = BibdkReservationOrderObject.php
 files[] = tests/bibdk_reservation.test
 scripts[] = js/check_reservability.js
+scripts[] = js/sbCopySwitchMe.js

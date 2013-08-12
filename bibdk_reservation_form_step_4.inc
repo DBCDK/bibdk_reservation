@@ -32,6 +32,11 @@ function bibdk_reservation_form_step_4_do_order() {
   $userdata = BibdkReservationOrderObject::GetObject()->getUserOrderData();
   $orderdata = BibdkReservationOrderObject::GetObject()->getOrderParameters();
 
+  $articleDirect = BibdkReservationOrderObject::GetObject()->getArticleDirect();
+  if (!empty($articleDirect)) {
+    $params += array('articleDirect'=>'pickup');
+  }
+  
   $params += (isset($userdata)) ? $userdata : array();
   $params += (isset($orderdata)) ? $orderdata : array();
   $params += array(
@@ -39,6 +44,7 @@ function bibdk_reservation_form_step_4_do_order() {
     'pickUpAgencyId' => BibdkReservationOrderObject::GetObject()->getBranchId(),
     'needBeforeDate' => BibdkReservationOrderObject::GetObject()->getNeedBeforDate(),
   );
+  
   bibdk_reservation_form_step_4_register_pid();
   $response = bibdk_openorder_do_placeOrder($params);
   if (isset($response->placeOrderResponse->orderNotPlaced)) {

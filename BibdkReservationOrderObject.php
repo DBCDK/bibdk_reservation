@@ -15,6 +15,33 @@ class BibdkReservationOrderObject {
   private $orderParameters;
   private $orderId;
   private $agency;
+  private $sbKopi;
+  private $articleDirect;
+  private $sbKopiUser;
+  
+  public function getSbKopiUser(){
+    return $this->sbKopiUser;
+  }
+  
+  public function setSbKopiUser($value){
+    $this->sbKopiUser = $value;
+  }
+  
+  public function getArticleDirect(){
+    return $this->articleDirect;
+  }
+  
+  public function setArticleDirect($value){
+    $this->articleDirect = $value;
+  }
+
+  public function getSbKopi() {
+    return $this->sbKopi;
+  }
+
+  public function setSbKopi($value) {
+    $this->sbKopi = $value;
+  }
 
   public function getOrderId() {
     return $this->orderId;
@@ -127,19 +154,31 @@ class BibdkReservationOrderObject {
   public function getFields() {
     return $this->fields;
   }
-
-  /**
+  
+  public static function reset(){
+     if (!isset($_SESSION['orderobject'])) {
+      unset($_SESSION['orderobject']);
+    }
+  }
+ 
+  
+   /**
    * @return BibdkReservationOrderObject
    */
   public static function GetObject() {
+    if (!isset($_SESSION['orderobject'])) {
+      self::SetObject();
+    }
     return $_SESSION['orderobject'];
   }
 
   /**
    * @return BibdkReservationOrderObject
    */
-  public static function SetObject() {
-    $_SESSION['orderobject'] = new BibdkReservationOrderObject();
+  private static function SetObject() {
+    if (!isset($_SESSION['orderobject'])) {
+      $_SESSION['orderobject'] = new BibdkReservationOrderObject();
+    }
     return $_SESSION['orderobject'];
   }
 
