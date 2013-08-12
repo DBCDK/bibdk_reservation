@@ -74,10 +74,20 @@ function bibdk_reservation_check_past_reservations($entity_ids) {
 function bibdk_reservation_order_any_edition_link($collection, $uid) {
   $uid = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '', $uid));
   $types = array();
+
+  $cart = array();
   foreach ($collection as $type => $ids) {
-    $types[] = _bibdk_reservation_create_type_button($type, $ids, $uid);
+    $arr['order'] = _bibdk_reservation_create_type_button($type, $ids, $uid);
+    /*if (module_exists('bibdk_cart_field')) {
+      module_load_include('module', 'bibdk_cart_field');
+      $link = bibdk_cart_get_link($ids);
+
+    }*/
+    $types[] = $arr;
   }
-  $button = theme('bibdk_reservation_order_any_btn', array('types' => $types));
+
+
+  $button = theme('bibdk_reservation_order_any_btn', array('types' => $types))  ;
 
   return $button;
 }
@@ -130,7 +140,7 @@ function bibdk_reservation_ajax_command($reservable, $class, $path) {
  */
 function bibdk_reservation_ajax_check_reservability($uid, $pids) {
   global $language;
-  $language_prefix = ( !empty($language->prefix) ) ? $language->prefix . '/' : '';
+  $language_prefix = (!empty($language->prefix)) ? $language->prefix . '/' : '';
   $ids = explode(',', $pids);
   $id = $ids[0];
   $infotext = array();
