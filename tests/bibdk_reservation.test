@@ -11,7 +11,7 @@ class BibdkReservationTestCase extends DrupalWebTestCase {
   }
 
   public function setUp() {
-    parent::setUp('bibdk_reservation', 'ting_openformat', 'bibdk_openorder_webservice_mockup');
+    parent::setUp('ting_openformat', 'bibdk_openorder_webservice_mockup');
     variable_set('ting_search_url', 'lakiseks.dbc.dk/openbibdk/0.5/');
     variable_set('bibdk_provider_webservice_url', $this->getAbsoluteUrl('bibdk_webservice'));
     variable_set('bibdk_provider_security_code', 'securityCode');
@@ -27,8 +27,9 @@ class BibdkReservationTestCase extends DrupalWebTestCase {
 
   public function testRunner(){
 
-    $this->_test_bibdk_reservation_catalog_callback();
     $this->_testActionHook();
+    $this->_test_bibdk_reservation_catalog_callback();
+
   }
 
   private function _test_bibdk_reservation_catalog_callback(){
@@ -57,8 +58,6 @@ class BibdkReservationTestCase extends DrupalWebTestCase {
    * Test that hook_ting_openformat_actions is correctly implemented
    */
   private function _testActionHook(){
-    module_disable(array('bibdk_reservation'));
-    menu_rebuild();
 
     // confim reservation button is not present
     $this->drupalGet('work/870970-basis:25294424');
