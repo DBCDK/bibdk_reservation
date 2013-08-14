@@ -73,7 +73,6 @@ function bibdk_reservation_check_past_reservations($entity_ids) {
  */
 function bibdk_reservation_order_any_edition_link($collection, $uid) {
   $uid = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '', $uid));
-  $types = array();
 
   $items = array();
   foreach ($collection as $type => $ids) {
