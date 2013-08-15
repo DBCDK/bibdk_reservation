@@ -82,7 +82,7 @@ function bibdk_reservation_order_any_edition_link($collection, $uid) {
   $lists[] = array(
     '#type' => 'ol',
     '#theme' => 'item_list',
-    '#title' => t('Order', array(), array('context' => 'bibdk_reservation')),
+    '#title' => t('Order ↓', array(), array('context' => 'bibdk_reservation')),
     '#items' => $items,
     '#prefix' => '<div class="col1">',
     '#suffix' => '</div>',
