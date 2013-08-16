@@ -2,11 +2,11 @@
   <div class="primary-actions">
     <div class="dropdown-wrapper">
       <a class="btn btn-blue dropdown-toggle" href="#"><?php print t('Order any edition', array(), array('context'=>'bibdk_reservation')); ?> <span class="icon icon-right icon-white-down">&nbsp;</span></a>
-      <ul class="dropdown-menu visuallyhidden">
-        <?php foreach ($types as $type => $action) : ?>
-          <li><?php print $action; ?></li>
+      <div class="dropdown-menu order-any-btn-list visuallyhidden">
+        <?php foreach ($lists as $list) : ?>
+          <?php print $list; ?>
       <?php endforeach; ?>
-      </ul>
+      </div>
     </div>
   </div>
 </div>

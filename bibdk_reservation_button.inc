@@ -73,11 +73,31 @@ function bibdk_reservation_check_past_reservations($entity_ids) {
  */
 function bibdk_reservation_order_any_edition_link($collection, $uid) {
   $uid = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '', $uid));
-  $types = array();
+
+  $items = array();
   foreach ($collection as $type => $ids) {
-    $types[] = _bibdk_reservation_create_type_button($type, $ids, $uid);
+    $items[] = _bibdk_reservation_create_type_button($type, $ids, $uid);
   }
-  $button = theme('bibdk_reservation_order_any_btn', array('types' => $types));
+
+  $lists[] = array(
+    '#type' => 'ol',
+    '#theme' => 'item_list',
+    '#title' => t('Order ↓', array(), array('context' => 'bibdk_reservation')),
+    '#items' => $items,
+    '#prefix' => '<div class="col1">',
+    '#suffix' => '</div>',
+    '#attributes' => array(
+      'class' => 'order-list',
+    ),
+  );
+
+  $lists = module_invoke_all('order_any_btn_lists', $lists, $collection);
+
+  foreach ($lists as $list) {
+    $rendered[] = drupal_render($list);
+  }
+
+  $button = theme('bibdk_reservation_order_any_btn', array('lists' => $rendered));
 
   return $button;
 }
@@ -130,7 +150,7 @@ function bibdk_reservation_ajax_command($reservable, $class, $path) {
  */
 function bibdk_reservation_ajax_check_reservability($uid, $pids) {
   global $language;
-  $language_prefix = ( !empty($language->prefix) ) ? $language->prefix . '/' : '';
+  $language_prefix = (!empty($language->prefix)) ? $language->prefix . '/' : '';
   $ids = explode(',', $pids);
   $id = $ids[0];
   $infotext = array();
