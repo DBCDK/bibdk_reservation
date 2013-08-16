@@ -93,6 +93,7 @@ function bibdk_reservation_order_any_edition_link($collection, $uid) {
 
   $lists = module_invoke_all('order_any_btn_lists', $lists, $collection);
 
+  $rendered = array();
   foreach ($lists as $list) {
     $rendered[] = drupal_render($list);
   }
