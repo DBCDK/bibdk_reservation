@@ -12,7 +12,7 @@ class BibdkReservationTestCase extends DrupalWebTestCase {
 
   public function setUp() {
     parent::setUp('ting_openformat', 'devel');
-    variable_set('ting_search_url', 'lakiseks.dbc.dk/openbibdk/0.5/');
+    variable_set('ting_search_url', 'http://openbibdk.addi.dk/next/');
     variable_set('bibdk_provider_webservice_url', $this->getAbsoluteUrl('bibdk_webservice'));
     variable_set('bibdk_provider_security_code', 'securityCode');
     variable_set('search_active_modules', array('ting_openformat' => 'ting_openformat'));
@@ -46,11 +46,13 @@ class BibdkReservationTestCase extends DrupalWebTestCase {
     $this->drupalGet('work/870970-basis:25294424');
     $this->assertLink(t('Order this Cd (musik)'));
 
+    //assert that reservation button has an id
+    $this->assertFieldByXPath("//a[contains(@id,'this_edition_')]",TRUE, 'reservation button has an id');
+    
+    
     // confim reservation link is present
     $this->drupalGet('work/874310-katalog:DBB0038373');
-    $this->assertLink(t('accessUrl'));
+    $this->assertLink(t('accessUrl'));            
   }
-
-
 
 }
