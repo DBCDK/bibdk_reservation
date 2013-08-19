@@ -18,16 +18,18 @@ function bibdk_reservation_link($entity_ids, $subtype, $entity_type) {
 
   if (count($manifestations) >= 2) {
     $text = t("order_any_edition", array(), array('context' => 'bibdk_reservation'));
+    $button_id = 'any_edition_'.$manifestations[0];
   }
   else {
     $translated_sub = t($subtype, array(), array('context' => 'bibdk_reservation'));
     $text = ($entity_type == "bibdkSubwork") ? $translated_sub : t("Order this @type", array("@type" => $translated_sub), array('context' => 'bibdk_reservation'));
+    $button_id = 'this_edition_'.current($manifestations);
   }
-
   $path = 'reservation';
   $query = array('ids' => implode(',', $entity_ids));
 
   // This should be moved to the template
+  $attributes['id'] = $button_id;
   $attributes['data-rel'] = 'reservation';
   $attributes['class'][] = 'bibdk-popup-link';
   $attributes['class'][] = 'btn';
@@ -73,7 +75,6 @@ function bibdk_reservation_check_past_reservations($entity_ids) {
  */
 function bibdk_reservation_order_any_edition_link($collection, $uid) {
   $uid = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '', $uid));
-
   $items = array();
   foreach ($collection as $type => $ids) {
     $items[] = _bibdk_reservation_create_type_button($type, $ids, $uid);
@@ -97,8 +98,11 @@ function bibdk_reservation_order_any_edition_link($collection, $uid) {
   foreach ($lists as $list) {
     $rendered[] = drupal_render($list);
   }
-
-  $button = theme('bibdk_reservation_order_any_btn', array('lists' => $rendered));
+  
+  // set an id for the button
+  $attributes = array('id'=>'any_edition_but_'.$uid);
+  // also render additonal attributes
+  $button = theme('bibdk_reservation_order_any_btn', array('lists' => $rendered, 'addi_attributes' => $attributes));
 
   return $button;
 }
@@ -123,6 +127,7 @@ function _bibdk_reservation_create_type_button($type, $ids, $uid) {
   $attributes['class'][] = 'bibdk-popup-order-work';
   $attributes['class'][] = 'bibdk-popup-link-' . $class;
   $attributes['class'][] = 'use-ajax';
+  $attributes['id'][] = 'any_edtion_order_' .$class;
   if (bibdk_reservation_check_past_reservations($ids) && !(strtolower($type) == 'avis' || strtolower($type) == 'tidsskrift')) {
     $attributes['class'][] = 'orderedOnceWork';
   }
