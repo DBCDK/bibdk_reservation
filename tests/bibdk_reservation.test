@@ -12,18 +12,45 @@ class BibdkReservationTestCase extends DrupalWebTestCase {
 
   public function setUp() {
     parent::setUp('ting_openformat', 'devel');
-    variable_set('ting_search_url', 'lakiseks.dbc.dk/openbibdk/0.5/');
+    variable_set('ting_search_url', 'http://openbibdk.addi.dk/next/');
     variable_set('bibdk_provider_webservice_url', $this->getAbsoluteUrl('bibdk_webservice'));
     variable_set('bibdk_provider_security_code', 'securityCode');
     variable_set('search_active_modules', array('ting_openformat' => 'ting_openformat'));
     variable_set('search_default_module', 'ting_openformat');
+
+    variable_set('bibdk_openorder_url', $this->getAbsoluteUrl('/bibdk_openorder_webservice/'));
+
     user_role_grant_permissions(DRUPAL_ANONYMOUS_RID, array('access content', 'search content'));
     menu_rebuild();
 
   }
 
   public function testRunner(){
+
     $this->_testActionHook();
+    $this->_test_bibdk_reservation_catalog_callback();
+
+  }
+
+  private function _test_bibdk_reservation_catalog_callback(){
+
+    // Test url not set
+    $options = array('query' => array('url' => 'test_url'));
+    $this->drupalGet('reservations/catalogue_url', $options);
+    $this->assertText(t('invalid url or agency_id'));
+    $this->assertUrl('reservations/catalogue_url', $options);
+
+    //Test agency_id not set
+    $options = array('query' => array('agency_id' => 'test_id'));
+    $this->drupalGet('reservations/catalogue_url', $options);
+    $this->assertText(t('invalid url or agency_id'));
+    $this->assertUrl('reservations/catalogue_url', $options);
+
+    // both elements are set
+    $options = array('query' => array('agency_id' => 'test_id', 'url' => $this->getAbsoluteUrl('test_url')));
+    $this->drupalGet('reservations/catalogue_url', $options);
+    $this->assertNoText(t('invalid url or agency_id'));
+    $this->assertUrl('test_url');
 
   }
 
@@ -31,6 +58,7 @@ class BibdkReservationTestCase extends DrupalWebTestCase {
    * Test that hook_ting_openformat_actions is correctly implemented
    */
   private function _testActionHook(){
+
     // confim reservation button is not present
     $this->drupalGet('work/870970-basis:25294424');
     $this->assertNoLink(t('Order this Cd (musik)'));
@@ -46,11 +74,13 @@ class BibdkReservationTestCase extends DrupalWebTestCase {
     $this->drupalGet('work/870970-basis:25294424');
     $this->assertLink(t('Order this Cd (musik)'));
 
+    //assert that reservation button has an id
+    $this->assertFieldByXPath("//a[contains(@id,'this_edition_')]",TRUE, 'reservation button has an id');
+    
+    
     // confim reservation link is present
     $this->drupalGet('work/874310-katalog:DBB0038373');
-    $this->assertLink(t('accessUrl'));
+    $this->assertLink(t('accessUrl'));            
   }
-
-
 
 }
