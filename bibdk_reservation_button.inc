@@ -77,19 +77,19 @@ function bibdk_reservation_order_any_edition_link($collection, $uid) {
   $uid = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '', $uid));
   $items = array();
   foreach ($collection as $type => $ids) {
-    $items[] = _bibdk_reservation_create_type_button($type, $ids, $uid);
+    $items['items'][] = _bibdk_reservation_create_type_button($type, $ids, $uid);
   }
 
+  $items['title'] = t('reservation_order_any', array(), array('context' => 'bibdk_reservation'));
+  $items['type'] = 'ol';
+  $items['attributes'] = array(
+    'class' => 'order-list',
+  );
+
   $lists[] = array(
-    '#type' => 'ol',
-    '#theme' => 'item_list',
-    '#title' => t('Order ↓', array(), array('context' => 'bibdk_reservation')),
+    '#theme' => 'bibdk_reservation_order_any_btn_list',
+    '#column' => '1',
     '#items' => $items,
-    '#prefix' => '<div class="col1">',
-    '#suffix' => '</div>',
-    '#attributes' => array(
-      'class' => 'order-list',
-    ),
   );
 
   $lists = module_invoke_all('order_any_btn_lists', $lists, $collection);
@@ -98,7 +98,7 @@ function bibdk_reservation_order_any_edition_link($collection, $uid) {
   foreach ($lists as $list) {
     $rendered[] = drupal_render($list);
   }
-  
+
   // set an id for the button
   $attributes = array('id'=>'any_edition_but_'.$uid);
   // also render additonal attributes
