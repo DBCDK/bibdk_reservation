@@ -151,8 +151,12 @@ function bibdk_reservation_ajax_command($reservable, $class, $path) {
 }
 
 /**
- * ajax callback for order any edition check
- * If material is not not borrowable a message will appear otherwise the reservation window will pop up
+ * AJAX callback for order any edition check
+ * If material is not not reservable a message will appear otherwise the
+ * reservation window will pop up.
+ *
+ * @param String $uid
+ * @param array $pids
  */
 function bibdk_reservation_ajax_check_reservability($uid, $pids) {
   global $language;
@@ -172,7 +176,9 @@ function bibdk_reservation_ajax_check_reservability($uid, $pids) {
         $infotext[] = _bibdk_reservation_render_infotext($infocode);
       }
     }
-    else {
+    else if($manifestation->isLink()){
+      $infotext[] = _ting_openformat_render_direct_link($manifestation);
+    } else {
       $infotext[] = _bibdk_reservation_render_infotext($infocode);
     }
   }
@@ -191,8 +197,7 @@ function bibdk_reservation_ajax_check_reservability($uid, $pids) {
     $commands = _bibdk_reservation_ajax_infotext($text, $type, $selector);
   }
   else {
-    global $base_root;
-    global $base_path;
+    global $base_root, $base_path;
     $root_url = drupal_parse_url($base_root . $base_path . $language_prefix . 'reservation/');
     $path = $root_url['path'] . '?ids=' . $pids;
     if (sizeof($infotext) > 0) {
@@ -208,6 +213,19 @@ function bibdk_reservation_ajax_check_reservability($uid, $pids) {
 }
 
 /**
+ * @param ManifestationMaster $manifestation
+ * @return string
+ */
+function _ting_openformat_render_direct_link($manifestation){
+  $info = $manifestation->getAccessInformation();
+  $url = $info[0]['accessUrl'];
+
+  $message = t("drupal_text_link !link", array('!link' => l($url, $url)), array('context'=>'bibdk_reservation'), array('attributes' => array('target' => '_blank')));
+
+  return $message;
+}
+
+/**
  * @param $text
  * @param $type
  * @param $selector
@@ -218,6 +236,6 @@ function _bibdk_reservation_ajax_infotext($text, $type, $selector) {
   drupal_set_message($text, $type);
   $commands[] = ajax_command_invoke($selector, 'hide');
   $commands[] = ajax_command_html($selector, theme('status_messages'));
-  $commands[] = ajax_command_invoke($selector, 'fadeIn', array('fast'));
+  $commands[] = ajax_command_invoke($selector, 'fadeIn', array(100));
   return $commands;
 }
