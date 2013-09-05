@@ -167,7 +167,7 @@ function bibdk_reservation_ajax_check_reservability($uid, $pids) {
   $bibdkWorkEntity = ting_openformat_get_manifestations($ids);
   $manifestations = $bibdkWorkEntity[$id]->getManifestations();
 
-  $isReservable = _ting_openformat_is_reservable($manifestations);
+  $isReservable = _ting_openformat_material_is_reservable($manifestations);
 
   $infotext = _ting_openformat_get_infotext($manifestations);
   $infotext = array_unique($infotext);
@@ -207,18 +207,21 @@ function bibdk_reservation_ajax_check_reservability($uid, $pids) {
  * for display
  *
  * @param array $manifestations
+ * @internal ManifestationMaster $manifestation
  * @return array
  */
 function _ting_openformat_get_infotext($manifestations) {
+  //TODO mmj needs testing
   $infotext = array();
   foreach ($manifestations as $manifestation) {
     $infocode = $manifestation->getInfotext();
+    fb('Infocode: ' . $infocode); //TODO mmj handle links --> watch storry in ScrumDo - 'link' // 'plusLink'
     if ($manifestation->isReservable()) {
       if ($infocode == 'picture7' || $infocode == 'picture11' || $infocode == 'picture15' || $infocode == 'usergroupC' || $infocode == 'usergroupE' || $infocode == 'noLendingLibraries' || $infocode == 'saleonly') {
         $infotext[] = _bibdk_reservation_render_infotext($infocode);
       }
-    }
-    else if ($manifestation->isLink()) {
+    }// TODO mmj this seems to be subject for a clean up, as the use of _render_infotext() seems ambiguous.
+    else if ($infocode == 'link' || $infocode == 'plusLink' || $infocode == 'linkE17') {
       $infotext[] = _ting_openformat_render_direct_link($manifestation);
     }
     else {
@@ -234,7 +237,8 @@ function _ting_openformat_get_infotext($manifestations) {
  * @param array $manifestations
  * @return bool
  */
-function _ting_openformat_is_reservable($manifestations) {
+function _ting_openformat_material_is_reservable($manifestations) {
+  //TODO mmj needs unittesting
   foreach ($manifestations as $manifestation) {
     if ($manifestation->isReservable()) {
       return TRUE;
@@ -248,12 +252,32 @@ function _ting_openformat_is_reservable($manifestations) {
  * @return string
  */
 function _ting_openformat_render_direct_link($manifestation) {
-  $info = $manifestation->getAccessInformation();
-  $url = $info[0]['accessUrl'];
+  $links = _bibdk_reservation_get_access_links($manifestation);
 
-  $message = t("drupal_text_link !link", array('!link' => l($url, $url)), array('context' => 'bibdk_reservation'), array('attributes' => array('target' => '_blank')));
-
+  $message = t("drupal_text_link !links", array('!links' => $links), array('context' => 'bibdk_reservation'), array('attributes' => array('target' => '_blank')));
   return $message;
+}
+
+/**
+ * Retrieves any accessUrl's from the given manifestation a string of links
+ * seprated by <br />
+ *
+ * @param ManifestationMaster $manifestation
+ * @return string
+ */
+function _bibdk_reservation_get_access_links($manifestation){
+  //TODO mmj needs testing
+  $info = $manifestation->getAccessInformation();
+  $links = "<br/>";
+  $last = end($info['accessUrl']);
+
+  foreach ($info['accessUrl'] as $link) {
+    $links .= l($link, $link, array('attributes'=>array('target'=>'_blank')));
+    if($link != $last){
+      $links .= "<br/>";
+    }
+  }
+  return $links;
 }
 
 /**
