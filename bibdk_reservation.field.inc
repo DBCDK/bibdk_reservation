@@ -88,16 +88,14 @@ function bibdk_reservation_field_formatter_view($entity_type, $entity, $field, $
     switch ($display['type']) {
       case "bibdk_reservation_button_default" :
         if ($entity->isReservable()){
-          //$button_form = drupal_get_form("bibdk_reservation_button_form", $entity->getIDs(), $entity->getType(), $entity_type);
-          //$element[$delta]['#markup'] = drupal_render($button_form);
           $element[$delta]['#markup'] = bibdk_reservation_link($entity->getIDs(), $entity->getSubType(), $entity_type);
         } elseif ($entity->isLink()) {
           $info = $entity->getAccessInformation();
-          $element[$delta]['#markup'] = l(t('accessUrl', array(), array('context'=>'bibdk_reservation')),$info[0]['accessUrl'],array('attributes'=>array('target'=>'_blank')));
+          $element[$delta]['#markup'] = l(t('accessUrl', array(), array('context'=>'bibdk_reservation')),$info['accessUrl'][0],array('attributes'=>array('target'=>'_blank')));
         }
         break;
       case "bibdk_reservation_information_default" :
-        $infotext = $entity->getInfotext(); // . $entity->getRequestMethod() ;
+        $infotext = $entity->getInfotext();
         if (!isset($infotext))
           return;
         $element[$delta]['#markup'] = _bibdk_reservation_render_infotext($infotext);
