@@ -20,22 +20,6 @@ function bibdk_reservation_ding_entity_fields() {
 
   $fields = array();
 
-  $fields['bibdk_sub_reservation_button'] = array(
-      'field' => array(
-        'locked' => FALSE,
-        'storage' => array(
-          'type' => 'virtual_field',
-        ),
-      ),
-      'instance' => array(
-        'ding_entity_type' => 'bibdkSubwork',
-        'label' => t('Reservation Button'),
-        'bundle' => 'bibdkSubwork',
-        'entity_type' => 'bibdkSubwork',
-        'display' => $display_full,
-      ),
-    );
-
   $fields['bibdk_coll_reservation_button'] = array(
       'field' => array(
         'locked' => FALSE,
@@ -90,5 +74,13 @@ function bibdk_reservation_update_7003() {
  * */
 function bibdk_reservation_update_7004() {
   field_delete_field('bibdk_mani_reservation_button');
+}
+
+/**
+ * Implements hook_update_N;
+ * Update all field information
+ * */
+function bibdk_reservation_update_7005() {
+  field_delete_field('bibdk_sub_reservation_button');
 }
 
