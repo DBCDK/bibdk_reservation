@@ -82,5 +82,4 @@ class BibdkReservationTestCase extends DrupalWebTestCase {
     $this->drupalGet('work/874310-katalog:DBB0038373');
     $this->assertLink(t('accessUrl'));            
   }
-
 }
