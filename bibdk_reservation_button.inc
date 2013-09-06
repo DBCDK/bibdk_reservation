@@ -215,12 +215,11 @@ function _ting_openformat_get_infotext($manifestations) {
   $infotext = array();
   foreach ($manifestations as $manifestation) {
     $infocode = $manifestation->getInfotext();
-    fb('Infocode: ' . $infocode); //TODO mmj handle links --> watch storry in ScrumDo - 'link' // 'plusLink'
     if ($manifestation->isReservable()) {
       if ($infocode == 'picture7' || $infocode == 'picture11' || $infocode == 'picture15' || $infocode == 'usergroupC' || $infocode == 'usergroupE' || $infocode == 'noLendingLibraries' || $infocode == 'saleonly') {
         $infotext[] = _bibdk_reservation_render_infotext($infocode);
       }
-    }// TODO mmj this seems to be subject for a clean up, as the use of _render_infotext() seems ambiguous.
+    }
     else if ($infocode == 'link' || $infocode == 'plusLink' || $infocode == 'linkE17') {
       $infotext[] = _ting_openformat_render_direct_link($manifestation);
     }
@@ -238,7 +237,6 @@ function _ting_openformat_get_infotext($manifestations) {
  * @return bool
  */
 function _ting_openformat_material_is_reservable($manifestations) {
-  //TODO mmj needs unittesting
   foreach ($manifestations as $manifestation) {
     if ($manifestation->isReservable()) {
       return TRUE;
@@ -248,7 +246,7 @@ function _ting_openformat_material_is_reservable($manifestations) {
 }
 
 /**
- * @param ManifestationMaster $manifestation
+ * @param Manifestation $manifestation
  * @return string
  */
 function _ting_openformat_render_direct_link($manifestation) {
@@ -262,18 +260,18 @@ function _ting_openformat_render_direct_link($manifestation) {
  * Retrieves any accessUrl's from the given manifestation a string of links
  * seprated by <br />
  *
- * @param ManifestationMaster $manifestation
+ * @param Manifestation $manifestation
  * @return string
  */
-function _bibdk_reservation_get_access_links($manifestation){
+function _bibdk_reservation_get_access_links($manifestation) {
   //TODO mmj needs testing
   $info = $manifestation->getAccessInformation();
   $links = "<br/>";
   $last = end($info['accessUrl']);
 
   foreach ($info['accessUrl'] as $link) {
-    $links .= l($link, $link, array('attributes'=>array('target'=>'_blank')));
-    if($link != $last){
+    $links .= l($link, $link, array('attributes' => array('target' => '_blank')));
+    if ($link != $last) {
       $links .= "<br/>";
     }
   }
