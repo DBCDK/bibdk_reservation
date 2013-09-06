@@ -1,7 +1,6 @@
 name = Bibliotek.dk  - Reservation
 description = Implementation of reservation functionality on bibdk entities
 package = Bibliotek.dk
-; configure = admin/config/...
 core = 7.x
 version = 7.x-0.19
 php = 5.2.4
@@ -19,7 +18,6 @@ files[] = bibdk_reservation_form_step_2.inc
 files[] = bibdk_reservation_form_step_3.inc
 files[] = bibdk_reservation_form_step_4.inc
 files[] = bibdk_reservation_form_step_5.inc
-;files[] = bibdk_reservation_sb_kopi.inc
 files[] = BibdkReservationOrderObject.php
 files[] = test/bibdk_reservation_web_test.test
 files[] = test/bibdk_reservation_unit_test.test
