@@ -81,10 +81,6 @@ class BibdkReservationTestCase extends DrupalWebTestCase {
     $this->assertLink(t('accessUrl'));
   }
 
-  private function test_ting_openformat_get_infotext(){
-
-  }
-
   private function _test_bibdk_reservation_get_access_links() {
     debug('Testing no URL');
     $noUrlManifestation = unserialize(file_get_contents(drupal_get_path('module', 'bibdk_reservation') . '/test/mockup/serialized/noUrl.serialized'));
