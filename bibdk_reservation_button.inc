@@ -211,7 +211,7 @@ function bibdk_reservation_ajax_check_reservability($uid, $pids) {
  * @return array
  */
 function _ting_openformat_get_infotext($manifestations) {
-  //TODO mmj needs testing
+  #fb($manifestations);
   $infotext = array();
   foreach ($manifestations as $manifestation) {
     $infocode = $manifestation->getInfotext();
