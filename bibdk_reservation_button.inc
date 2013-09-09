@@ -264,12 +264,18 @@ function _ting_openformat_render_direct_link($manifestation) {
  * @return string
  */
 function _bibdk_reservation_get_access_links($manifestation) {
-  //TODO mmj needs testing
   $info = $manifestation->getAccessInformation();
-  $links = "<br/>";
-  $last = end($info['accessUrl']);
 
-  foreach ($info['accessUrl'] as $link) {
+  $links = '';
+  if (isset($info['accessInformation'][0]['accessUrl'])) {
+    $urls = $info['accessInformation'][0]['accessUrl'];
+  }
+  else {
+    return $links;
+  }
+
+  $last = end($urls);
+  foreach ($urls as $link) {
     $links .= l($link, $link, array('attributes' => array('target' => '_blank')));
     if ($link != $last) {
       $links .= "<br/>";

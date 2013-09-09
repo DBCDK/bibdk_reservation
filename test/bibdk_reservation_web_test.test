@@ -4,14 +4,14 @@ class BibdkReservationTestCase extends DrupalWebTestCase {
 
   public static function getInfo() {
     return array(
-      'name' => t('Bibdk Reservation test'),
+      'name' => t('Bibdk Reservation Web Tests'),
       'description' => t('Test Reservation functionality'),
       'group' => t('Bibliotek.dk - Reservation'),
     );
   }
 
   public function setUp() {
-    parent::setUp('ting_openformat', 'devel');
+    parent::setUp('ting_openformat'/*, 'devel'*/);
     variable_set('ting_search_url', 'http://openbibdk.addi.dk/next/');
     variable_set('bibdk_provider_webservice_url', $this->getAbsoluteUrl('bibdk_webservice'));
     variable_set('bibdk_provider_security_code', 'securityCode');
@@ -25,14 +25,13 @@ class BibdkReservationTestCase extends DrupalWebTestCase {
 
   }
 
-  public function testRunner(){
-
+  public function testRunner() {
     $this->_testActionHook();
     $this->_test_bibdk_reservation_catalog_callback();
-
+    $this->_test_bibdk_reservation_get_access_links();
   }
 
-  private function _test_bibdk_reservation_catalog_callback(){
+  private function _test_bibdk_reservation_catalog_callback() {
 
     // Test url not set
     $options = array('query' => array('url' => 'test_url'));
@@ -57,7 +56,7 @@ class BibdkReservationTestCase extends DrupalWebTestCase {
   /**
    * Test that hook_ting_openformat_actions is correctly implemented
    */
-  private function _testActionHook(){
+  private function _testActionHook() {
 
     // confim reservation button is not present
     $this->drupalGet('work/870970-basis:25294424');
@@ -75,11 +74,52 @@ class BibdkReservationTestCase extends DrupalWebTestCase {
     $this->assertLink(t('Order this Cd (musik)'));
 
     //assert that reservation button has an id
-    $this->assertFieldByXPath("//a[contains(@id,'this_edition_')]",TRUE, 'reservation button has an id');
-    
-    
+    $this->assertFieldByXPath("//a[contains(@id,'this_edition_')]", TRUE, 'reservation button has an id');
+
     // confim reservation link is present
     $this->drupalGet('work/874310-katalog:DBB0038373');
-    $this->assertLink(t('accessUrl'));            
+    $this->assertLink(t('accessUrl'));
+  }
+
+  private function _test_bibdk_reservation_get_access_links() {
+    debug('Testing no URL');
+    $noUrlManifestation = unserialize(file_get_contents(drupal_get_path('module', 'bibdk_reservation') . '/test/mockup/serialized/noUrl.serialized'));
+
+    #$info = $noUrlManifestation->getAccessInformation();
+    #$this->assertEqual($info, NULL, 'Got NULL from getAccessInformation() as expected');
+
+    $string = _bibdk_reservation_get_access_links($noUrlManifestation);
+    $this->assertEqual($string, '', 'Got empty string');
+
+    debug('Testing single URL');
+    $singleUrlManifestation = unserialize(file_get_contents(drupal_get_path('module', 'bibdk_reservation') . '/test/mockup/serialized/singleUrl.serialized'));
+
+    $info = $singleUrlManifestation->getAccessInformation();
+    $linksToCheckFor = $info['accessInformation'][0]['accessUrl'];
+
+    $links = _bibdk_reservation_get_access_links($singleUrlManifestation);
+
+    $this->assertTrue($this->_checkStringForElements($linksToCheckFor, $links), 'Found expected links in string');
+
+    debug('Testing multiple URLs');
+    $multipleUrlManifestation = unserialize(file_get_contents(drupal_get_path('module', 'bibdk_reservation') . '/test/mockup/serialized/multipleUrl.serialized'));
+
+    $info = $multipleUrlManifestation->getAccessInformation();
+    $linksToCheckFor = $info['accessInformation'][0]['accessUrl'];
+
+    $links = _bibdk_reservation_get_access_links($multipleUrlManifestation);
+
+    $this->assertTrue($this->_checkStringForElements($linksToCheckFor, $links), 'Found expected links in string');
+  }
+
+  private function _checkStringForElements($expected, $res) {
+    debug('Testiing for ' . count($expected) . ' links:');
+    foreach ($expected as $value) {
+      $string = 'href="' . $value . '"';
+      if (strpos($res, $string) === FALSE) {
+        return FALSE;
+      }
+    }
+    return TRUE;
   }
 }
