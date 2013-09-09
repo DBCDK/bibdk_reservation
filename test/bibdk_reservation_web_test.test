@@ -85,9 +85,6 @@ class BibdkReservationTestCase extends DrupalWebTestCase {
     debug('Testing no URL');
     $noUrlManifestation = unserialize(file_get_contents(drupal_get_path('module', 'bibdk_reservation') . '/test/mockup/serialized/noUrl.serialized'));
 
-    #$info = $noUrlManifestation->getAccessInformation();
-    #$this->assertEqual($info, NULL, 'Got NULL from getAccessInformation() as expected');
-
     $string = _bibdk_reservation_get_access_links($noUrlManifestation);
     $this->assertEqual($string, '', 'Got empty string');
 
