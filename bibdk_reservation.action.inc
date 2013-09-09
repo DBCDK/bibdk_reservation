@@ -23,7 +23,7 @@ function bibdk_reservation_ting_openformat_actions($type, $entity, $view_mode, $
         $info = $entity->getAccessInformation();
 
         $element['reservation'] = array(
-          '#markup' => l(t('accessUrl', array(), array('context'=>'bibdk_reservation')), $info['accessUrl'][0], array('attributes' => array('target' =>'_blank', 'class' => array('btn btn-grey')))),
+          '#markup' => l(t('accessUrl', array(), array('context'=>'bibdk_reservation')), $info['accessInformation'][0]['accessUrl'][0], array('attributes' => array('target' =>'_blank', 'class' => array('btn btn-grey')))),
           '#weight' => -2,
         );
       }
