@@ -250,7 +250,6 @@ function _ting_openformat_material_is_reservable($manifestations) {
  */
 function _ting_openformat_render_direct_link($manifestation) {
   $links = _bibdk_reservation_get_access_links($manifestation);
-
   $message = t("drupal_text_link !links", array('!links' => $links), array('context' => 'bibdk_reservation'), array('attributes' => array('target' => '_blank')));
   return $message;
 }

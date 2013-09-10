@@ -1,6 +1,6 @@
 <?php
 
-class BibdkReservationTestCase extends DrupalWebTestCase {
+class BibdkReservationWebTestCase extends DrupalWebTestCase {
 
   public static function getInfo() {
     return array(
@@ -28,6 +28,7 @@ class BibdkReservationTestCase extends DrupalWebTestCase {
   public function testRunner() {
     $this->_testActionHook();
     $this->_test_bibdk_reservation_catalog_callback();
+    $this->_test_ting_openformat_render_direct_link();
     $this->_test_bibdk_reservation_get_access_links();
   }
 
@@ -79,6 +80,24 @@ class BibdkReservationTestCase extends DrupalWebTestCase {
     // confim reservation link is present
     $this->drupalGet('work/874310-katalog:DBB0038373');
     $this->assertLink(t('accessUrl'));
+  }
+
+  private function _test_ting_openformat_render_direct_link(){
+    debug('Testing single URL');
+    $singleUrlManifestation = unserialize(file_get_contents(drupal_get_path('module', 'bibdk_reservation') . '/test/mockup/serialized/singleUrl.serialized'));
+
+    $message = _ting_openformat_render_direct_link($singleUrlManifestation);
+    $links = _bibdk_reservation_get_access_links($singleUrlManifestation);
+
+    $this->assertTrue((strpos($message, $links) !== FALSE), 'Found expected links in string');
+
+    debug('Testing multiple URLs');
+    $multipleUrlManifestation = unserialize(file_get_contents(drupal_get_path('module', 'bibdk_reservation') . '/test/mockup/serialized/multipleUrl.serialized'));
+
+    $message = _ting_openformat_render_direct_link($multipleUrlManifestation);
+    $links = _bibdk_reservation_get_access_links($multipleUrlManifestation);
+
+    $this->assertTrue((strpos($message, $links) !== FALSE), 'Found expected links in string');
   }
 
   private function _test_bibdk_reservation_get_access_links() {
