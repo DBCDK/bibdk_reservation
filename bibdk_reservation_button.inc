@@ -219,8 +219,8 @@ function _ting_openformat_get_infotext($manifestations) {
         $infotext[] = _bibdk_reservation_render_infotext($infocode);
       }
     }
-    else if ($infocode == 'link' || $infocode == 'plusLink' || $infocode == 'linkE17') {
-      $infotext[] = _ting_openformat_render_direct_link($manifestation);
+    else if ($infocode == 'link' || $infocode == 'plusLink' || $infocode == 'linkE17' || $infocode == 'restrictedAccess') {
+      $infotext[] = _ting_openformat_render_direct_link($infocode, $manifestation);
     }
     else {
       $infotext[] = _bibdk_reservation_render_infotext($infocode);
@@ -245,12 +245,13 @@ function _ting_openformat_material_is_reservable($manifestations) {
 }
 
 /**
+ * @param string $infocode
  * @param Manifestation $manifestation
  * @return string
  */
-function _ting_openformat_render_direct_link($manifestation) {
+function _ting_openformat_render_direct_link($infocode, $manifestation) {
   $links = _bibdk_reservation_get_access_links($manifestation);
-  $message = t("drupal_text_link !links", array('!links' => $links), array('context' => 'bibdk_reservation'), array('attributes' => array('target' => '_blank')));
+  $message = t("$infocode !links", array('!links' => $links), array('context' => 'bibdk_reservation'), array('attributes' => array('target' => '_blank')));
   return $message;
 }
 
