@@ -42,7 +42,7 @@ function bibdk_reservation_form_step_3($form, &$form_state) {
  * not want to issue an order.
  */
 function bibdk_reservation_form_step_3_validate($form, &$form_state) {
-  if(isset($form_state['triggering_element']['#step']) || $form_state['triggering_element']['#name'] == 'prev'){
+  if (isset($form_state['triggering_element']['#step']) || $form_state['triggering_element']['#name'] == 'prev') {
     return;
   }
 
@@ -61,7 +61,7 @@ function bibdk_reservation_form_step_3_validate($form, &$form_state) {
   // either way set sb_kopi selfpickup setting if needed
   $sb_value = BibdkReservationOrderObject::GetObject()->getArticleDirect();
   if (module_exists('bibdk_usersettings')) {
-    bibdk_usersettings_user_settings_set('bibdk_actions_sb_selfpickup',$sb_value);
+    bibdk_usersettings_user_settings_set('bibdk_actions_sb_selfpickup', $sb_value);
   }
 
   //If the order was a succes we reset the BibdkReservationOrderObject to avoid use of the same orderId multiple time
@@ -93,7 +93,7 @@ function bibdk_reservation_render_custom_branch_view($branch, $form_state) {
     '#attributes' => array('class' => array('form-item'))
   );
 
-  if ($form_state['step'] == 2 ) {
+  if ($form_state['step'] == 2) {
     $form['branchParameters']['chg_lib_btn'] = array(
       '#type' => 'submit',
       '#value' => t('Pick another library', array(), array('context' => 'bibdk_reservation')),
