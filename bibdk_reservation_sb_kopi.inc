@@ -46,11 +46,16 @@ function bibdk_reservation_sb_kopi_old_user_fields() {
 function bibdk_reservation_sb_kopi_validate_wrapper($form, &$form_state) {
   // clear error messages
   //drupal_get_messages();  
-
-  $errors = bibdk_reservation_sbkopi_validate($form, $form_state);
+  // pass var $type as reference to set type of sbkopiuser
+  $errors = bibdk_reservation_sbkopi_validate($form, $form_state, $type);
   if (is_array($errors)) {
     foreach ($errors as $field => $message)
       form_set_error($field, t($message, array(), array('context' => 'bibdk_reservation:error')));
+  }
+  
+  // set the type of user
+  if (isset($type)) {
+    BibdkReservationOrderObject::GetObject()->setSbKopiUser($type);
   }
 }
 
@@ -60,7 +65,7 @@ function bibdk_reservation_sb_kopi_validate_wrapper($form, &$form_state) {
  * @param null $form_state
  * @return type 
  */
-function bibdk_reservation_sbkopi_validate($form, &$form_state) {
+function bibdk_reservation_sbkopi_validate($form, &$form_state, &$type=NULL) {
   // $new represents a new user, $old represents an already registred user
   $new = bibdk_reservation_sb_kopi_new_user_fields();
   $old = bibdk_reservation_sb_kopi_old_user_fields();
@@ -122,10 +127,10 @@ function bibdk_reservation_sbkopi_validate($form, &$form_state) {
 
   // set the type of user
   if ($old) {
-    BibdkReservationOrderObject::GetObject()->setSbKopiUser('OLD');
+    $type = 'OLD';
   }
   elseif ($new) {
-    bibdkReservationOrderObject::GetObject()->setSbKopiUser('NEW');
+    $type = 'NEW';
   }
 }
 
