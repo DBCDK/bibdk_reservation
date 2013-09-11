@@ -156,7 +156,7 @@ class BibdkReservationOrderObject {
   }
 
   public static function reset() {
-    if (!isset($_SESSION['orderobject'])) {
+    if (isset($_SESSION['orderobject'])) {
       unset($_SESSION['orderobject']);
     }
   }
@@ -180,5 +180,4 @@ class BibdkReservationOrderObject {
     }
     return $_SESSION['orderobject'];
   }
-
 }
