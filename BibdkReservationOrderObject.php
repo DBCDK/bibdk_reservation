@@ -18,20 +18,20 @@ class BibdkReservationOrderObject {
   private $sbKopi;
   private $articleDirect;
   private $sbKopiUser;
-  
-  public function getSbKopiUser(){
+
+  public function getSbKopiUser() {
     return $this->sbKopiUser;
   }
-  
-  public function setSbKopiUser($value){
+
+  public function setSbKopiUser($value) {
     $this->sbKopiUser = $value;
   }
-  
-  public function getArticleDirect(){
+
+  public function getArticleDirect() {
     return $this->articleDirect;
   }
-  
-  public function setArticleDirect($value){
+
+  public function setArticleDirect($value) {
     $this->articleDirect = $value;
   }
 
@@ -154,15 +154,14 @@ class BibdkReservationOrderObject {
   public function getFields() {
     return $this->fields;
   }
-  
-  public static function reset(){
-     if (!isset($_SESSION['orderobject'])) {
+
+  public static function reset() {
+    if (!isset($_SESSION['orderobject'])) {
       unset($_SESSION['orderobject']);
     }
   }
- 
-  
-   /**
+
+  /**
    * @return BibdkReservationOrderObject
    */
   public static function GetObject() {
