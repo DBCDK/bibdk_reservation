@@ -3,7 +3,7 @@ description = Implementation of reservation functionality on bibdk entities
 package = Bibliotek.dk
 ; configure = admin/config/...
 core = 7.x
-version = 7.x-0.19
+version = 7.x-0.20
 php = 5.2.4
 
 dependencies[] = bibdk_favourite
