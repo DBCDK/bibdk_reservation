@@ -63,6 +63,11 @@ function bibdk_reservation_form_step_3_validate($form, &$form_state) {
   if (module_exists('bibdk_usersettings')) {
     bibdk_usersettings_user_settings_set('bibdk_actions_sb_selfpickup',$sb_value);
   }
+
+  //If the order was a succes we reset the BibdkReservationOrderObject to avoid use of the same orderId multiple time
+  if(isset($orderId)){
+    BibdkReservationOrderObject::reset();
+  }
 }
 
 function bibdk_reservation_render_custom_branch_view($branch, $form_state) {
@@ -71,7 +76,7 @@ function bibdk_reservation_render_custom_branch_view($branch, $form_state) {
   $address = $branch->postalAddress;
   $postalCode = $branch->postalCode;
   $city = $branch->city;
-    
+
   $markup = theme('bibdk_reservation_agency', array(
     'name' => $shortname,
     'address' => $address,
