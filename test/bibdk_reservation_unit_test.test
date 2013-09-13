@@ -1,0 +1,39 @@
+<?php
+
+class BibdkReservationUnitTestCase extends DrupalUnitTestCase {
+  /**
+   * @return array
+   */
+  public static function getInfo() {
+    return array(
+      'name' => t('Bibdk Reservation Unit Tests'),
+      'description' => t('Tests methods in bibdk_reservation module that doesn\'t require any db'),
+      'group' => t('Bibliotek.dk - Reservation'),
+    );
+  }
+
+  public function setUp() {
+    parent::setUp();
+  }
+
+  public function test_ting_openformat_material_is_reservable(){
+    module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_button');
+    $objects = json_decode(file_get_contents(drupal_get_path('module', 'bibdk_reservation') . '/test/mockup/test_objects.json'));
+
+    $manifestationIsNotReservable = new Manifestation($objects->isNotReservable);
+    $manifestationIsNot = new Manifestation($objects->isReservable);
+
+    $this->assertFalse($this->_checkReservability($manifestationIsNotReservable), 'Manifestation is not reservable');
+    $this->assertTrue($this->_checkReservability($manifestationIsNot), 'Manifestation is reservable');
+
+    $this->assertFalse(array(), 'FALSE returned as expected when empty array given');
+  }
+
+  /**
+   * @param $manifestation
+   * @return bool
+   */
+  private function _checkReservability($manifestation) {
+    return _ting_openformat_material_is_reservable(array($manifestation));
+  }
+}

@@ -18,12 +18,12 @@ function bibdk_reservation_link($entity_ids, $subtype, $entity_type) {
 
   if (count($manifestations) >= 2) {
     $text = t("order_any_edition", array(), array('context' => 'bibdk_reservation'));
-    $button_id = 'any_edition_'.$manifestations[0];
+    $button_id = 'any_edition_' . $manifestations[0];
   }
   else {
     $translated_sub = t($subtype, array(), array('context' => 'bibdk_reservation'));
     $text = ($entity_type == "bibdkSubwork") ? $translated_sub : t("Order this @type", array("@type" => $translated_sub), array('context' => 'bibdk_reservation'));
-    $button_id = 'this_edition_'.current($manifestations);
+    $button_id = 'this_edition_' . current($manifestations);
   }
   $path = 'reservation';
   $query = array('ids' => implode(',', $entity_ids));
@@ -100,7 +100,7 @@ function bibdk_reservation_order_any_edition_link($collection, $uid) {
   }
 
   // set an id for the button
-  $attributes = array('id'=>'any_edition_but_'.$uid);
+  $attributes = array('id' => 'any_edition_but_' . $uid);
   // also render additonal attributes
   $button = theme('bibdk_reservation_order_any_btn', array('lists' => $rendered, 'addi_attributes' => $attributes));
 
@@ -127,7 +127,7 @@ function _bibdk_reservation_create_type_button($type, $ids, $uid) {
   $attributes['class'][] = 'bibdk-popup-order-work';
   $attributes['class'][] = 'bibdk-popup-link-' . $class;
   $attributes['class'][] = 'use-ajax';
-  $attributes['id'][] = 'any_edtion_order_' .$class;
+  $attributes['id'][] = 'any_edtion_order_' . $class;
   if (bibdk_reservation_check_past_reservations($ids) && !(strtolower($type) == 'avis' || strtolower($type) == 'tidsskrift')) {
     $attributes['class'][] = 'orderedOnceWork';
   }
@@ -151,37 +151,32 @@ function bibdk_reservation_ajax_command($reservable, $class, $path) {
 }
 
 /**
- * ajax callback for order any edition check
- * If material is not not borrowable a message will appear otherwise the reservation window will pop up
+ * AJAX callback for order any edition check
+ * If material is not not reservable a message will appear otherwise the
+ * reservation window will pop up.
+ *
+ * @param String $uid
+ * @param array $pids
  */
 function bibdk_reservation_ajax_check_reservability($uid, $pids) {
   global $language;
   $language_prefix = (!empty($language->prefix)) ? $language->prefix . '/' : '';
   $ids = explode(',', $pids);
   $id = $ids[0];
-  $infotext = array();
 
   $bibdkWorkEntity = ting_openformat_get_manifestations($ids);
   $manifestations = $bibdkWorkEntity[$id]->getManifestations();
-  $isReservable = FALSE;
-  foreach ($manifestations as $manifestation) {
-    $infocode = $manifestation->getInfotext();
-    if ($manifestation->isReservable()) {
-      $isReservable = TRUE;
-      if ($infocode == 'picture7' || $infocode == 'picture11' || $infocode == 'picture15' || $infocode == 'usergroupC' || $infocode == 'usergroupE' || $infocode == 'noLendingLibraries' || $infocode == 'saleonly') {
-        $infotext[] = _bibdk_reservation_render_infotext($infocode);
-      }
-    }
-    else {
-      $infotext[] = _bibdk_reservation_render_infotext($infocode);
-    }
-  }
+
+  $isReservable = _ting_openformat_material_is_reservable($manifestations);
+
+  $infotext = _ting_openformat_get_infotext($manifestations);
   $infotext = array_unique($infotext);
 
   $class = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '', $id));
   $commands = array();
   $selector = '.msg-' . $uid;
   $type = 'notice';
+
   if (!$isReservable) {
     $path = '';
     $text = t('not_possible_to_borrow_material', array(), array('context' => 'bibdk_reservation'));
@@ -191,8 +186,7 @@ function bibdk_reservation_ajax_check_reservability($uid, $pids) {
     $commands = _bibdk_reservation_ajax_infotext($text, $type, $selector);
   }
   else {
-    global $base_root;
-    global $base_path;
+    global $base_root, $base_path;
     $root_url = drupal_parse_url($base_root . $base_path . $language_prefix . 'reservation/');
     $path = $root_url['path'] . '?ids=' . $pids;
     if (sizeof($infotext) > 0) {
@@ -208,6 +202,88 @@ function bibdk_reservation_ajax_check_reservability($uid, $pids) {
 }
 
 /**
+ * Extracts the infotext and renders the appropriate text.
+ * If the material is available online, the link will be extracted and prepared
+ * for display
+ *
+ * @param array $manifestations
+ * @internal ManifestationMaster $manifestation
+ * @return array
+ */
+function _ting_openformat_get_infotext($manifestations) {
+  $infotext = array();
+  foreach ($manifestations as $manifestation) {
+    $infocode = $manifestation->getInfotext();
+    if ($manifestation->isReservable()) {
+      if ($infocode == 'picture7' || $infocode == 'picture11' || $infocode == 'picture15' || $infocode == 'usergroupC' || $infocode == 'usergroupE' || $infocode == 'noLendingLibraries' || $infocode == 'saleonly') {
+        $infotext[] = _bibdk_reservation_render_infotext($infocode);
+      }
+    }
+    else if ($infocode == 'link' || $infocode == 'plusLink' || $infocode == 'linkE17' || $infocode == 'restrictedAccess') {
+      $infotext[] = _ting_openformat_render_direct_link($infocode, $manifestation);
+    }
+    else {
+      $infotext[] = _bibdk_reservation_render_infotext($infocode);
+    }
+  }
+  return $infotext;
+}
+
+/**
+ * Checks if any of the manifestations is reservable.
+ *
+ * @param array $manifestations
+ * @return bool
+ */
+function _ting_openformat_material_is_reservable($manifestations) {
+  foreach ($manifestations as $manifestation) {
+    if ($manifestation->isReservable()) {
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * @param string $infocode
+ * @param Manifestation $manifestation
+ * @return string
+ */
+function _ting_openformat_render_direct_link($infocode, $manifestation) {
+  $links = _bibdk_reservation_get_access_links($manifestation);
+  $message = t("$infocode !links", array('!links' => $links), array('context' => 'bibdk_reservation'), array('attributes' => array('target' => '_blank')));
+  return $message;
+}
+
+/**
+ * Retrieves any accessUrl's from the given manifestation a string of links
+ * seprated by <br />
+ *
+ * @param Manifestation $manifestation
+ * @return string
+ */
+function _bibdk_reservation_get_access_links($manifestation) {
+  $info = $manifestation->getAccessInformation();
+
+  $links = '';
+  if (isset($info['accessInformation'][0]['accessUrl'])) {
+    $urls = $info['accessInformation'][0]['accessUrl'];
+  }
+  else {
+    return $links;
+  }
+
+  $last = end($urls);
+  foreach ($urls as $link) {
+    $links .= l($link, $link, array('attributes' => array('target' => '_blank')));
+    if ($link != $last) {
+      $links .= "<br/>";
+    }
+  }
+  return $links;
+}
+
+/**
  * @param $text
  * @param $type
  * @param $selector
@@ -218,6 +294,6 @@ function _bibdk_reservation_ajax_infotext($text, $type, $selector) {
   drupal_set_message($text, $type);
   $commands[] = ajax_command_invoke($selector, 'hide');
   $commands[] = ajax_command_html($selector, theme('status_messages'));
-  $commands[] = ajax_command_invoke($selector, 'fadeIn', array('fast'));
+  $commands[] = ajax_command_invoke($selector, 'fadeIn', array(100));
   return $commands;
 }
