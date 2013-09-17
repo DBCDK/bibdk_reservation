@@ -294,10 +294,12 @@ function bibdk_reservation_wizard_next_submit($form, &$form_state) {
   }
 }
 
-/*
+/**
  * Submithandler for stepguide
+ *
+ * @param $form
+ * @param $form_state
  */
-
 function bibdk_reservation_wizard_goto_step_submit($form, &$form_state) {
   $next_step = $form_state['triggering_element']['#step'];
   $current_step = $form_state['step'];
