@@ -36,9 +36,16 @@ function bibdk_reservation_form_step_3($form, &$form_state) {
 }
 
 /**
- * Implements hook_form_validate
+ * Implements _form_validate().
+ * Inovked when any button on step 3 is clicked. First it is checked if either
+ * the breadcrumb or the 'previous' button is used. If so we return as we do
+ * not want to issue an order.
  */
 function bibdk_reservation_form_step_3_validate($form, &$form_state) {
+  if (isset($form_state['triggering_element']['#step']) || $form_state['triggering_element']['#name'] == 'prev') {
+    return;
+  }
+
   $orderId = BibdkReservationOrderObject::GetObject()->getOrderId();
   if (!isset($orderId)) {
     $result = bibdk_reservation_form_step_4_do_order();
@@ -50,12 +57,12 @@ function bibdk_reservation_form_step_3_validate($form, &$form_state) {
       BibdkReservationOrderObject::GetObject()->setOrderId($orderId);
     }
   }
+
   // either way set sb_kopi selfpickup setting if needed
   $sb_value = BibdkReservationOrderObject::GetObject()->getArticleDirect();
   if (module_exists('bibdk_usersettings')) {
-    bibdk_usersettings_user_settings_set('bibdk_actions_sb_selfpickup',$sb_value);
+    bibdk_usersettings_user_settings_set('bibdk_actions_sb_selfpickup', $sb_value);
   }
-  
 }
 
 function bibdk_reservation_render_custom_branch_view($branch, $form_state) {
@@ -64,7 +71,7 @@ function bibdk_reservation_render_custom_branch_view($branch, $form_state) {
   $address = $branch->postalAddress;
   $postalCode = $branch->postalCode;
   $city = $branch->city;
-    
+
   $markup = theme('bibdk_reservation_agency', array(
     'name' => $shortname,
     'address' => $address,
@@ -81,7 +88,7 @@ function bibdk_reservation_render_custom_branch_view($branch, $form_state) {
     '#attributes' => array('class' => array('form-item'))
   );
 
-  if ($form_state['step'] == 2 ) {
+  if ($form_state['step'] == 2) {
     $form['branchParameters']['chg_lib_btn'] = array(
       '#type' => 'submit',
       '#value' => t('Pick another library', array(), array('context' => 'bibdk_reservation')),

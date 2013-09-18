@@ -125,7 +125,7 @@ function _bibdk_reservation_steps() {
  * @return array $form
  */
 function bibdk_reservation_create_wizard_form($form, &$form_state) {
-    BibdkReservationOrderObject::GetObject()->setSbKopi(FALSE);
+  BibdkReservationOrderObject::GetObject()->setSbKopi(FALSE);
   if (isset($_GET['bestil_kopi'])) {
     // include methods
     BibdkReservationOrderObject::GetObject()->setSbKopi($_GET['bestil_kopi']);
@@ -172,7 +172,7 @@ function bibdk_reservation_create_wizard_form($form, &$form_state) {
   $next_step = $form_state['step_information'][$step]['next_step'];
   $total_steps = count($form_state['step_information']);
   if (isset($next_step) && $next_step <= $total_steps && !isset($form_state['blocked'])) { # && $step != 2) {
-// The Next button should be included on every step
+    // The Next button should be included on every step
     $form['navigation']['next'] = array(
       '#type' => 'submit',
       '#value' => isset($form_state['step_information'][$step]['next button text']) ? $form_state['step_information'][$step]['next button text'] : t('Next', array(), array('context' => 'bibdk_reservation')),
@@ -294,10 +294,12 @@ function bibdk_reservation_wizard_next_submit($form, &$form_state) {
   }
 }
 
-/*
+/**
  * Submithandler for stepguide
+ *
+ * @param $form
+ * @param $form_state
  */
-
 function bibdk_reservation_wizard_goto_step_submit($form, &$form_state) {
   $next_step = $form_state['triggering_element']['#step'];
   $current_step = $form_state['step'];
@@ -379,13 +381,12 @@ function bibdk_reservation_step_guide($form, &$form_state, $current_step) {
   return $form;
 }
 
-
 /** Redirect to lookup url and update redirect statistics
  * @return string
  */
 function bibdk_reservation_catalog_callback() {
 
-  if (!isset($_GET['url']) || !isset($_GET['agency_id'])){
+  if (!isset($_GET['url']) || !isset($_GET['agency_id'])) {
     drupal_set_message(t('invalid url or agency_id'), 'ERROR');
     return '';
   }
@@ -395,5 +396,4 @@ function bibdk_reservation_catalog_callback() {
     bibdk_openorder_do_incrementRedirectStat($agencyId);
     drupal_goto($url);
   }
-
 }
