@@ -85,19 +85,22 @@ class BibdkReservationWebTestCase extends DrupalWebTestCase {
   private function _test_ting_openformat_render_direct_link(){
     debug('Testing single URL');
     $singleUrlManifestation = unserialize(file_get_contents(drupal_get_path('module', 'bibdk_reservation') . '/test/mockup/serialized/singleUrl.serialized'));
+    $infocode = $singleUrlManifestation->getInfoText();
 
-    $message = _ting_openformat_render_direct_link($singleUrlManifestation);
+    $message = _ting_openformat_render_direct_link($infocode, $singleUrlManifestation);
     $links = _bibdk_reservation_get_access_links($singleUrlManifestation);
 
     $this->assertTrue((strpos($message, $links) !== FALSE), 'Found expected links in string');
 
     debug('Testing multiple URLs');
     $multipleUrlManifestation = unserialize(file_get_contents(drupal_get_path('module', 'bibdk_reservation') . '/test/mockup/serialized/multipleUrl.serialized'));
+    $infocode = $multipleUrlManifestation->getInfoText();
 
-    $message = _ting_openformat_render_direct_link($multipleUrlManifestation);
+    $message = _ting_openformat_render_direct_link($infocode, $multipleUrlManifestation);
     $links = _bibdk_reservation_get_access_links($multipleUrlManifestation);
 
     $this->assertTrue((strpos($message, $links) !== FALSE), 'Found expected links in string');
+
   }
 
   private function _test_bibdk_reservation_get_access_links() {
