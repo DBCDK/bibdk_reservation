@@ -84,16 +84,15 @@ class BibdkReservationWebTestCase extends DrupalWebTestCase {
 
   private function _test_ting_openformat_render_direct_link(){
     debug('Testing single URL');
-    $singleUrlManifestation = unserialize(file_get_contents(drupal_get_path('module', 'bibdk_reservation') . '/test/mockup/serialized/singleUrl.serialized'));
+    $singleUrlManifestation = new Manifestation(unserialize(file_get_contents(drupal_get_path('module', 'bibdk_reservation') . '/test/mockup/serialized/singleUrl.serialized')));
     $infocode = $singleUrlManifestation->getInfoText();
-
     $message = _ting_openformat_render_direct_link($infocode, $singleUrlManifestation);
     $links = _bibdk_reservation_get_access_links($singleUrlManifestation);
 
     $this->assertTrue((strpos($message, $links) !== FALSE), 'Found expected links in string');
 
     debug('Testing multiple URLs');
-    $multipleUrlManifestation = unserialize(file_get_contents(drupal_get_path('module', 'bibdk_reservation') . '/test/mockup/serialized/multipleUrl.serialized'));
+    $multipleUrlManifestation = new Manifestation(unserialize(file_get_contents(drupal_get_path('module', 'bibdk_reservation') . '/test/mockup/serialized/multipleUrl.serialized')));
     $infocode = $multipleUrlManifestation->getInfoText();
 
     $message = _ting_openformat_render_direct_link($infocode, $multipleUrlManifestation);
@@ -111,20 +110,20 @@ class BibdkReservationWebTestCase extends DrupalWebTestCase {
     $this->assertEqual($string, '', 'Got empty string');
 
     debug('Testing single URL');
-    $singleUrlManifestation = unserialize(file_get_contents(drupal_get_path('module', 'bibdk_reservation') . '/test/mockup/serialized/singleUrl.serialized'));
+    $singleUrlManifestation = new Manifestation(unserialize(file_get_contents(drupal_get_path('module', 'bibdk_reservation') . '/test/mockup/serialized/singleUrl.serialized')));
 
     $info = $singleUrlManifestation->getAccessInformation();
-    $linksToCheckFor = $info['accessInformation'][0]['accessUrl'];
+    $linksToCheckFor = $info['accessInformation'];
 
     $links = _bibdk_reservation_get_access_links($singleUrlManifestation);
 
     $this->assertTrue($this->_checkStringForElements($linksToCheckFor, $links), 'Found expected links in string');
 
     debug('Testing multiple URLs');
-    $multipleUrlManifestation = unserialize(file_get_contents(drupal_get_path('module', 'bibdk_reservation') . '/test/mockup/serialized/multipleUrl.serialized'));
+    $multipleUrlManifestation = new Manifestation(unserialize(file_get_contents(drupal_get_path('module', 'bibdk_reservation') . '/test/mockup/serialized/multipleUrl.serialized')));
 
     $info = $multipleUrlManifestation->getAccessInformation();
-    $linksToCheckFor = $info['accessInformation'][0]['accessUrl'];
+    $linksToCheckFor = $info['accessInformation'][0];
 
     $links = _bibdk_reservation_get_access_links($multipleUrlManifestation);
 
@@ -134,7 +133,7 @@ class BibdkReservationWebTestCase extends DrupalWebTestCase {
   private function _checkStringForElements($expected, $res) {
     debug('Testiing for ' . count($expected) . ' links:');
     foreach ($expected as $value) {
-      $string = 'href="' . $value . '"';
+      $string = 'href="' . $value['accessUrl'] . '"';
       if (strpos($res, $string) === FALSE) {
         return FALSE;
       }

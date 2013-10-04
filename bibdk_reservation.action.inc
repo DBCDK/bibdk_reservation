@@ -20,10 +20,10 @@ function bibdk_reservation_ting_openformat_actions($type, $entity, $view_mode, $
         );
       }
       elseif ($entity->isLink()) {
-        $info = $entity->getAccessInformation();
+        $accessUrlContainer = $entity->getSingleAccessUrl();
 
         $element['reservation'] = array(
-          '#markup' => l(t('accessUrl', array(), array('context'=>'bibdk_reservation')), $info['accessInformation'][0]['accessUrl'][0], array('attributes' => array('target' =>'_blank', 'class' => array('btn btn-grey')))),
+          '#markup' => l(t('accessUrl', array(), array('context'=>'bibdk_reservation')), $accessUrlContainer['accessUrl'], array('attributes' => array('target' =>'_blank', 'class' => array('btn btn-grey')))),
           '#weight' => -2,
         );
       }

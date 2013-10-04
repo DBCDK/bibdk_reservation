@@ -264,23 +264,7 @@ function _ting_openformat_render_direct_link($infocode, $manifestation) {
  */
 function _bibdk_reservation_get_access_links($manifestation) {
   $info = $manifestation->getAccessInformation();
-
-  $links = '';
-  if (isset($info['accessInformation'][0]['accessUrl'])) {
-    $urls = $info['accessInformation'][0]['accessUrl'];
-  }
-  else {
-    return $links;
-  }
-
-  $last = end($urls);
-  foreach ($urls as $link) {
-    $links .= l($link, $link, array('attributes' => array('target' => '_blank')));
-    if ($link != $last) {
-      $links .= "<br/>";
-    }
-  }
-  return $links;
+  return _ting_openformat_parse_element($info, '<br/>');
 }
 
 /**
