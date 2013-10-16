@@ -407,9 +407,14 @@ function bibdk_reservation_form_step_2_submit($form, &$form_state) {
   $date = date("Y-m-d\TH:i:s", strtotime($input_date));
   $userData['Need before Date'] = implode('/', array_reverse(explode('-', $input_date)));
 
+   if (isset($form_state['values']['subdivision'])) {
+    $userOrderData['pickUpAgencySubdivision'] = $form_state['values']['subdivision'];
+  }
+  
   // Save all user input
   BibdkReservationOrderObject::GetObject()->setUserData($userData);
   BibdkReservationOrderObject::GetObject()->setUserOrderData($userOrderData);
+  
   if (isset($date)) {
     BibdkReservationOrderObject::GetObject()->setNeedBeforeDate($date);
   }

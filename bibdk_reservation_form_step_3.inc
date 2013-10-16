@@ -66,6 +66,17 @@ function bibdk_reservation_form_step_3_validate($form, &$form_state) {
 }
 
 function bibdk_reservation_render_custom_branch_view($branch, $form_state) {
+  
+  $userOrderData = BibdkReservationOrderObject::GetObject()->getUserOrderData();
+  if (isset($userOrderData['pickUpAgencySubdivision'])) {
+    $subdivison = $userOrderData['pickUpAgencySubdivision'];
+    // strip agencyid and '-'
+    $pos = strpos($subdivison, '-');
+    $subdivison = substr($subdivison, $pos+1);
+  }
+  
+  
+  
   global $language;
   $shortname = $branch->getBranchShortName($language->language);
   $address = $branch->postalAddress;
@@ -77,6 +88,7 @@ function bibdk_reservation_render_custom_branch_view($branch, $form_state) {
     'address' => $address,
     'postalCode' => $postalCode,
     'city' => $city,
+    'subdivision' => isset($subdivison) ? $subdivison : NULL,
   ));
   $form = array(
     '#type' => 'fieldset',
