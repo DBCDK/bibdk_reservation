@@ -63,6 +63,9 @@ class BibdkReservationOrderObject {
     $this->manifestation = $manifestation;
   }
 
+  /**
+   * @return Manifestation
+   */
   public function getManifestation() {
     return $this->manifestation;
   }
