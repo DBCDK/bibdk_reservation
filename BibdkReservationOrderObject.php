@@ -143,7 +143,7 @@ class BibdkReservationOrderObject {
   public function setOrderParameters($orderParameters) {
     $this->orderParameters = $orderParameters;
   }
-
+  
   public function setFields($fields) {
     $this->fields = $fields;
   }
@@ -154,7 +154,7 @@ class BibdkReservationOrderObject {
   public function getFields() {
     return $this->fields;
   }
-
+  
   public static function reset() {
     if (isset($_SESSION['orderobject'])) {
       unset($_SESSION['orderobject']);
