@@ -7,7 +7,8 @@
   // add this function to Drupal ajax commands
 
   //If we have have space avoid scrollbars otherwise resize window to fit on screen
-  var reservationHeight = (screen.availHeight != 'undefined' && screen.availHeight <= 915) ? screen.availHeight - 50 : 915;
+  var targetHeight = 950;
+  var reservationHeight = (screen.availHeight != 'undefined' && screen.availHeight <= targetHeight) ? screen.availHeight - 50 : targetHeight;
 
   if(Drupal.ajax) {
     Drupal.ajax.prototype.commands.check_reservability = function(ajax, response, status) {
