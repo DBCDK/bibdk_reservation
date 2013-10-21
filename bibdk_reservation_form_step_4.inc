@@ -66,7 +66,7 @@ function bibdk_reservation_form_step_4_handle_response($response) {
   if (isset($response->placeOrderResponse->orderPlaced)) {
     $orderId = $response->placeOrderResponse->orderPlaced->orderId->{'$'};
     $result = array('orderId' => $orderId);
-    $type = BibdkReservationOrderObject::GetObject()->getManifestation()->getType();
+    $type = BibdkReservationOrderObject::GetObject()->getManifestation()->getSubType();
     if(strtolower($type) != 'avis' && strtolower($type) != 'tidsskrift'){
       bibdk_reservation_form_step_4_register_pid();
     }

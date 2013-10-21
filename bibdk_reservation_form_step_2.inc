@@ -12,10 +12,13 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
   $branch = BibdkReservationOrderObject::GetObject()->getBranch();
 
   $form['branchdata'] = bibdk_reservation_render_custom_branch_view($branch, $form_state); //bibdk_reservation_step_2_order_branch_fields(array(), $form_state);
-
+  
   $form['branchdata']['favouriteselector'] = bibdk_reservation_favourite_selector();
+  $fields = bibdk_reservation_get_agency_fields();
+  
+  $form['branchdata']['infotext'] =  bibdk_reservation_accept_order_from_unknown($fields->getAcceptOrderFromUnknownUserText());
   $form['branchdata']['hidden_favourite'] = bibdk_reservation_hidden_favourite();
-
+  
   $orderpolicy = bibdk_reservation_form_step_2_do_policycheck();
 
   if ($orderpolicy->getOrderPossible()) {
@@ -60,6 +63,18 @@ function bibdk_reservation_hidden_favourite() {
     '#attributes' => array('class' => array('hidden_selector')),
   );
 }
+
+/** \brief Array for AcceptOrderFromUnknownUserText 
+ *
+ * @return array; form element
+ */
+function bibdk_reservation_accept_order_from_unknown($AcceptOrderFromUnknownUserText) {
+  return array(
+    '#name' => 'AcceptOrderFromUnknownUser',
+    '#markup' => $AcceptOrderFromUnknownUserText,
+  );
+}
+
 
 /** \ brief Dropdown list to select another favourite library
  *
@@ -157,7 +172,7 @@ function bibdk_reservation_step_2_user_form_fields($form, $form_state) {
   $userData = null;
   $branch = BibdkReservationOrderObject::GetObject()->getBranch();
   $fields = bibdk_reservation_get_agency_fields();
-
+  
   global $user;
   if (ding_user_is_provider_user($user)) {
     $fields = bibdk_favourite_user_form_fields($form, $form_state, $branch->branchId);
@@ -413,9 +428,11 @@ function bibdk_reservation_form_step_2_submit($form, &$form_state) {
   if (isset($date)) {
     BibdkReservationOrderObject::GetObject()->setNeedBeforeDate($date);
   }
+  
   if (isset($orderParameters)) {
     BibdkReservationOrderObject::GetObject()->setOrderParameters($orderParameters);
   }
+
 }
 
 
