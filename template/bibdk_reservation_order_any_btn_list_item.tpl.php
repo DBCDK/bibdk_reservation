@@ -7,12 +7,10 @@
   if ( $orderedOnce ) {
     $attributes['class'][] = 'orderedOnceWork';
   }
-  $text .= ' <form style="float:right"><input type="checkbox" /></form>';
 ?>
 
 <div class="bibdk-reservation-item">
   <?php
-    $link = l('__FOOBAR__', $path . $query, array('attributes' => $attributes));
-    print str_replace('__FOOBAR__', $text, $link);
+    $link = l($text, $path . $query, array('attributes' => $attributes));
   ?>
 </div>
