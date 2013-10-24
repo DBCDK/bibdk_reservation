@@ -11,6 +11,6 @@
 
 <div class="bibdk-reservation-item">
   <?php
-    $link = l($text, $path . $query, array('attributes' => $attributes));
+    echo l($text, $path . $query, array('attributes' => $attributes));
   ?>
 </div>
