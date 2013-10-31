@@ -48,7 +48,7 @@ function bibdk_reservation_menu() {
 function bibdk_reservation_theme() {
   return array(
     'bibdk_reservation_agency' => array(
-      'variables' => array('name', 'adress', 'postalCode', 'city'),
+      'variables' => array('name', 'adress', 'postalCode', 'city', 'subdivision'),
       'template' => 'template/bibdk_reservation_agency',
     ),
     'bibdk_reservation_manifestation' => array(
