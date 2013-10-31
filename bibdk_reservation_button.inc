@@ -93,7 +93,6 @@ function bibdk_reservation_order_any_edition_link($collection, $uid) {
   );
 
   $lists = module_invoke_all('order_any_btn_lists', $lists, $collection);
-
   $rendered = array();
   foreach ($lists as $list) {
     $rendered[] = drupal_render($list);
@@ -122,16 +121,20 @@ function _bibdk_reservation_create_type_button($type, $ids, $uid) {
   $query = implode(',', $ids);
   $class = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '', $ids[0]));
 
-  // This should be moved to the template
-  $attributes['data-rel'] = 'reservation';
-  $attributes['class'][] = 'bibdk-popup-order-work';
-  $attributes['class'][] = 'bibdk-popup-link-' . $class;
-  $attributes['class'][] = 'use-ajax';
-  $attributes['id'][] = 'any_edtion_order_' . $class;
+  $orderedOnceWork = FALSE;
   if (bibdk_reservation_check_past_reservations($ids) && !(strtolower($type) == 'avis' || strtolower($type) == 'tidsskrift')) {
-    $attributes['class'][] = 'orderedOnceWork';
+    $orderedOnceWork = TRUE;
   }
-  $link = l($text, $path . $query, array('attributes' => $attributes));
+
+  // $link = l($text, $path . $query, array('attributes' => $attributes));
+  $link = theme('bibdk_reservation_order_any_btn_list_item', array(
+    'text' => $text,
+    'path' => $path,
+    'query' => $query,
+    'class' => $class,
+    'orderedOnce' => $orderedOnceWork,
+  ));
+
   return $link;
 }
 
