@@ -34,9 +34,6 @@ function bibdk_reservation_link($entity_ids, $subtype, $entity_type) {
   $attributes['class'][] = 'bibdk-popup-link';
   $attributes['class'][] = 'btn';
   $attributes['class'][] = (isset($entity_type) && $entity_type == 'bibdkManifestation') ? 'btn-grey' : 'btn-blue';
-  if (bibdk_reservation_check_past_reservations($entity_ids) && !(strtolower($subtype) == 'avis' || strtolower($subtype) == 'tidsskrift')) {
-    $attributes['class'][] = 'orderedonce';
-  }
 
   $link = array(
     '#theme' => 'link',
@@ -93,7 +90,6 @@ function bibdk_reservation_order_any_edition_link($collection, $uid) {
   );
 
   $lists = module_invoke_all('order_any_btn_lists', $lists, $collection);
-
   $rendered = array();
   foreach ($lists as $list) {
     $rendered[] = drupal_render($list);
@@ -128,10 +124,19 @@ function _bibdk_reservation_create_type_button($type, $ids, $uid) {
   $attributes['class'][] = 'bibdk-popup-link-' . $class;
   $attributes['class'][] = 'use-ajax';
   $attributes['id'][] = 'any_edtion_order_' . $class;
-  if (bibdk_reservation_check_past_reservations($ids) && !(strtolower($type) == 'avis' || strtolower($type) == 'tidsskrift')) {
-    $attributes['class'][] = 'orderedOnceWork';
-  }
-  $link = l($text, $path . $query, array('attributes' => $attributes));
+
+  $orderedOnceWork = FALSE;
+
+  //$link = l($text, $path . $query, array('attributes' => $attributes));
+  
+  $link = theme('bibdk_reservation_order_any_btn_list_item', array(
+    'text' => $text,
+    'path' => $path,
+    'query' => $query,
+    'class' => $class,
+    'orderedOnce' => $orderedOnceWork,
+  ));
+
   return $link;
 }
 

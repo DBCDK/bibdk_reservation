@@ -76,6 +76,7 @@ function bibdk_reservation_form_step_4_handle_response($response) {
 
 function bibdk_reservation_form_step_4_register_pid(){
   $pid = BibdkReservationOrderObject::GetObject()->getManifestationIds();
+  
   if(array_key_exists('orderedPids', $_SESSION)){
     $_SESSION['orderedPids'] = array_merge($_SESSION['orderedPids'], $pid);
   } else {

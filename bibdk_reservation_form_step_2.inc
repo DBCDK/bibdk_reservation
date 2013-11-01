@@ -20,6 +20,8 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
   $form['branchdata']['hidden_favourite'] = bibdk_reservation_hidden_favourite();
   
   $orderpolicy = bibdk_reservation_form_step_2_do_policycheck();
+  
+  bibdk_reservation_form_step_2_already_ordered();
 
   if ($orderpolicy->getOrderPossible()) {
     $form['userdata'] = bibdk_reservation_step_2_user_form_fields(array(), $form_state);
@@ -43,11 +45,12 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
     form_set_error('bibdk_reservation_form_step_2', t($reason, array(), array('context' => 'bibdk_reservation:error')));
   }
 
-  $sbkopi = BibdkReservationOrderObject::GetObject()->getSbKopi();
+    $sbkopi = BibdkReservationOrderObject::GetObject()->getSbKopi();
 
   if (!empty($sbkopi)) {
     return bibdk_reservation_sanitize_for_order_copy($form, $form_state);
   }
+  
   return $form;
 }
 
@@ -279,9 +282,27 @@ function bibdk_reservation_step_2_permanent_fields($form) {
 }
 
 function bibdk_reservation_form_step_2_do_policycheck() {
+  
   $pickUpAgencyId = BibdkReservationOrderObject::GetObject()->getBranchId();
   $pid = BibdkReservationOrderObject::GetObject()->getManifestationIds();
+ 
   return bibdk_openorder_do_checkOrderPolicy($pickUpAgencyId, $pid);
+}
+
+function bibdk_reservation_form_step_2_already_ordered() {
+  
+  $pid = BibdkReservationOrderObject::GetObject()->getManifestationIds();
+ 
+  //Check for already ordered in this session
+  if (!empty($_SESSION['orderedPids'])) {
+    foreach ($pid as $Spid) {
+      if (in_array($Spid, $_SESSION['orderedPids'])) {
+        drupal_set_message(t('already_ordered',  array(),  array('context' => 'bibdk_reservation')), $type = 'warning');
+        break;
+      }
+    }
+  }
+
 }
 
 /*
@@ -422,9 +443,14 @@ function bibdk_reservation_form_step_2_submit($form, &$form_state) {
   $date = date("Y-m-d\TH:i:s", strtotime($input_date));
   $userData['Need before Date'] = implode('/', array_reverse(explode('-', $input_date)));
 
+   if (isset($form_state['values']['subdivision'])) {
+    $userOrderData['pickUpAgencySubdivision'] = $form_state['values']['subdivision'];
+  }
+  
   // Save all user input
   BibdkReservationOrderObject::GetObject()->setUserData($userData);
   BibdkReservationOrderObject::GetObject()->setUserOrderData($userOrderData);
+  
   if (isset($date)) {
     BibdkReservationOrderObject::GetObject()->setNeedBeforeDate($date);
   }
