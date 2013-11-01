@@ -127,7 +127,8 @@ function _bibdk_reservation_create_type_button($type, $ids, $uid) {
 
   $orderedOnceWork = FALSE;
 
-  // $link = l($text, $path . $query, array('attributes' => $attributes));
+  //$link = l($text, $path . $query, array('attributes' => $attributes));
+  
   $link = theme('bibdk_reservation_order_any_btn_list_item', array(
     'text' => $text,
     'path' => $path,
