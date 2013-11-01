@@ -48,7 +48,7 @@ function bibdk_reservation_menu() {
 function bibdk_reservation_theme() {
   return array(
     'bibdk_reservation_agency' => array(
-      'variables' => array('name', 'adress', 'postalCode', 'city'),
+      'variables' => array('name', 'adress', 'postalCode', 'city', 'subdivision'),
       'template' => 'template/bibdk_reservation_agency',
     ),
     'bibdk_reservation_manifestation' => array(
@@ -73,6 +73,10 @@ function bibdk_reservation_theme() {
     'bibdk_reservation_order_any_btn_list' => array(
       'variables' => array('column' => '', 'items' => array()),
       'template' => 'template/bibdk_reservation_order_any_btn_list',
+    ),
+    'bibdk_reservation_order_any_btn_list_item' => array(
+      'variables' => array('text', 'path', 'query', 'class', 'orderedOnce'),
+      'template' => 'template/bibdk_reservation_order_any_btn_list_item',
     ),
   );
 }
