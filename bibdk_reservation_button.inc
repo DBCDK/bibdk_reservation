@@ -34,9 +34,11 @@ function bibdk_reservation_link($entity_ids, $subtype, $entity_type) {
   $attributes['class'][] = 'bibdk-popup-link';
   $attributes['class'][] = 'btn';
   $attributes['class'][] = (isset($entity_type) && $entity_type == 'bibdkManifestation') ? 'btn-grey' : 'btn-blue';
+  /*
   if (bibdk_reservation_check_past_reservations($entity_ids) && !(strtolower($subtype) == 'avis' || strtolower($subtype) == 'tidsskrift')) {
     $attributes['class'][] = 'orderedonce';
   }
+  */
 
   $link = array(
     '#theme' => 'link',
@@ -128,9 +130,11 @@ function _bibdk_reservation_create_type_button($type, $ids, $uid) {
   $attributes['class'][] = 'bibdk-popup-link-' . $class;
   $attributes['class'][] = 'use-ajax';
   $attributes['id'][] = 'any_edtion_order_' . $class;
+  /*
   if (bibdk_reservation_check_past_reservations($ids) && !(strtolower($type) == 'avis' || strtolower($type) == 'tidsskrift')) {
     $attributes['class'][] = 'orderedOnceWork';
   }
+  */
   $link = l($text, $path . $query, array('attributes' => $attributes));
   return $link;
 }
