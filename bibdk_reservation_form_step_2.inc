@@ -12,15 +12,15 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
   $branch = BibdkReservationOrderObject::GetObject()->getBranch();
 
   $form['branchdata'] = bibdk_reservation_render_custom_branch_view($branch, $form_state); //bibdk_reservation_step_2_order_branch_fields(array(), $form_state);
-  
+
   $form['branchdata']['favouriteselector'] = bibdk_reservation_favourite_selector();
   $fields = bibdk_reservation_get_agency_fields();
-  
+
   $form['branchdata']['infotext'] =  bibdk_reservation_accept_order_from_unknown($fields->getAcceptOrderFromUnknownUserText());
   $form['branchdata']['hidden_favourite'] = bibdk_reservation_hidden_favourite();
-  
+
   $orderpolicy = bibdk_reservation_form_step_2_do_policycheck();
-  
+
   bibdk_reservation_form_step_2_already_ordered();
 
   if ($orderpolicy->getOrderPossible()) {
@@ -50,7 +50,7 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
   if (!empty($sbkopi)) {
     return bibdk_reservation_sanitize_for_order_copy($form, $form_state);
   }
-  
+
   return $form;
 }
 
@@ -67,7 +67,7 @@ function bibdk_reservation_hidden_favourite() {
   );
 }
 
-/** \brief Array for AcceptOrderFromUnknownUserText 
+/** \brief Array for AcceptOrderFromUnknownUserText
  *
  * @return array; form element
  */
@@ -175,7 +175,7 @@ function bibdk_reservation_step_2_user_form_fields($form, $form_state) {
   $userData = null;
   $branch = BibdkReservationOrderObject::GetObject()->getBranch();
   $fields = bibdk_reservation_get_agency_fields();
-  
+
   global $user;
   if (ding_user_is_provider_user($user)) {
     $fields = bibdk_favourite_user_form_fields($form, $form_state, $branch->branchId);
@@ -282,22 +282,22 @@ function bibdk_reservation_step_2_permanent_fields($form) {
 }
 
 function bibdk_reservation_form_step_2_do_policycheck() {
-  
+
   $pickUpAgencyId = BibdkReservationOrderObject::GetObject()->getBranchId();
   $pid = BibdkReservationOrderObject::GetObject()->getManifestationIds();
- 
+
   return bibdk_openorder_do_checkOrderPolicy($pickUpAgencyId, $pid);
 }
 
 function bibdk_reservation_form_step_2_already_ordered() {
-  
+
   $pid = BibdkReservationOrderObject::GetObject()->getManifestationIds();
- 
+
   //Check for already ordered in this session
   if (!empty($_SESSION['orderedPids'])) {
     foreach ($pid as $Spid) {
       if (in_array($Spid, $_SESSION['orderedPids'])) {
-        drupal_set_message(t('already_ordered',  array(),  array('context' => 'bibdk_reservation')), $type = 'warning');
+        drupal_set_message(t('already_ordered',  array(),  array('context' => 'bibdk_reservation')), $type = 'warning', $repeat = FALSE);
         break;
       }
     }
@@ -446,15 +446,15 @@ function bibdk_reservation_form_step_2_submit($form, &$form_state) {
    if (isset($form_state['values']['subdivision'])) {
     $userOrderData['pickUpAgencySubdivision'] = $form_state['values']['subdivision'];
   }
-  
+
   // Save all user input
   BibdkReservationOrderObject::GetObject()->setUserData($userData);
   BibdkReservationOrderObject::GetObject()->setUserOrderData($userOrderData);
-  
+
   if (isset($date)) {
     BibdkReservationOrderObject::GetObject()->setNeedBeforeDate($date);
   }
-  
+
   if (isset($orderParameters)) {
     BibdkReservationOrderObject::GetObject()->setOrderParameters($orderParameters);
   }
