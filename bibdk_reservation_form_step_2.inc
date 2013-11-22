@@ -324,6 +324,10 @@ function bibdk_reservation_form_step_2_validate(&$form, &$form_state) {
     form_set_error('userEmail', t('Email needs to be a valid email', array(), array('context' => 'bibdk_reservation:error')));
   }
 
+  if (!bibdk_reservation_validate_date($form_state['values']['needBeforeDate'])) {
+    form_set_error('needBeforeDate', t('Date must be in the future', array(), array('context' => 'bibdk_reservation:error')));
+  }
+
   if (!form_get_errors()) {
     $sb_user = BibdkReservationOrderObject::GetObject()->getSbKopiUser();
     // do not borchk validate if copy service user is new
@@ -344,6 +348,28 @@ function bibdk_reservation_form_step_2_validate(&$form, &$form_state) {
       }
     }
   }
+}
+
+/**
+ * Validates a given date
+ * Returns TRUE if validate is possible and not in the past.
+ *
+ * @param $date
+ * @return bool
+ */
+function bibdk_reservation_validate_date($date){
+  if(!is_string($date)){
+    return FALSE;
+  }
+  $dateArr = explode('-', $date);
+  if(checkdate($dateArr[1], $dateArr[2], $dateArr[0])){
+    $needBeforeDate = new DateTime($date);
+    $currentDate = new DateTime();
+    if($needBeforeDate > $currentDate){
+      return TRUE;
+    }
+  }
+  return FALSE;
 }
 
 
