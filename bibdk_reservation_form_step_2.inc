@@ -325,9 +325,6 @@ function bibdk_reservation_form_step_2_already_ordered() {
 
 function bibdk_reservation_form_step_2_validate(&$form, &$form_state) {
   //TODO: move to ting_agency
-  if (!empty($form_state['values']['pincode']) && (!is_numeric($form_state['values']['pincode']))) {
-    form_set_error('pincode', t('Pincode needs to be digits only', array(), array('context' => 'bibdk_reservation:error')));
-  }
 
   if (!empty($form_state['values']['cpr']) && !is_numeric($form_state['values']['cpr'])) {
     form_set_error('cpr', t('CPR-number needs to be a valid CPR-number', array(), array('context' => 'bibdk_reservation:error')));
