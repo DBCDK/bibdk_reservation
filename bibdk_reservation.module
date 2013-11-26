@@ -390,14 +390,13 @@ function bibdk_reservation_step_guide($form, &$form_state, $current_step) {
  * @return string
  */
 function bibdk_reservation_catalog_callback() {
-
   if (!isset($_GET['url']) || !isset($_GET['agency_id'])) {
     drupal_set_message(t('invalid url or agency_id'), 'ERROR');
     return '';
   }
   else {
     $agencyId = check_plain($_GET['agency_id']);
-    $url = check_plain($_GET['url']);
+    $url = $_GET['url'];
     bibdk_openorder_do_incrementRedirectStat($agencyId);
     drupal_goto($url);
   }
