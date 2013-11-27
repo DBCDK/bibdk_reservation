@@ -499,7 +499,7 @@ function bibdk_reservation_mail($key, &$message, $params) {
       //make data for template: bibdk_reservation_order_mail
       $message['body'][] = theme('bibdk_reservation_mail', array(
         'headertext' => t('Your order is complete',array(), array('context'=>'bibdk_reservation')), 
-        'orderidtext' => t('Your order ID ',array(), array('context'=>'bibdk_reservation')), 
+        'orderidtext' => t('Your order ID',array(), array('context'=>'bibdk_reservation')), 
         'orderid' => BibdkReservationOrderObject::GetObject()->getOrderId(), 
         'userparameter' => t('User Parameters', array(), array('context' => 'bibdk_reservation')),
         'userinfo' =>  bibdk_reservation_mail_user(),
