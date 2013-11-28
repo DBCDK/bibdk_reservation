@@ -1,13 +1,12 @@
 <div>
   <?php 
   if (isset($IllOrderReceiptText)) :
-  print $IllOrderReceiptText; print "\n"; 
+      print $IllOrderReceiptText; print "\n\n"; 
   endif;
   
-  print $headertext; print "\n";
+  print $headertext; print "\n\n";
   
-  print $orderidtext; 
-  print $orderid; 
+  print $orderidtext; print " "; print $orderid; 
   
   print "\n\n"; print $userparameter; print "\n\n"; 
   
