@@ -419,11 +419,9 @@ function bibdk_reservation_catalog_callback() {
 /**
  * @param $form_id
  * @param $form_state
+ * Submit form for sendmail button
  */
 function bibdk_reservation_mail_form_submit($form, &$form_state) {
-
-  global $language;
-  $lang = $language->language;
 
   $pids = BibdkReservationOrderObject::GetObject()->getManifestationIds();
   $userdata = BibdkReservationOrderObject::GetObject()->getUserOrderData();
@@ -448,8 +446,8 @@ function bibdk_reservation_mail_form_submit($form, &$form_state) {
   );
 
   bibdk_reservation_mail_send($params);
-  
-  //force rebuild form_state for step 4
+   
+  //force rebuild form_state for step 4  
   $form_state['step'] = 4;
   $form_state['rebuild'] = TRUE; 
   
@@ -485,10 +483,9 @@ function bibdk_reservation_mail_send($params) {
  */
 function bibdk_reservation_mail($key, &$message, $params) {
 
-  switch ($key) {
-    
-    case 'mail_bibdk_reservation':
+  if ($key == 'mail_bibdk_reservation') {
       global $language;
+      // set mail variables
       $header = variable_get('mail_bibdk_reservation_email_header', '');
       $footer = variable_get('mail_bibdk_reservation_email_footer', '');
       $message['subject'] = $params['subject'];
@@ -516,9 +513,8 @@ function bibdk_reservation_mail($key, &$message, $params) {
       ));
 
       $message['body'][] = !empty($footer) ? t($footer, array(), array('context' => 'bibdk_reservation')) : '';
-      
-      break;
   }
+  
 }
 
 /**

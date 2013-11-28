@@ -1,36 +1,38 @@
 <div>
-  <?php if (isset($IllOrderReceiptText)) : ?>
-  <?php print $IllOrderReceiptText; print "\n"; ?>
-  <?php endif; ?>
+  <?php 
+  if (isset($IllOrderReceiptText)) :
+  print $IllOrderReceiptText; print "\n"; 
+  endif;
   
-  <?php print $headertext; print "\n"; ?>
+  print $headertext; print "\n";
   
-  <?php print $orderidtext; ?>
-  <?php print $orderid; ?>
+  print $orderidtext; 
+  print $orderid; 
   
-  <?php print "\n\n"; print $userparameter; print "\n\n"; ?>
+  print "\n\n"; print $userparameter; print "\n\n"; 
   
-  <?php foreach ($userinfo as $list) : ?>
-      <?php print $list; print "\n"; ?>
-  <?php endforeach; ?>
+  foreach ($userinfo as $list) :
+      print $list; print "\n"; 
+  endforeach; 
    
-  <?php print "\n\n"; print $manifestation; ?>
+  print "\n\n"; print $manifestation;
   
-  <?php print "\n"; ?>
-  <?php foreach ($title as $list) : ?>
-      <?php print $list; print "\n"; ?>
-  <?php endforeach; ?>
+  print "\n"; 
+  foreach ($title as $list) : 
+     print $list; print "\n"; 
+  endforeach; 
   
-  <?php print "\n"; print $branch; print "\n"; ?>
-  <?php print "\n"; print $branchtext; ?>
-  <?php print "\n"; print $addresstext; ?>
-  <?php print "\n"; print $postalCodetext; print ' '; print $citytext; ?>
+  print "\n"; print $branch; print "\n"; 
+  print "\n"; print $branchtext; 
+  print "\n"; print $addresstext;
+  print "\n"; print $postalCodetext; print ' '; print $citytext;
   
-  <?php if (isset($orderinfo)) : ?>
-    <?php print "\n\n"; print $orderparameters;print "\n\n"; ?>
-    <?php foreach ($orderinfo as $data) : ?>
-      <?php print $data; print "\n"; ?>
-    <?php endforeach; ?>
-  <?php endif; ?>
-  
+  if (isset($orderinfo)) : 
+    print "\n\n"; print $orderparameters;print "\n\n"; 
+      foreach ($orderinfo as $data) : 
+        print $data; print "\n"; 
+      endforeach; 
+  endif; 
+  ?>
+    
 </div>
