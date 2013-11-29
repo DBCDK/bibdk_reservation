@@ -16,7 +16,7 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
   $form['branchdata']['favouriteselector'] = bibdk_reservation_favourite_selector();
   $fields = bibdk_reservation_get_agency_fields();
 
-  $form['branchdata']['infotext'] =  bibdk_reservation_accept_order_from_unknown($fields->getAcceptOrderFromUnknownUserText());
+  $form['branchdata']['infotext'] = bibdk_reservation_accept_order_from_unknown($fields->getAcceptOrderFromUnknownUserText());
   $form['branchdata']['hidden_favourite'] = bibdk_reservation_hidden_favourite();
 
   $orderpolicy = bibdk_reservation_form_step_2_do_policycheck();
@@ -32,6 +32,7 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
     $form_state['blocked'] = TRUE;
     if ($error = $orderpolicy->getCheckOrderPolicyError()) {
       form_set_error('bibdk_reservation_form_step_2', t($error, array(), array('context' => 'bibdk_reservation:error')));
+
       return $form;
     }
     $reason = $orderpolicy->getOrderPossibleReason();
@@ -45,7 +46,7 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
     form_set_error('bibdk_reservation_form_step_2', t($reason, array(), array('context' => 'bibdk_reservation:error')));
   }
 
-    $sbkopi = BibdkReservationOrderObject::GetObject()->getSbKopi();
+  $sbkopi = BibdkReservationOrderObject::GetObject()->getSbKopi();
 
   if (!empty($sbkopi)) {
     return bibdk_reservation_sanitize_for_order_copy($form, $form_state);
@@ -92,6 +93,7 @@ function bibdk_reservation_favourite_selector() {
 
   $options[0] = t('Select another favourite library');
   $options += $fav_options;
+
   return array(
     '#type' => 'select',
     //'#title' =>
@@ -115,6 +117,7 @@ function bibdk_reservation_get_favourites_for_selector() {
       $ret[$favourite->getAgencyId()] = $branch->getBranchShortName($language->language);
     }
   }
+
   return $ret;
 }
 
@@ -147,6 +150,7 @@ function _bibdk_reservation_generate_policy_messages() {
       ),
     );
   }
+
   return $msgs;
 }
 
@@ -165,6 +169,7 @@ function bibdk_reservation_manifestation_form_fields($form, &$form_state) {
   $form['view_wrapper']['view'] = array(
     '#markup' => bibdk_reservation_manifestation_view($manifestation),
   );
+
   return $form;
 }
 
@@ -172,7 +177,7 @@ function bibdk_reservation_manifestation_form_fields($form, &$form_state) {
  * Render user fields;
  */
 function bibdk_reservation_step_2_user_form_fields($form, $form_state) {
-  $userData = null;
+  $userData = NULL;
   $branch = BibdkReservationOrderObject::GetObject()->getBranch();
   $fields = bibdk_reservation_get_agency_fields();
 
@@ -185,6 +190,7 @@ function bibdk_reservation_step_2_user_form_fields($form, $form_state) {
     $fields = ting_agency_userdata_form($form, $form_state, $fields);
     $form['userParameters']['userfields'] = $fields;
   }
+
   return $form;
 }
 
@@ -224,6 +230,7 @@ function bibdk_reservation_step_2_order_form_fields($form, $form_state) {
       '#default_value' => (isset($form_state['values'][$type])) ? $form_state['values'][$type] : "",
     );
   }
+
   return $form;
 }
 
@@ -245,13 +252,13 @@ function bibdk_reservation_step_2_order_branch_fields($form, $form_state) {
     '#markup' => t('Description for selected branch', array(), array('context' => 'bibdk_reservation')),
   );
 
-  $moreinfo = theme('ting_agency_more_info', array('branch' => $branch,
-    'openingHours' => theme('ting_agency_opening_hours', array('branch' => $branch,)),
-    //'tools' => theme('ting_agency_tools', array('branch' => $branch)),
-    'address' => theme('ting_agency_address', array('branch' => $branch)),
-    'contact' => theme('ting_agency_contact', array('branch' => $branch)),
-      )
-  );
+  $moreinfo = theme('ting_agency_more_info', array(
+      'branch' => $branch,
+      'openingHours' => theme('ting_agency_opening_hours', array('branch' => $branch,)),
+      //'tools' => theme('ting_agency_tools', array('branch' => $branch)),
+      'address' => theme('ting_agency_address', array('branch' => $branch)),
+      'contact' => theme('ting_agency_contact', array('branch' => $branch)),
+    ));
 
   //$classes[] = 'selected_branch';
   $classes = array();
@@ -260,8 +267,13 @@ function bibdk_reservation_step_2_order_branch_fields($form, $form_state) {
   $classes[] = (isset($branch->orderLibrary) && $branch->orderLibrary == 'TRUE') ? 'order-agency' : NULL;
 
   global $language;
-  $form['branchParameters']['selectedBranch']['#markup'] =
-      theme('ting_agency_library', array('branchName' => $branch->getBranchName($language->language), 'actions' => NULL, 'add_classes' => $classes, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
+  $form['branchParameters']['selectedBranch']['#markup'] = theme('ting_agency_library', array(
+    'branchName' => $branch->getBranchName($language->language),
+    'actions' => NULL,
+    'add_classes' => $classes,
+    'moreinfo' => $moreinfo,
+    'branchid' => $branch->branchId
+  ));
 
   return $form;
 }
@@ -278,6 +290,7 @@ function bibdk_reservation_step_2_permanent_fields($form) {
     '#default_value' => $date,
     '#date_year_range' => '0:+3',
   );
+
   return $form;
 }
 
@@ -297,7 +310,7 @@ function bibdk_reservation_form_step_2_already_ordered() {
   if (!empty($_SESSION['orderedPids'])) {
     foreach ($pid as $Spid) {
       if (in_array($Spid, $_SESSION['orderedPids'])) {
-        drupal_set_message(t('already_ordered',  array(),  array('context' => 'bibdk_reservation')), $type = 'warning', $repeat = FALSE);
+        drupal_set_message(t('already_ordered', array(), array('context' => 'bibdk_reservation')), $type = 'warning', $repeat = FALSE);
         break;
       }
     }
@@ -312,9 +325,6 @@ function bibdk_reservation_form_step_2_already_ordered() {
 
 function bibdk_reservation_form_step_2_validate(&$form, &$form_state) {
   //TODO: move to ting_agency
-  if (!empty($form_state['values']['pincode']) && (!is_numeric($form_state['values']['pincode']))) {
-    form_set_error('pincode', t('Pincode needs to be digits only', array(), array('context' => 'bibdk_reservation:error')));
-  }
 
   if (!empty($form_state['values']['cpr']) && !is_numeric($form_state['values']['cpr'])) {
     form_set_error('cpr', t('CPR-number needs to be a valid CPR-number', array(), array('context' => 'bibdk_reservation:error')));
@@ -322,6 +332,10 @@ function bibdk_reservation_form_step_2_validate(&$form, &$form_state) {
 
   if (!empty($form_state['values']['userMail']) && !valid_email_address($form_state['values']['userMail'])) {
     form_set_error('userEmail', t('Email needs to be a valid email', array(), array('context' => 'bibdk_reservation:error')));
+  }
+
+  if (!bibdk_reservation_validate_date($form_state['values']['needBeforeDate'])) {
+    form_set_error('needBeforeDate', t('Date must be in the future', array(), array('context' => 'bibdk_reservation:error')));
   }
 
   if (!form_get_errors()) {
@@ -335,8 +349,8 @@ function bibdk_reservation_form_step_2_validate(&$form, &$form_state) {
       // @TODO create the user here, and validate that all went well
       $reply = bibdk_reservation_form_step_2_create_sbuser($form, $form_state);
 
-      if ($reply['status'] == 'error'){
-        form_set_error($reply['field'],t($reply['message'],array(), array('context' => 'bibdk_reservation:error')));
+      if ($reply['status'] == 'error') {
+        form_set_error($reply['field'], t($reply['message'], array(), array('context' => 'bibdk_reservation:error')));
       }
       else {
         // user was created successfully
@@ -344,6 +358,29 @@ function bibdk_reservation_form_step_2_validate(&$form, &$form_state) {
       }
     }
   }
+}
+
+/**
+ * Validates a given date
+ * Returns TRUE if validate is possible and not in the past.
+ *
+ * @param $date
+ * @return bool
+ */
+function bibdk_reservation_validate_date($date) {
+  if (!is_string($date)) {
+    return FALSE;
+  }
+  $dateArr = explode('-', $date);
+  if (checkdate($dateArr[1], $dateArr[2], $dateArr[0])) {
+    $needBeforeDate = new DateTime($date);
+    $currentDate = new DateTime();
+    if ($needBeforeDate > $currentDate) {
+      return TRUE;
+    }
+  }
+
+  return FALSE;
 }
 
 
@@ -358,7 +395,11 @@ function bibdk_reservation_form_step_2_create_sbuser($form, $form_state) {
   $mail = $form_state['values']['bestil_kopi_e_mail'];
 
   if (!($cpr && $firstname && $surname && $mail)) {
-    return array('status'=>'error', 'field'=>'form', 'message'=>'sb_kopi_fill_out_the_form');
+    return array(
+      'status' => 'error',
+      'field' => 'form',
+      'message' => 'sb_kopi_fill_out_the_form'
+    );
   }
 
   $ch = curl_init('https://webservice.statsbiblioteket.dk/ws-create-user1/CreateUser');
@@ -370,10 +411,10 @@ function bibdk_reservation_form_step_2_create_sbuser($form, $form_state) {
     xmlns:DKCC="http://rep.oio.dk/ebxml/xml/schemas/dkcc/2003/02/13/">
   <SOAP:Body>
   <CU:CreateUserRequest>
-      <CPR:PersonCivilRegistrationIdentifier>'.$cpr.'</CPR:PersonCivilRegistrationIdentifier>
-      <DKCC:PersonGivenName>'.$firstname.'</DKCC:PersonGivenName>
-      <DKCC:PersonSurnameName>'.$surname.'</DKCC:PersonSurnameName>
-      <CU:EmailAddress>'.$mail.'</CU:EmailAddress>
+      <CPR:PersonCivilRegistrationIdentifier>' . $cpr . '</CPR:PersonCivilRegistrationIdentifier>
+      <DKCC:PersonGivenName>' . $firstname . '</DKCC:PersonGivenName>
+      <DKCC:PersonSurnameName>' . $surname . '</DKCC:PersonSurnameName>
+      <CU:EmailAddress>' . $mail . '</CU:EmailAddress>
     </CU:CreateUserRequest>
    </SOAP:Body>
 </SOAP:Envelope> ';
@@ -383,17 +424,24 @@ function bibdk_reservation_form_step_2_create_sbuser($form, $form_state) {
     'SOAPAction:CreateUserRequest',
   );
 
-  curl_setopt_array($ch, array(CURLOPT_POST => TRUE, CURLOPT_POSTFIELDS => $body, CURLOPT_HTTPHEADER => $headers, CURLOPT_RETURNTRANSFER => TRUE));
+  curl_setopt_array($ch, array(
+    CURLOPT_POST => TRUE,
+    CURLOPT_POSTFIELDS => $body,
+    CURLOPT_HTTPHEADER => $headers,
+    CURLOPT_RETURNTRANSFER => TRUE
+  ));
   $response = curl_exec($ch);
 
   if ($response === FALSE) {
     // request FAILED
     $reply = array();
     $reply['status'] = 'error';
-    $reply['message'] = t('Internal error please contact site administrator if problem persists',array(),array('context'=>'bibdk_sbkopi'));
+    $reply['message'] = t('Internal error please contact site administrator if problem persists', array(), array('context' => 'bibdk_sbkopi'));
     watchdog('curl_error', 'curl_exec returned FALSE for %post', array('%post' => $body));
+
     return $reply;
   }
+
   return bibdk_reservation_sbkopi_parse_response($response);
 }
 
@@ -444,7 +492,7 @@ function bibdk_reservation_form_step_2_submit($form, &$form_state) {
   $date = date("Y-m-d\TH:i:s", strtotime($input_date));
   $userData['Need before Date'] = implode('/', array_reverse(explode('-', $input_date)));
 
-   if (isset($form_state['values']['subdivision'])) {
+  if (isset($form_state['values']['subdivision'])) {
     $userOrderData['pickUpAgencySubdivision'] = $form_state['values']['subdivision'];
   }
 
@@ -461,7 +509,6 @@ function bibdk_reservation_form_step_2_submit($form, &$form_state) {
   }
 
 }
-
 
 
 /**
@@ -510,8 +557,9 @@ function bibdk_reservation_borchk_execute($form_state, $agencySettings) {
     $response = bibdk_borchk_request($userId, $userPincode, $libraryCode);
 
     $messages = bibdk_reservation_borchk_parse_response($response->borrowerCheckResponse->requestStatus->{'$'}, $acceptOrderFromUnknownUser, $acceptOrderAgencyOffline);
-  //  $messages = bibdk_reservation_borchk_parse_response($response->borrowerCheckResponse->requestStatus, $acceptOrderFromUnknownUser, $acceptOrderAgencyOffline);
+    //  $messages = bibdk_reservation_borchk_parse_response($response->borrowerCheckResponse->requestStatus, $acceptOrderFromUnknownUser, $acceptOrderAgencyOffline);
   }
+
   return $messages;
 }
 
@@ -553,6 +601,7 @@ function bibdk_reservation_borchk_parse_response($response, $acceptOrderFromUnkn
       }
       break;
   }
+
   return $message;
 }
 

@@ -45,6 +45,7 @@ function bibdk_reservation_link($entity_ids, $subtype, $entity_type) {
       'html' => FALSE,
     ),
   );
+
   return drupal_render($link);
 }
 
@@ -60,6 +61,7 @@ function bibdk_reservation_check_past_reservations($entity_ids) {
       }
     }
   }
+
   return FALSE;
 }
 
@@ -98,7 +100,10 @@ function bibdk_reservation_order_any_edition_link($collection, $uid) {
   // set an id for the button
   $attributes = array('id' => 'any_edition_but_' . $uid);
   // also render additonal attributes
-  $button = theme('bibdk_reservation_order_any_btn', array('lists' => $rendered, 'addi_attributes' => $attributes));
+  $button = theme('bibdk_reservation_order_any_btn', array(
+    'lists' => $rendered,
+    'addi_attributes' => $attributes
+  ));
 
   return $button;
 }
@@ -127,8 +132,6 @@ function _bibdk_reservation_create_type_button($type, $ids, $uid) {
 
   $orderedOnceWork = FALSE;
 
-  //$link = l($text, $path . $query, array('attributes' => $attributes));
-  
   $link = theme('bibdk_reservation_order_any_btn_list_item', array(
     'text' => $text,
     'path' => $path,
@@ -186,7 +189,7 @@ function bibdk_reservation_ajax_check_reservability($uid, $pids) {
     $path = '';
     $text = t('not_possible_to_borrow_material', array(), array('context' => 'bibdk_reservation'));
     if (sizeof($infotext) > 0) {
-      $text = implode(t(' OR ', array(), array('context' => 'bibdk_reservation')), $infotext);
+      $text = implode("<br />", $infotext);
     }
     $commands = _bibdk_reservation_ajax_infotext($text, $type, $selector);
   }
@@ -195,7 +198,7 @@ function bibdk_reservation_ajax_check_reservability($uid, $pids) {
     $root_url = drupal_parse_url($base_root . $base_path . $language_prefix . 'reservation/');
     $path = $root_url['path'] . '?ids=' . $pids;
     if (sizeof($infotext) > 0) {
-      $text = implode(t(' OR ', array(), array('context' => 'bibdk_reservation')), $infotext);
+      $text = implode("<br />", $infotext);
       $commands = _bibdk_reservation_ajax_infotext($text, $type, $selector);
     }
   }
@@ -217,6 +220,7 @@ function bibdk_reservation_ajax_check_reservability($uid, $pids) {
  */
 function _ting_openformat_get_infotext($manifestations) {
   $infotext = array();
+  /* @var $manifestation Manifestation */
   foreach ($manifestations as $manifestation) {
     $infocode = $manifestation->getInfotext();
     if ($manifestation->isReservable()) {
@@ -225,12 +229,17 @@ function _ting_openformat_get_infotext($manifestations) {
       }
     }
     else if ($infocode == 'link' || $infocode == 'plusLink' || $infocode == 'linkE17' || $infocode == 'restrictedAccess') {
+      if ($infocode == 'restrictedAccess' && in_array('literature', $manifestation->getType()) && in_array('online', $manifestation->getType()) && $manifestation->isLink()) {
+        //this is a non-borrowable ebook
+        $infotext[] = t('this_is_not_a_free_ebook', array(), array('context' => 'bibdk_reservation'));
+      }
       $infotext[] = _ting_openformat_render_direct_link($infocode, $manifestation);
     }
     else {
       $infotext[] = _bibdk_reservation_render_infotext($infocode);
     }
   }
+
   return $infotext;
 }
 
@@ -241,11 +250,13 @@ function _ting_openformat_get_infotext($manifestations) {
  * @return bool
  */
 function _ting_openformat_material_is_reservable($manifestations) {
+  /* @var $manifestation Manifestation */
   foreach ($manifestations as $manifestation) {
     if ($manifestation->isReservable()) {
       return TRUE;
     }
   }
+
   return FALSE;
 }
 
@@ -257,6 +268,7 @@ function _ting_openformat_material_is_reservable($manifestations) {
 function _ting_openformat_render_direct_link($infocode, $manifestation) {
   $links = _bibdk_reservation_get_access_links($manifestation);
   $message = t("$infocode !links", array('!links' => $links), array('context' => 'bibdk_reservation'), array('attributes' => array('target' => '_blank')));
+
   return $message;
 }
 
@@ -269,6 +281,7 @@ function _ting_openformat_render_direct_link($infocode, $manifestation) {
  */
 function _bibdk_reservation_get_access_links($manifestation) {
   $info = $manifestation->getAccessInformation();
+
   return _ting_openformat_parse_element($info, '<br/>');
 }
 
@@ -284,5 +297,6 @@ function _bibdk_reservation_ajax_infotext($text, $type, $selector) {
   $commands[] = ajax_command_invoke($selector, 'hide');
   $commands[] = ajax_command_html($selector, theme('status_messages'));
   $commands[] = ajax_command_invoke($selector, 'fadeIn', array(100));
+
   return $commands;
 }
