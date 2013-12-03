@@ -28,7 +28,7 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
     if ( $orderpolicy->getOrderPossibleReason() == 'not_owned_ILL_loc' ) {
       $notice['notice_wrapper'] = array(
         '#type' => 'fieldset',
-        '#attributes' => array('class' => array('order-condition-notice')),
+        '#attributes' => array('class' => array('order-condition', 'messages', 'warning')),
         'messages' => array(
           '#markup' => $orderpolicy->getOrderCondition($language->language),
         ),
