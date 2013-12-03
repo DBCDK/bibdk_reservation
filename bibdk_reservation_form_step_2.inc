@@ -4,6 +4,8 @@
  * implements hook_form
  */
 function bibdk_reservation_form_step_2($form, &$form_state) {
+  global $language;
+
   //render manifestation
   $manifestation = BibdkReservationOrderObject::GetObject()->getManifestation();
   $form['manifestation'] = bibdk_reservation_render_custom_manifestation_view($manifestation);
@@ -22,8 +24,17 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
   $orderpolicy = bibdk_reservation_form_step_2_do_policycheck();
 
   bibdk_reservation_form_step_2_already_ordered();
-
-  if ($orderpolicy->getOrderPossible()) {
+  if ( $orderpolicy->getOrderPossible() ) {
+    if ( $orderpolicy->getOrderPossibleReason() == 'not_owned_ILL_loc' ) {
+      $notice['notice_wrapper'] = array(
+        '#type' => 'fieldset',
+        '#attributes' => array('class' => array('order-condition-notice')),
+        'messages' => array(
+          '#markup' => $orderpolicy->getOrderCondition($language->language),
+        ),
+      );
+      array_unshift($form, $notice);
+    }
     $form['userdata'] = bibdk_reservation_step_2_user_form_fields(array(), $form_state);
     $form['manifestation_userdata'] = bibdk_reservation_step_2_order_form_fields(array(), $form_state);
     $form['manifestation']['date'] = bibdk_reservation_step_2_permanent_fields(array());
@@ -32,7 +43,6 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
     $form_state['blocked'] = TRUE;
     if ($error = $orderpolicy->getCheckOrderPolicyError()) {
       form_set_error('bibdk_reservation_form_step_2', t($error, array(), array('context' => 'bibdk_reservation:error')));
-
       return $form;
     }
     $reason = $orderpolicy->getOrderPossibleReason();
@@ -151,6 +161,7 @@ function _bibdk_reservation_generate_policy_messages() {
     );
   }
 
+  $order_condition = BibdkOpenorderPolicyResponse::GetObject()->getOrderCondition();
   return $msgs;
 }
 
