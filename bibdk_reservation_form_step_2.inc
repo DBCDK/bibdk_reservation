@@ -26,14 +26,16 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
   bibdk_reservation_form_step_2_already_ordered();
   if ( $orderpolicy->getOrderPossible() ) {
     if ( $orderpolicy->getOrderPossibleReason() == 'not_owned_ILL_loc' ) {
-      $notice['notice_wrapper'] = array(
-        '#type' => 'fieldset',
-        '#attributes' => array('class' => array('order-condition', 'messages', 'warning')),
-        'messages' => array(
-          '#markup' => $orderpolicy->getOrderCondition($language->language),
-        ),
-      );
-      array_unshift($form, $notice);
+      if ( $order_condition = $orderpolicy->getOrderCondition($language->language) ) {
+        $notice['notice_wrapper'] = array(
+          '#type' => 'fieldset',
+          '#attributes' => array('class' => array('order-condition', 'messages', 'warning')),
+          'messages' => array(
+            '#markup' => $order_condition,
+          ),
+        );
+        array_unshift($form, $notice);
+      }
     }
     $form['userdata'] = bibdk_reservation_step_2_user_form_fields(array(), $form_state);
     $form['manifestation_userdata'] = bibdk_reservation_step_2_order_form_fields(array(), $form_state);
