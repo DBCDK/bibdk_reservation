@@ -142,7 +142,7 @@ function bibdk_reservation_view_agency_branch(TingClientAgencyBranch $branch) {
     'temporarily_closed_reason' => theme('ting_agency_temporarily_closed_reason', array('branch' => $branch,)),
     )
   );
-  
+
   $classes = array();
   $classes[] = 'favourite_' . $branch->branchId;
   $classes[] = ( isset($branch->orderLibrary) && $branch->orderLibrary == 'TRUE') ? 'order-agency' : NULL;
