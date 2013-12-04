@@ -125,18 +125,21 @@ function bibdk_reservation_agency_branch_get_action_link($branch) {
  */
 function bibdk_reservation_view_agency_branch(TingClientAgencyBranch $branch) {
   global $language;
+
   // check if given branch is set as order-agency
   $order_class = ( isset($branch->orderLibrary) && $branch->orderLibrary == 'TRUE') ? 'order-agency' : '';
 
   $form['#title'] = $branch->getBranchName($language->language);
   
-  $moreinfo = theme('ting_agency_more_info', array('branch' => $branch,
+  $moreinfo = theme('ting_agency_more_info', array(
+    'branch' => $branch,
     'openingHours' => theme('ting_agency_opening_hours', array('branch' => $branch,)),
     'tools' => theme('ting_agency_tools', array('branch' => $branch)),
     'address' => theme('ting_agency_address', array('branch' => $branch)),
     'pickupallowed' => theme('ting_agency_pickup_allowed', array('branch' => $branch)),
     'librarydkcontact' => theme('ting_agency_librarydk_contact', array('branch' => $branch)),
     'contact' => theme('ting_agency_contact', array('branch' => $branch)),
+    'temporarily_closed_reason' => theme('ting_agency_temporarily_closed_reason', array('branch' => $branch,)),
     )
   );
   
