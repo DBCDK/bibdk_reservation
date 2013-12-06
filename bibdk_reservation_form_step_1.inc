@@ -143,13 +143,23 @@ function bibdk_reservation_view_agency_branch(TingClientAgencyBranch $branch) {
   $classes = array();
   $classes[] = 'favourite_' . $branch->branchId;
   $classes[] = ( isset($branch->orderLibrary) && $branch->orderLibrary == 'TRUE') ? 'order-agency' : NULL;
- 
+
+  // Handle TemporarilyClosedReason
+  if($branch->getTemporarilyClosedReason() != 'ting_agency_no_temporarilyClosedReason') {
+    $messages = drupal_get_messages();
+    drupal_set_message($branch->getTemporarilyClosedReason(), 'warning');
+    $form[$branch->branchId]['librarymessage']['#markup'] = theme('status_messages');
+    foreach ($messages as $key=>$message) {
+      drupal_set_message($message[0],$key);
+    }
+  } 
+  
   if ( $branch->pickupAllowed ) {
     //set button for reservation library
     $form[$branch->branchId]['action'] = bibdk_reservation_agency_branch_get_action_link($branch);
   }
   $form[$branch->branchId]['library']['#markup'] =
-      theme('ting_agency_library', array('branchName' => $branch->getBranchName($language->language), 'actions' => drupal_render($form[$branch->branchId]['action']), 'add_classes' => $classes, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
+      theme('ting_agency_library', array( 'branchName' => $branch->getBranchName($language->language), 'actions' => drupal_render($form[$branch->branchId]['action']), 'add_classes' => $classes, 'moreinfo' => $moreinfo, 'branchid' => $branch->branchId));
 
   // place branch on top if set as order-agency
   if (isset($branch->orderLibrary) && $branch->orderLibrary == 'TRUE') {
