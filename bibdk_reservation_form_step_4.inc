@@ -60,14 +60,6 @@ function bibdk_reservation_form_step_4_do_order() {
     module_invoke_all('bibdk_reservation_complete', $pids, $result);
   }
   
-  // QUICKFIX remove messages for sb_copy service. 
-  // @TODO get a proper message from openorder
-  $sb_user = BibdkReservationOrderObject::GetObject()->getSbKopiUser();
-  if (isset ($sb_user)) {
-    //clear messages
-    drupal_get_messages();
-  }
-  
   return $result;
 }
 
