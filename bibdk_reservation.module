@@ -190,7 +190,6 @@ function bibdk_reservation_create_wizard_form($form, &$form_state) {
     );
   }
   else if (isset($next_step) && $next_step > $total_steps) {
-    /* TODO: Implement in a more clean way */
     
     // Email submit button
     $form['navigation']['sendmail'] = array(
@@ -212,10 +211,23 @@ function bibdk_reservation_create_wizard_form($form, &$form_state) {
       '#type' => 'markup',
       '#markup' => '<a href="JavaScript:window.print();" class="btn btn-grey form-submit" />' . t('print', array(), array('context' => 'bibdk_reservation')) . '</a>',
     );
+    
+    // Email textfield
+    $userdata = BibdkReservationOrderObject::GetObject()->getUserOrderData();
+    $form['navigation']['emailwrapper'] = array(
+      '#type' => 'fieldset',
+      '#attributes' => array('class'=> array ('visuallyhidden')),
+    );
+    $form['navigation']['emailwrapper']['email'] = array(
+      '#type' => 'textfield',
+      '#title' => t('recipients_email_adress', array('context' => 'bibdk_reservation')),
+      '#default_value' =>  (empty($userdata['userMail'])) ? '' : $userdata['userMail'],
+    );
+    $form['#validate'][] = 'bibdk_reservation_validate_email'; 
+    
   }
 
   // Include each validation function defined for the different steps.
-
   if (function_exists($form_state['step_information'][$step]['form'] . '_validate')) {
     $form['#validate'] = array($form_state['step_information'][$step]['form'] . '_validate');
   }
@@ -226,6 +238,26 @@ function bibdk_reservation_create_wizard_form($form, &$form_state) {
 
   return $form;
 }
+
+/**
+ * Validation handler for bibdk_reservation_validate_email;
+*/
+function bibdk_reservation_validate_email(&$form, &$form_state){
+
+  // check for valid email
+  if (!empty($form_state['values']['email']) && !valid_email_address($form_state['values']['email'])){
+    $form['navigation']['emailwrapper']['#attributes'] = array ();
+    form_set_error('userEmail', t('Email needs to be a valid email', array(), array('context' => 'bibdk_reservation')));
+  }
+  // check for empty email
+  if (empty($form_state['values']['email'])){
+    $form['navigation']['emailwrapper']['#attributes'] = array ();
+    form_set_error('userEmail', t('Email needs to be set', array(), array('context' => 'bibdk_reservation')));
+  }
+  return TRUE;
+  
+}
+
 
 function bibdk_reservation_check_order_library(&$form_state) {
   $sb_copy = BibdkReservationOrderObject::GetObject()->getSbKopi();
@@ -436,7 +468,7 @@ function bibdk_reservation_mail_form_submit($form, &$form_state) {
   if (!empty($articleDirect)) {
     $params += array('articleDirect'=>'pickup');
   }
-  
+
   $params += (isset($userdata)) ? $userdata : array();
   $params += (isset($orderdata)) ? $orderdata : array();
   $params += array(
@@ -444,8 +476,8 @@ function bibdk_reservation_mail_form_submit($form, &$form_state) {
     'pickUpAgencyId' => BibdkReservationOrderObject::GetObject()->getBranchId(),
     'needBeforeDate' => BibdkReservationOrderObject::GetObject()->getNeedBeforDate(),
   );
-
-  bibdk_reservation_mail_send($params);
+  
+  bibdk_reservation_mail_send($params, $form_state);
    
   //force rebuild form_state for step 4  
   $form_state['step'] = 4;
@@ -457,22 +489,28 @@ function bibdk_reservation_mail_form_submit($form, &$form_state) {
  * Implements mail delivery for users order
  * @param $params
  */
-function bibdk_reservation_mail_send($params) {
+function bibdk_reservation_mail_send($params, $form_state) {
  
   global $language;
   $module = 'bibdk_reservation';
   $key = 'mail_bibdk_reservation';
-  $to = $params['userMail'];
-
-  $from = variable_get('bibdk_reservation_mail_send', 'noreply@bibliotek.dk');
-  $send = TRUE;
   
-  $result = drupal_mail($module, $key, $to, $language, $params, $from, $send);
-  if ($result['result'] == TRUE) {
-    drupal_set_message(t('Your mail message has been sent.', array('context' => 'bibdk_reservation')),  $type = 'notice');
-  }
-  else {
-    drupal_set_message(t('There was a problem sending your message and it was not sent.', array('context' => 'bibdk_reservation')),  $type = 'error');
+  // check for user order email
+  if (!empty($params['userMail'])) { $to = $params['userMail'];}  
+  // check for user alternattive email
+  if (empty($to) && !empty($form_state['values']['email'])) { $to = $form_state['values']['email']; }
+  
+  if (!empty($to)) {
+    $from = variable_get('bibdk_reservation_mail_send', 'noreply@bibliotek.dk');
+    $send = TRUE;
+  
+    $result = drupal_mail($module, $key, $to, $language, $params, $from, $send);
+    if ($result['result'] == TRUE) {
+      drupal_set_message(t('Your mail message has been sent.', array('context' => 'bibdk_reservation')),  $type = 'notice');
+    }
+    else {
+      drupal_set_message(t('There was a problem sending your message and it was not sent.', array('context' => 'bibdk_reservation')),  $type = 'error');
+    }
   }
   
 }
