@@ -4,12 +4,18 @@
  * implements hook_form
  */
 function bibdk_reservation_form_step_2($form, &$form_state) {
+  
+  //render branch
+  $branch = BibdkReservationOrderObject::GetObject()->getBranch();
+
+  if($branch->getTemporarilyClosedReason() != 'ting_agency_no_temporarilyClosedReason') {
+    //set closed information
+    drupal_set_message($branch->getTemporarilyClosedReason(), 'warning');
+  }
+  
   //render manifestation
   $manifestation = BibdkReservationOrderObject::GetObject()->getManifestation();
   $form['manifestation'] = bibdk_reservation_render_custom_manifestation_view($manifestation);
-
-  //render branch
-  $branch = BibdkReservationOrderObject::GetObject()->getBranch();
 
   $form['branchdata'] = bibdk_reservation_render_custom_branch_view($branch, $form_state); //bibdk_reservation_step_2_order_branch_fields(array(), $form_state);
 
