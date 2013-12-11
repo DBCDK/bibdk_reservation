@@ -84,3 +84,4 @@ function bibdk_reservation_form_step_4_register_pid(){
     $_SESSION['orderedPids'] = $pid;
   }
 }
+
