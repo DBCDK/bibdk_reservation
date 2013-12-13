@@ -30,7 +30,7 @@ function bibdk_reservation_form_step_3($form, &$form_state) {
     );
 
     //Render User parameters
-    $form['userParameters']['table'] = bibdk_reservation_convert_array_to_table($orderParamWithLabel);
+    $form['orderParameters']['table'] = bibdk_reservation_convert_array_to_table($orderParamWithLabel);
   }
   return $form;
 }
