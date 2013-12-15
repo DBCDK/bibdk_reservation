@@ -8,9 +8,9 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
   //render branch
   $branch = BibdkReservationOrderObject::GetObject()->getBranch();
 
-  if($branch->getTemporarilyClosedReason() != 'ting_agency_no_temporarilyClosedReason') {
+  if($branch->getTemporarilyClosedReason($language->language) != 'ting_agency_no_temporarilyClosedReason') {
     //set closed information
-    drupal_set_message($branch->getTemporarilyClosedReason(), 'warning');
+    drupal_set_message($branch->getTemporarilyClosedReason($language->language), 'warning');
   }
   
   //render manifestation
