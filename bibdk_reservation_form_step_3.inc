@@ -106,6 +106,7 @@ function bibdk_reservation_render_custom_branch_view($branch, $form_state) {
       '#value' => t('Pick another library', array(), array('context' => 'bibdk_reservation')),
       '#submit' => array('bibdk_reservation_wizard_previous_submit'),
       '#limit_validation_errors' => array(),
+      '#attributes' => array('class' => array('button-as-link')),
     );
   }
 
