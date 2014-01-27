@@ -13,8 +13,8 @@ class BibdkReservationUnitTestCase extends DrupalUnitTestCase {
   }
 
   public function setUp() {
-    module_load_include('inc', 'ting_openformat', 'lib/Manifestation');
     module_load_include('inc', 'ting_openformat', 'lib/ManifestationMaster');
+    module_load_include('inc', 'ting_openformat', 'lib/Manifestation');
     parent::setUp();
   }
 
