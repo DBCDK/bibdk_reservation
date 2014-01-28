@@ -23,12 +23,12 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
   $form['branchdata']['favouriteselector'] = bibdk_reservation_favourite_selector();
   $fields = bibdk_reservation_get_agency_fields();
 
-  
+
   $infotxt = $fields->getAcceptOrderFromUnknownUserText($language->language);
   if(empty($infotxt)){
     $infotxt = t('accept_order_from_unknown_standard_txt', array(), array('context'=>'bibdk_reservation'));
   }
-    
+
   $form['branchdata']['infotext'] = bibdk_reservation_accept_order_from_unknown($infotxt);
   $form['branchdata']['hidden_favourite'] = bibdk_reservation_hidden_favourite();
 
@@ -570,7 +570,8 @@ function bibdk_reservation_borchk_execute($form_state, $agencySettings) {
   if (!$isBorrowerCheckRequired) {
     if (!$acceptOrderFromUnknownUser) {
       // just a notice - it just mean that the library reserves the right to trash the reservation.
-      $messages['status'] = t('Library does not accept reservations form unknown users', array(), array('context' => 'bibdk_reservation:error'));
+      // US1243 - no unknown user warning
+      // $messages['status'] = t('Library does not accept reservations form unknown users', array(), array('context' => 'bibdk_reservation:error'));
     }
   }
   else {
