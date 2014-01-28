@@ -145,9 +145,9 @@ function bibdk_reservation_view_agency_branch(TingClientAgencyBranch $branch) {
   $classes[] = ( isset($branch->orderLibrary) && $branch->orderLibrary == 'TRUE') ? 'order-agency' : NULL;
 
   // Handle TemporarilyClosedReason
-  if($branch->getTemporarilyClosedReason() != 'ting_agency_no_temporarilyClosedReason') {
+  if($branch->getTemporarilyClosedReason($language->language) != 'ting_agency_no_temporarilyClosedReason') {
     $messages = drupal_get_messages();
-    drupal_set_message($branch->getTemporarilyClosedReason(), 'warning');
+    drupal_set_message($branch->getTemporarilyClosedReason($language->language), 'warning');
     $form[$branch->branchId]['librarymessage']['#markup'] = theme('status_messages');
     foreach ($messages as $key=>$message) {
       drupal_set_message($message[0],$key);

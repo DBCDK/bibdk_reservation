@@ -13,11 +13,14 @@ class BibdkReservationUnitTestCase extends DrupalUnitTestCase {
   }
 
   public function setUp() {
+    module_load_include('inc', 'ting_openformat', 'ting_openformat.entities');
+    module_load_include('inc', 'ting_openformat', 'lib/ManifestationMaster');
+    module_load_include('inc', 'ting_openformat', 'lib/Manifestation');
+    module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_button');
     parent::setUp();
   }
 
   public function test_ting_openformat_material_is_reservable(){
-    module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_button');
     $objects = json_decode(file_get_contents(drupal_get_path('module', 'bibdk_reservation') . '/test/mockup/test_objects.json'));
 
     $manifestationIsNotReservable = new Manifestation($objects->isNotReservable);

@@ -9,9 +9,9 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
   //render branch
   $branch = BibdkReservationOrderObject::GetObject()->getBranch();
 
-  if($branch->getTemporarilyClosedReason() != 'ting_agency_no_temporarilyClosedReason') {
+  if($branch->getTemporarilyClosedReason($language->language) != 'ting_agency_no_temporarilyClosedReason') {
     //set closed information
-    drupal_set_message($branch->getTemporarilyClosedReason(), 'warning');
+    drupal_set_message($branch->getTemporarilyClosedReason($language->language), 'warning');
   }
 
   //render manifestation
@@ -23,7 +23,13 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
   $form['branchdata']['favouriteselector'] = bibdk_reservation_favourite_selector();
   $fields = bibdk_reservation_get_agency_fields();
 
-  $form['branchdata']['infotext'] = bibdk_reservation_accept_order_from_unknown($fields->getAcceptOrderFromUnknownUserText());
+  
+  $infotxt = $fields->getAcceptOrderFromUnknownUserText($language->language);
+  if(empty($infotxt)){
+    $infotxt = t('accept_order_from_unknown_standard_txt', array(), array('context'=>'bibdk_reservation'));
+  }
+    
+  $form['branchdata']['infotext'] = bibdk_reservation_accept_order_from_unknown($infotxt);
   $form['branchdata']['hidden_favourite'] = bibdk_reservation_hidden_favourite();
 
   $orderpolicy = bibdk_reservation_form_step_2_do_policycheck();
