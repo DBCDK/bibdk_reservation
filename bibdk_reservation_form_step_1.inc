@@ -125,8 +125,6 @@ function bibdk_reservation_agency_branch_get_action_link($branch) {
  */
 function bibdk_reservation_view_agency_branch(TingClientAgencyBranch $branch) {
   global $language;
-  // check if given branch is set as order-agency
-  $order_class = ( isset($branch->orderLibrary) && $branch->orderLibrary == 'TRUE') ? 'order-agency' : '';
 
   $form['#title'] = $branch->getBranchName($language->language);
   
