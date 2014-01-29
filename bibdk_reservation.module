@@ -578,10 +578,11 @@ function bibdk_reservation_mail_order_parameters() {
   
 }
 
-
 /**
- * @param $manifestation
  * Implements titleformating for email an return array with titleinformation
+ *
+ * @param Manifestation $manifestation
+ * @return array
  */
 function bibdk_reservation_mail_title(Manifestation $manifestation) {
 
