@@ -36,6 +36,10 @@ function bibdk_reservation_form_step_1($form, &$form_state) {
     $form['agency_search_result'] = bibdk_reservation_parse_agency_search_result($branches);
   }
 
+  if (!user_is_logged_in()) {
+    _bibdk_reservation_set_login_message();
+  }
+
   return $form;
 }
 
