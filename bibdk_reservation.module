@@ -48,11 +48,33 @@ function bibdk_reservation_menu() {
 function bibdk_reservation_theme() {
   return array(
     'bibdk_reservation_mail' => array(
-      'variables' => array('orderid','headertext','orderidtext','userparameter','userinfo','manifestation','title','branch','branchtext','addresstext','postalCodetext','citytext','orderparameters','orderinfo','IllOrderReceiptText'),
+      'variables' => array(
+        'orderid',
+        'headertext',
+        'orderidtext',
+        'userparameter',
+        'userinfo',
+        'manifestation',
+        'title',
+        'branch',
+        'branchtext',
+        'addresstext',
+        'postalCodetext',
+        'citytext',
+        'orderparameters',
+        'orderinfo',
+        'IllOrderReceiptText'
+      ),
       'template' => 'template/bibdk_reservation_order_mail',
     ),
     'bibdk_reservation_agency' => array(
-      'variables' => array('name', 'adress', 'postalCode', 'city', 'subdivision'),
+      'variables' => array(
+        'name',
+        'adress',
+        'postalCode',
+        'city',
+        'subdivision'
+      ),
       'template' => 'template/bibdk_reservation_agency',
     ),
     'bibdk_reservation_manifestation' => array(
@@ -96,8 +118,8 @@ function _bibdk_reservation_steps() {
     1 => array(
       'form' => 'bibdk_reservation_form_step_1',
       'current_step' => 1,
-      'previous_step' => null,
-      'next_step' => null,
+      'previous_step' => NULL,
+      'next_step' => NULL,
       'title' => t('Choose Library', array(), array('context' => 'bibdk_reservation')),
     ),
     2 => array(
@@ -110,7 +132,8 @@ function _bibdk_reservation_steps() {
     3 => array(
       'form' => 'bibdk_reservation_form_step_3',
       'current_step' => 3,
-      'next button text' => t('Order', array(), array('context' => 'bibdk_reservation')), //overriding the default "Next" text on buttons
+      'next button text' => t('Order', array(), array('context' => 'bibdk_reservation')),
+      //overriding the default "Next" text on buttons
       'previous_step' => 2,
       'next_step' => 4,
       'title' => t('Review', array(), array('context' => 'bibdk_reservation')),
@@ -118,11 +141,12 @@ function _bibdk_reservation_steps() {
     4 => array(
       'form' => 'bibdk_reservation_form_step_4',
       'current_step' => 3,
-      'previous_step' => null,
+      'previous_step' => NULL,
       'next_step' => 5,
       'title' => t('Order Complete', array(), array('context' => 'bibdk_reservation')),
     ),
   );
+
   return $steps;
 }
 
@@ -190,7 +214,7 @@ function bibdk_reservation_create_wizard_form($form, &$form_state) {
     );
   }
   else if (isset($next_step) && $next_step > $total_steps) {
-    
+
     // Email submit button
     $form['navigation']['sendmail'] = array(
       '#type' => 'submit',
@@ -198,33 +222,33 @@ function bibdk_reservation_create_wizard_form($form, &$form_state) {
       '#name' => 'sendmail',
       '#value' => t('sendmail', array(), array('context' => 'bibdk_reservation')),
     );
-        
+
     // Final submit button
     $button_text = isset($form_state['step_information'][$step]['next button text']) ? $form_state['step_information'][$step]['next button text'] : t('Finish', array(), array('context' => 'bibdk_reservation'));
     $form['navigation']['finish'] = array(
       '#type' => 'markup',
       '#markup' => '<a href="JavaScript:window.close();" class="btn btn-blue form-submit" />' . $button_text . '</a>',
     );
-    
+
     //Add a print button
     $form['navigation']['print'] = array(
       '#type' => 'markup',
       '#markup' => '<a href="JavaScript:window.print();" class="btn btn-grey form-submit" />' . t('print', array(), array('context' => 'bibdk_reservation')) . '</a>',
     );
-    
+
     // Email textfield
     $userdata = BibdkReservationOrderObject::GetObject()->getUserOrderData();
     $form['navigation']['emailwrapper'] = array(
       '#type' => 'fieldset',
-      '#attributes' => array('class'=> array ('visuallyhidden')),
+      '#attributes' => array('class' => array('visuallyhidden')),
     );
     $form['navigation']['emailwrapper']['email'] = array(
       '#type' => 'textfield',
       '#title' => t('recipients_email_adress', array('context' => 'bibdk_reservation')),
-      '#default_value' =>  (empty($userdata['userMail'])) ? '' : $userdata['userMail'],
+      '#default_value' => (empty($userdata['userMail'])) ? '' : $userdata['userMail'],
     );
-    $form['#validate'][] = 'bibdk_reservation_validate_email'; 
-    
+    $form['#validate'][] = 'bibdk_reservation_validate_email';
+
   }
 
   // Include each validation function defined for the different steps.
@@ -241,23 +265,23 @@ function bibdk_reservation_create_wizard_form($form, &$form_state) {
 
 /**
  * Validation handler for bibdk_reservation_validate_email;
-*/
-function bibdk_reservation_validate_email(&$form, &$form_state){
+ */
+function bibdk_reservation_validate_email(&$form, &$form_state) {
 
   // check for valid email
-  if (!empty($form_state['values']['email']) && !valid_email_address($form_state['values']['email'])){
-    $form['navigation']['emailwrapper']['#attributes'] = array ();
+  if (!empty($form_state['values']['email']) && !valid_email_address($form_state['values']['email'])) {
+    $form['navigation']['emailwrapper']['#attributes'] = array();
     form_set_error('userEmail', t('Email needs to be a valid email', array(), array('context' => 'bibdk_reservation')));
   }
   // check for empty email
-  if (empty($form_state['values']['email'])){
-    $form['navigation']['emailwrapper']['#attributes'] = array ();
+  if (empty($form_state['values']['email'])) {
+    $form['navigation']['emailwrapper']['#attributes'] = array();
     form_set_error('userEmail', t('Email needs to be set', array(), array('context' => 'bibdk_reservation')));
   }
-  return TRUE;
-  
-}
 
+  return TRUE;
+
+}
 
 function bibdk_reservation_check_order_library(&$form_state) {
   $sb_copy = BibdkReservationOrderObject::GetObject()->getSbKopi();
@@ -302,6 +326,7 @@ function bibdk_reservation_check_order_library(&$form_state) {
       }
     }
   }
+
   return $ret;
 }
 
@@ -374,6 +399,7 @@ function bibdk_reservation_new_order_object() {
 
   if (!isset($_REQUEST['ids'])) {
     drupal_set_message(t('No objects have been chosen', array(), array('context' => 'bibdk_reservation:error')), 'error');
+
     return NULL;
   }
   $ids = explode(",", $_REQUEST['ids']);
@@ -382,6 +408,7 @@ function bibdk_reservation_new_order_object() {
 
   $manifestation = bibdk_reservation_get_manifestation($ids);
   BibdkReservationOrderObject::GetObject()->setManifestation($manifestation);
+
   return BibdkReservationOrderObject::GetObject();
 }
 
@@ -438,6 +465,7 @@ function bibdk_reservation_step_guide($form, &$form_state, $current_step) {
 function bibdk_reservation_catalog_callback() {
   if (!isset($_GET['url']) || !isset($_GET['agency_id'])) {
     drupal_set_message(t('invalid url or agency_id'), 'ERROR');
+
     return '';
   }
   else {
@@ -461,12 +489,12 @@ function bibdk_reservation_mail_form_submit($form, &$form_state) {
 
   $params = array();
   $params['manifestations'] = $pids;
-  
-  $params += array('subject'=> t('Your order reciept', array('context' => 'bibdk_reservation')));
+
+  $params += array('subject' => t('Your order reciept', array('context' => 'bibdk_reservation')));
 
   $articleDirect = BibdkReservationOrderObject::GetObject()->getArticleDirect();
   if (!empty($articleDirect)) {
-    $params += array('articleDirect'=>'pickup');
+    $params += array('articleDirect' => 'pickup');
   }
 
   $params += (isset($userdata)) ? $userdata : array();
@@ -476,13 +504,13 @@ function bibdk_reservation_mail_form_submit($form, &$form_state) {
     'pickUpAgencyId' => BibdkReservationOrderObject::GetObject()->getBranchId(),
     'needBeforeDate' => BibdkReservationOrderObject::GetObject()->getNeedBeforDate(),
   );
-  
+
   bibdk_reservation_mail_send($params, $form_state);
-   
+
   //force rebuild form_state for step 4  
   $form_state['step'] = 4;
-  $form_state['rebuild'] = TRUE; 
-  
+  $form_state['rebuild'] = TRUE;
+
 }
 
 /**
@@ -490,29 +518,33 @@ function bibdk_reservation_mail_form_submit($form, &$form_state) {
  * @param $params
  */
 function bibdk_reservation_mail_send($params, $form_state) {
- 
+
   global $language;
   $module = 'bibdk_reservation';
   $key = 'mail_bibdk_reservation';
-  
+
   // check for user order email
-  if (!empty($params['userMail'])) { $to = $params['userMail'];}  
+  if (!empty($params['userMail'])) {
+    $to = $params['userMail'];
+  }
   // check for user alternattive email
-  if (empty($to) && !empty($form_state['values']['email'])) { $to = $form_state['values']['email']; }
-  
+  if (empty($to) && !empty($form_state['values']['email'])) {
+    $to = $form_state['values']['email'];
+  }
+
   if (!empty($to)) {
     $from = variable_get('bibdk_reservation_mail_send', 'noreply@bibliotek.dk');
     $send = TRUE;
-  
+
     $result = drupal_mail($module, $key, $to, $language, $params, $from, $send);
     if ($result['result'] == TRUE) {
-      drupal_set_message(t('Your mail message has been sent.', array('context' => 'bibdk_reservation')),  $type = 'notice');
+      drupal_set_message(t('Your mail message has been sent.', array('context' => 'bibdk_reservation')), $type = 'notice');
     }
     else {
-      drupal_set_message(t('There was a problem sending your message and it was not sent.', array('context' => 'bibdk_reservation')),  $type = 'error');
+      drupal_set_message(t('There was a problem sending your message and it was not sent.', array('context' => 'bibdk_reservation')), $type = 'error');
     }
   }
-  
+
 }
 
 /**
@@ -522,37 +554,37 @@ function bibdk_reservation_mail_send($params, $form_state) {
 function bibdk_reservation_mail($key, &$message, $params) {
 
   if ($key == 'mail_bibdk_reservation') {
-      global $language;
-      // set mail variables
-      $header = variable_get('mail_bibdk_reservation_email_header', '');
-      $footer = variable_get('mail_bibdk_reservation_email_footer', '');
-      $message['subject'] = $params['subject'];
-      $message['body'][] = !empty($header) ? t($header, array(), array('context' => 'bibdk_reservation')) : '';
+    global $language;
+    // set mail variables
+    $header = variable_get('mail_bibdk_reservation_email_header', '');
+    $footer = variable_get('mail_bibdk_reservation_email_footer', '');
+    $message['subject'] = $params['subject'];
+    $message['body'][] = !empty($header) ? t($header, array(), array('context' => 'bibdk_reservation')) : '';
 
-      $branch = BibdkReservationOrderObject::GetObject()->getBranch();
-            
-      //make data for template: bibdk_reservation_order_mail
-      $message['body'][] = theme('bibdk_reservation_mail', array(
-        'headertext' => t('Your order is complete',array(), array('context'=>'bibdk_reservation')), 
-        'orderidtext' => t('Your order ID',array(), array('context'=>'bibdk_reservation')), 
-        'orderid' => BibdkReservationOrderObject::GetObject()->getOrderId(), 
-        'userparameter' => t('User Parameters', array(), array('context' => 'bibdk_reservation')),
-        'userinfo' =>  bibdk_reservation_mail_user(),
-        'manifestation' => t('Manifestation', array(), array('context' => 'bibdk_reservation')),
-        'title' => bibdk_reservation_mail_title(BibdkReservationOrderObject::GetObject()->getManifestation()),
-        'branch' => t('Branch', array(), array('context' => 'bibdk_reservation')),
-        'branchtext' => $branch->getBranchShortName($language->language),
-        'addresstext' => $branch->postalAddress,
-        'postalCodetext' => $branch->postalCode,
-        'citytext' => $branch->city,
-        'orderparameters' => t('Order Parameters', array(), array('context' => 'bibdk_reservation')),
-        'orderinfo' => bibdk_reservation_mail_order_parameters() ,
-        'IllOrderReceiptText' => $branch->getIllOrderReceiptText($language),
-      ));
+    $branch = BibdkReservationOrderObject::GetObject()->getBranch();
 
-      $message['body'][] = !empty($footer) ? t($footer, array(), array('context' => 'bibdk_reservation')) : '';
+    //make data for template: bibdk_reservation_order_mail
+    $message['body'][] = theme('bibdk_reservation_mail', array(
+      'headertext' => t('Your order is complete', array(), array('context' => 'bibdk_reservation')),
+      'orderidtext' => t('Your order ID', array(), array('context' => 'bibdk_reservation')),
+      'orderid' => BibdkReservationOrderObject::GetObject()->getOrderId(),
+      'userparameter' => t('User Parameters', array(), array('context' => 'bibdk_reservation')),
+      'userinfo' => bibdk_reservation_mail_user(),
+      'manifestation' => t('Manifestation', array(), array('context' => 'bibdk_reservation')),
+      'title' => bibdk_reservation_mail_title(BibdkReservationOrderObject::GetObject()->getManifestation()),
+      'branch' => t('Branch', array(), array('context' => 'bibdk_reservation')),
+      'branchtext' => $branch->getBranchShortName($language->language),
+      'addresstext' => $branch->postalAddress,
+      'postalCodetext' => $branch->postalCode,
+      'citytext' => $branch->city,
+      'orderparameters' => t('Order Parameters', array(), array('context' => 'bibdk_reservation')),
+      'orderinfo' => bibdk_reservation_mail_order_parameters(),
+      'IllOrderReceiptText' => $branch->getIllOrderReceiptText($language),
+    ));
+
+    $message['body'][] = !empty($footer) ? t($footer, array(), array('context' => 'bibdk_reservation')) : '';
   }
-  
+
 }
 
 /**
@@ -569,13 +601,15 @@ function bibdk_reservation_mail_order_parameters() {
     $rows[] = array();
     $arrycount = 0;
     foreach ($orderParamWithLabel as $key => $value) {
-      $rows[$arrycount] = t($key, array(), array('context' => 'bibdk_reservation')) . " \t" .  check_plain($value);
+      $rows[$arrycount] = t($key, array(), array('context' => 'bibdk_reservation')) . " \t" . check_plain($value);
       $arrycount = $arrycount + 1;
     }
+
     return $rows;
   }
+
   return NULL;
-  
+
 }
 
 /**
@@ -590,20 +624,20 @@ function bibdk_reservation_mail_title(Manifestation $manifestation) {
   $contribs = $manifestation->getContributors();
   $author = isset($contribs) && is_array($contribs) ? implode(', ', $contribs) : NULL;
   $type = $manifestation->getSubType();
-  
-  return  array(
+
+  return array(
     'title' => $title,
     'author' => $author,
     'type' => $type,
   );
-    
+
 }
 
 /**
  * Implements userformating for email and return array with userinformation
  */
 function bibdk_reservation_mail_user() {
-  
+
   $user_data_array = BibdkReservationOrderObject::GetObject()->getUserData();
   if (isset($user_data_array)) {
     $arrycount = 0;
@@ -611,9 +645,11 @@ function bibdk_reservation_mail_user() {
     foreach ($user_data_array as $key => $value) {
       $rows[$arrycount] = $rows[$arrycount] = t($key, array(), array('context' => 'bibdk_reservation')) . "  \t" . $value;
       $arrycount = $arrycount + 1;
-    }  
+    }
+
     return $rows;
   }
+
   return NULL;
 
 }
