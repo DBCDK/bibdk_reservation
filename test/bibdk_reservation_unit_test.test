@@ -20,6 +20,27 @@ class BibdkReservationUnitTestCase extends DrupalUnitTestCase {
     parent::setUp();
   }
 
+  public function test_bibdk_reservation_mail_get_title() {
+    module_load_include('php', 'bibdk_reservation', 'test/mockup/objects/Manifestation_mockup');
+    module_load_include('php', 'bibdk_reservation', 'test/mockup/objects/Manifestation_mockup');
+    drupal_load('module', 'bibdk_reservation');
+
+    global $bibdk_order;
+    $bibdk_order = 'titleSpecfic';
+
+    $manifestation = new Manifestation_mockup();
+    $return = _bibdk_reservation_mail_get_title($manifestation);
+    $this->assertEqual($return, ' - TITLESPECIFIC_RETURN', 'Got string as expected');
+
+    $bibdk_order = 'title';
+    $return = _bibdk_reservation_mail_get_title($manifestation);
+    $this->assertEqual($return, ' - TITLE_RETURN', 'Got string as expected');
+
+    $bibdk_order = 'no_title';
+    $return = _bibdk_reservation_mail_get_title($manifestation);
+    $this->assertEqual($return, '', 'Got empty string as expected');
+  }
+
   public function test_ting_openformat_material_is_reservable(){
     $objects = json_decode(file_get_contents(drupal_get_path('module', 'bibdk_reservation') . '/test/mockup/test_objects.json'));
 
