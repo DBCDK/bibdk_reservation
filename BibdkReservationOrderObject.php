@@ -97,6 +97,9 @@ class BibdkReservationOrderObject {
     return $this->agency;
   }
 
+  /**
+   * @return TingClientAgencyBranch
+   */
   public function getBranch() {
     return $this->branch;
   }
