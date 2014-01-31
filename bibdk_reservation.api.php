@@ -5,7 +5,6 @@
  * Hooks provided by the bibdk_reservation module.
  */
 
-
 /**
  * actions to perform when a reservation has been done successfully
  * @param type $pids
@@ -33,10 +32,10 @@ function hook_bibdk_reservation_complete($pids, $result) {
  * content given in a render array could be added, as it will be rendered by the
  * drupal_render() method.
  *
- * @param array $lists        Array with the content of the 'Order any edition'
+ * @param array $lists Array with the content of the 'Order any edition'
  *                            button so far collected.
  *
- * @param array $collection   Array with the collections that will be displayed.
+ * @param array $collection Array with the collections that will be displayed.
  *                            Each collection will get its own 'Order any
  *                            edition' button.
  *
@@ -45,7 +44,7 @@ function hook_bibdk_reservation_complete($pids, $result) {
  *
  * @see includes/common.inc - drupal_render();
  */
-function hook_order_any_btn_lists($lists, $collection){
+function hook_order_any_btn_lists($lists, $collection) {
   $item1 = l('my-link-1', 'my/path/1');
   $item2 = l('my-link-2', 'my/path/2');
 

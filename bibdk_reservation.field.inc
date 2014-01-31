@@ -100,6 +100,7 @@ function bibdk_reservation_field_formatter_view($entity_type, $entity, $field, $
         break;
     }
   }
+
   return $element;
 }
 
@@ -158,5 +159,6 @@ function _bibdk_reservation_render_infotext($string) {
       $message = t("drupal_text_saleonly", array(), array('context' => 'bibdk_reservation'));
       break;
   }
+
   return $message;
 }

@@ -14,7 +14,7 @@ function bibdk_reservation_ting_openformat_actions($type, $entity, $view_mode, $
   switch ($type) {
     case "bibdkManifestation" :
       if ($entity->isReservable()) {
-        $element['reservation']=  array(
+        $element['reservation'] = array(
           '#markup' => bibdk_reservation_link($entity->getIDs(), $entity->getSubType(), $type),
           '#weight' => -2,
         );
@@ -23,7 +23,12 @@ function bibdk_reservation_ting_openformat_actions($type, $entity, $view_mode, $
         $accessUrlContainer = $entity->getSingleAccessUrl();
 
         $element['reservation'] = array(
-          '#markup' => l(t('accessUrl', array(), array('context'=>'bibdk_reservation')), $accessUrlContainer['accessUrl'], array('attributes' => array('target' =>'_blank', 'class' => array('btn btn-grey')))),
+          '#markup' => l(t('accessUrl', array(), array('context' => 'bibdk_reservation')), $accessUrlContainer['accessUrl'], array(
+            'attributes' => array(
+              'target' => '_blank',
+              'class' => array('btn btn-grey')
+            )
+          )),
           '#weight' => -2,
         );
       }
@@ -32,5 +37,6 @@ function bibdk_reservation_ting_openformat_actions($type, $entity, $view_mode, $
       // TODO: add collection reservation button to actions
       break;
   }
+
   return $element;
 }

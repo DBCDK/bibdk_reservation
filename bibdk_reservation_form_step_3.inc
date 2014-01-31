@@ -32,6 +32,7 @@ function bibdk_reservation_form_step_3($form, &$form_state) {
     //Render User parameters
     $form['orderParameters']['table'] = bibdk_reservation_convert_array_to_table($orderParamWithLabel);
   }
+
   return $form;
 }
 
@@ -66,17 +67,15 @@ function bibdk_reservation_form_step_3_validate($form, &$form_state) {
 }
 
 function bibdk_reservation_render_custom_branch_view($branch, $form_state) {
-  
+
   $userOrderData = BibdkReservationOrderObject::GetObject()->getUserOrderData();
   if (isset($userOrderData['pickUpAgencySubdivision'])) {
     $subdivison = $userOrderData['pickUpAgencySubdivision'];
     // strip agencyid and '-'
     $pos = strpos($subdivison, '-');
-    $subdivison = substr($subdivison, $pos+1);
+    $subdivison = substr($subdivison, $pos + 1);
   }
-  
-  
-  
+
   global $language;
   $shortname = $branch->getBranchShortName($language->language);
   $address = $branch->postalAddress;
@@ -140,7 +139,11 @@ function bibdk_reservation_render_custom_manifestation_view(Manifestation $manif
 function bibdk_reservation_convert_array_to_table($array) {
   foreach ($array as $key => $value) {
     $rows[]['data'] = array(
-      array('data' => t($key, array(), array('context' => 'bibdk_reservation')), 'class' => array(''), 'header' => TRUE),
+      array(
+        'data' => t($key, array(), array('context' => 'bibdk_reservation')),
+        'class' => array(''),
+        'header' => TRUE
+      ),
       array('data' => check_plain($value), 'class' => array('')),
     );
   }
