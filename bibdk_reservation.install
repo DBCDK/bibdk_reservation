@@ -5,54 +5,54 @@
  **/
 function bibdk_reservation_ding_entity_fields() {
   $display_full = array(
-          'default' => array(
-            'type' => 'default',
-            'label' => 'hidden',
-          ),
-          'reservation' => array(
-            'type' => 'hidden',
-          ),
-          'full' => array(
-            'label' => 'hidden',
-            'type' => 'default',
-          ),
-        );
+    'default' => array(
+      'type' => 'default',
+      'label' => 'hidden',
+    ),
+    'reservation' => array(
+      'type' => 'hidden',
+    ),
+    'full' => array(
+      'label' => 'hidden',
+      'type' => 'default',
+    ),
+  );
 
   $fields = array();
 
   $fields['bibdk_coll_reservation_button'] = array(
-      'field' => array(
-        'locked' => FALSE,
-        'storage' => array(
-          'type' => 'virtual_field',
-        ),
+    'field' => array(
+      'locked' => FALSE,
+      'storage' => array(
+        'type' => 'virtual_field',
       ),
-      'instance' => array(
-        'ding_entity_type' => 'bibdkCollection',
-        'label' => t('Reservation Button'),
-        'bundle' => 'bibdkCollection',
-        'entity_type' => 'bibdkCollection',
-        'display' => $display_full,
-      ),
-    );
+    ),
+    'instance' => array(
+      'ding_entity_type' => 'bibdkCollection',
+      'label' => t('Reservation Button'),
+      'bundle' => 'bibdkCollection',
+      'entity_type' => 'bibdkCollection',
+      'display' => $display_full,
+    ),
+  );
 
   $fields['bibdk_reservation_info'] = array(
-      'field' => array(
-        'locked' => FALSE,
-        'storage' => array(
-          'type' => 'virtual_field',
-        ),
+    'field' => array(
+      'locked' => FALSE,
+      'storage' => array(
+        'type' => 'virtual_field',
       ),
-      'instance' => array(
-        'ding_entity_type' => 'bibdkManifestation',
-        'label' => t('Infotext'),
-        'bundle' => 'bibdkManifestation',
-        'entity_type' => 'bibdkManifestation',
-        'display' => $display_full,
-      ),
-    );
+    ),
+    'instance' => array(
+      'ding_entity_type' => 'bibdkManifestation',
+      'label' => t('Infotext'),
+      'bundle' => 'bibdkManifestation',
+      'entity_type' => 'bibdkManifestation',
+      'display' => $display_full,
+    ),
+  );
 
-return $fields;
+  return $fields;
 
 }
 
@@ -63,8 +63,8 @@ return $fields;
 function bibdk_reservation_update_7003() {
   $fields = bibdk_reservation_ding_entity_fields();
   foreach ($fields as $field_name => $field) {
-        field_delete_field($field_name);
-      }
+    field_delete_field($field_name);
+  }
   ding_entity_modules_enabled(array('bibdk_reservation'));
 }
 
