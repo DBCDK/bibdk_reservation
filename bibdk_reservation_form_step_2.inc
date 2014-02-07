@@ -81,6 +81,10 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
     return bibdk_reservation_sanitize_for_order_copy($form, $form_state);
   }
 
+  if (!user_is_logged_in()) {
+    _bibdk_reservation_set_login_message();
+  }
+
   return $form;
 }
 
