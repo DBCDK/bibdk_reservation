@@ -54,7 +54,6 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
       }
     }
     $form['userdata'] = bibdk_reservation_step_2_user_form_fields(array(), $form_state);
-
     if($manifestation->getSpecifyArticleData()){
       $form['manifestation_userdata'] = bibdk_reservation_step_2_order_form_fields(array(), $form_state);
     }
