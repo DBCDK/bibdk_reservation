@@ -21,19 +21,9 @@ function bibdk_reservation_form_step_1($form, &$form_state) {
   );
 
   $form['agency_search_form_container']['search_form'] = bibdk_reservation_agency_search_form(array(), $form_state);
-
+  
   if (isset($form_state['values']['anyField'])) {
     $form['agency_search_result'] = _bibdk_reservation_form_step_1_agency_result(array(), $form_state);
-  }
-  elseif ($favourites = BibdkReservationOrderObject::GetObject()->getFavourites()) {
-    $branches = NULL;
-    foreach ($favourites as $favourite) {
-      /**
-       * @var $favourite TingAgency
-       */
-      $branches = $favourite->getBranch();
-    }
-    $form['agency_search_result'] = bibdk_reservation_parse_agency_search_result($branches);
   }
 
   if (!user_is_logged_in()) {

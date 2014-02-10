@@ -360,6 +360,10 @@ function bibdk_reservation_wizard_previous_submit($form, &$form_state) {
     $form_state['values'] = isset($form_state['step_information'][$current_step]['stored_values']) ? $form_state['step_information'][$current_step]['stored_values'] : array();
     $form_state['step'] = $current_step;
   }
+  if ($current_step == 1) {
+    // Always clear previous search string  
+    $form_state['values']['anyField'] = '';
+  }
   $form_state['rebuild'] = TRUE;
 }
 
