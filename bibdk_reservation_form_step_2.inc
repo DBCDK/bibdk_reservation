@@ -9,7 +9,7 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
   //render branch
   $branch = BibdkReservationOrderObject::GetObject()->getBranch();
 
-  if($branch->getTemporarilyClosedReason($language->language) != 'ting_agency_no_temporarilyClosedReason') {
+  if ($branch->getTemporarilyClosedReason($language->language) != 'ting_agency_no_temporarilyClosedReason') {
     //set closed information
     drupal_set_message($branch->getTemporarilyClosedReason($language->language), 'warning');
   }
@@ -23,18 +23,29 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
   $form['branchdata']['favouriteselector'] = bibdk_reservation_favourite_selector();
   $fields = bibdk_reservation_get_agency_fields();
 
-  $form['branchdata']['infotext'] = bibdk_reservation_accept_order_from_unknown($fields->getAcceptOrderFromUnknownUserText());
+  $infotxt = $fields->getAcceptOrderFromUnknownUserText($language->language);
+  if (empty($infotxt)) {
+    $infotxt = t('accept_order_from_unknown_standard_txt', array(), array('context' => 'bibdk_reservation'));
+  }
+
+  $form['branchdata']['infotext'] = bibdk_reservation_accept_order_from_unknown($infotxt);
   $form['branchdata']['hidden_favourite'] = bibdk_reservation_hidden_favourite();
 
   $orderpolicy = bibdk_reservation_form_step_2_do_policycheck();
 
   bibdk_reservation_form_step_2_already_ordered();
-  if ( $orderpolicy->getOrderPossible() ) {
-    if ( $orderpolicy->getOrderPossibleReason() == 'not_owned_ILL_loc' ) {
-      if ( $order_condition = $orderpolicy->getOrderCondition($language->language) ) {
+  if ($orderpolicy->getOrderPossible()) {
+    if ($orderpolicy->getOrderPossibleReason() == 'not_owned_ILL_loc') {
+      if ($order_condition = $orderpolicy->getOrderCondition($language->language)) {
         $notice['notice_wrapper'] = array(
           '#type' => 'fieldset',
-          '#attributes' => array('class' => array('order-condition', 'messages', 'warning')),
+          '#attributes' => array(
+            'class' => array(
+              'order-condition',
+              'messages',
+              'warning'
+            )
+          ),
           'messages' => array(
             '#markup' => $order_condition,
           ),
@@ -53,6 +64,7 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
     $form_state['blocked'] = TRUE;
     if ($error = $orderpolicy->getCheckOrderPolicyError()) {
       form_set_error('bibdk_reservation_form_step_2', t($error, array(), array('context' => 'bibdk_reservation:error')));
+
       return $form;
     }
     $reason = $orderpolicy->getOrderPossibleReason();
@@ -70,6 +82,10 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
 
   if (!empty($sbkopi)) {
     return bibdk_reservation_sanitize_for_order_copy($form, $form_state);
+  }
+
+  if (!user_is_logged_in()) {
+    _bibdk_reservation_set_login_message();
   }
 
   return $form;
@@ -98,7 +114,6 @@ function bibdk_reservation_accept_order_from_unknown($AcceptOrderFromUnknownUser
     '#markup' => $AcceptOrderFromUnknownUserText,
   );
 }
-
 
 /** \ brief Dropdown list to select another favourite library
  *
@@ -172,6 +187,7 @@ function _bibdk_reservation_generate_policy_messages() {
   }
 
   $order_condition = BibdkOpenorderPolicyResponse::GetObject()->getOrderCondition();
+
   return $msgs;
 }
 
@@ -208,7 +224,7 @@ function bibdk_reservation_step_2_user_form_fields($form, $form_state) {
     $form['userParameters']['userfields'] = $fields;
   }
   else {
-    $fields = ting_agency_userdata_form($form, $form_state, $fields,NULL, $branch->branchId);
+    $fields = ting_agency_userdata_form($form, $form_state, $fields, NULL, $branch->branchId);
     $form['userParameters']['userfields'] = $fields;
   }
 
@@ -272,12 +288,12 @@ function bibdk_reservation_step_2_order_branch_fields($form, $form_state) {
   );
 
   $moreinfo = theme('ting_agency_more_info', array(
-      'branch' => $branch,
-      'openingHours' => theme('ting_agency_opening_hours', array('branch' => $branch,)),
-      //'tools' => theme('ting_agency_tools', array('branch' => $branch)),
-      'address' => theme('ting_agency_address', array('branch' => $branch)),
-      'contact' => theme('ting_agency_contact', array('branch' => $branch)),
-    ));
+    'branch' => $branch,
+    'openingHours' => theme('ting_agency_opening_hours', array('branch' => $branch,)),
+    //'tools' => theme('ting_agency_tools', array('branch' => $branch)),
+    'address' => theme('ting_agency_address', array('branch' => $branch)),
+    'contact' => theme('ting_agency_contact', array('branch' => $branch)),
+  ));
 
   //$classes[] = 'selected_branch';
   $classes = array();
@@ -401,7 +417,6 @@ function bibdk_reservation_validate_date($date) {
 
   return FALSE;
 }
-
 
 // this is a hacked solution for making a request to statsbiblioteket's
 // create user service
@@ -529,7 +544,6 @@ function bibdk_reservation_form_step_2_submit($form, &$form_state) {
 
 }
 
-
 /**
  * Validate up against Borchk
  */
@@ -565,7 +579,8 @@ function bibdk_reservation_borchk_execute($form_state, $agencySettings) {
   if (!$isBorrowerCheckRequired) {
     if (!$acceptOrderFromUnknownUser) {
       // just a notice - it just mean that the library reserves the right to trash the reservation.
-      $messages['status'] = t('Library does not accept reservations form unknown users', array(), array('context' => 'bibdk_reservation:error'));
+      // US1243 - no unknown user warning
+      // $messages['status'] = t('Library does not accept reservations form unknown users', array(), array('context' => 'bibdk_reservation:error'));
     }
   }
   else {

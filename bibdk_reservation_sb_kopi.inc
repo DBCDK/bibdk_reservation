@@ -1,7 +1,7 @@
 <?php
 
 /** Implements form_FORM_ID_alter (bibdk_reservation_create_wizard_form($form, &$form_state)
- * 
+ *
  */
 function bibdk_reservation_form_bibdk_reservation_create_wizard_form_alter(&$form, &$form_state) {
   // check if this is copy service
@@ -22,10 +22,16 @@ function bibdk_reservation_form_bibdk_reservation_create_wizard_form_alter(&$for
 
 /** \brief Define an array with fields neede to create a new sb_user
  *
- * @return array 
+ * @return array
  */
 function bibdk_reservation_sb_kopi_new_user_fields() {
-  $new = array('bestil_kopi_cpr_number', 'bestil_kopi_firstname', 'bestil_kopi_lastname', 'bestil_kopi_e_mail');
+  $new = array(
+    'bestil_kopi_cpr_number',
+    'bestil_kopi_firstname',
+    'bestil_kopi_lastname',
+    'bestil_kopi_e_mail'
+  );
+
   return $new;
 }
 
@@ -35,13 +41,14 @@ function bibdk_reservation_sb_kopi_new_user_fields() {
  */
 function bibdk_reservation_sb_kopi_old_user_fields() {
   $old = array('pincode', 'userId');
+
   return $old;
 }
 
 /** \brief Custom validator for sb_kopi service
  *
  * @param type $form
- * @param type $form_state 
+ * @param type $form_state
  */
 function bibdk_reservation_sb_kopi_validate_wrapper($form, &$form_state) {
   // clear error messages
@@ -49,10 +56,11 @@ function bibdk_reservation_sb_kopi_validate_wrapper($form, &$form_state) {
   // pass var $type as reference to set type of sbkopiuser
   $errors = bibdk_reservation_sbkopi_validate($form, $form_state, $type);
   if (is_array($errors)) {
-    foreach ($errors as $field => $message)
+    foreach ($errors as $field => $message) {
       form_set_error($field, t($message, array(), array('context' => 'bibdk_reservation:error')));
+    }
   }
-  
+
   // set the type of user
   if (isset($type)) {
     BibdkReservationOrderObject::GetObject()->setSbKopiUser($type);
@@ -63,9 +71,9 @@ function bibdk_reservation_sb_kopi_validate_wrapper($form, &$form_state) {
  *
  * @param type $form
  * @param null $form_state
- * @return type 
+ * @return type
  */
-function bibdk_reservation_sbkopi_validate($form, &$form_state, &$type=NULL) {
+function bibdk_reservation_sbkopi_validate($form, &$form_state, &$type = NULL) {
   // $new represents a new user, $old represents an already registred user
   $new = bibdk_reservation_sb_kopi_new_user_fields();
   $old = bibdk_reservation_sb_kopi_old_user_fields();
@@ -81,7 +89,7 @@ function bibdk_reservation_sbkopi_validate($form, &$form_state, &$type=NULL) {
     }
   }
 
-// check if old has been filled out
+  // check if old has been filled out
   foreach ($new as $key) {
     if (!empty($form_state['values'][$key])) {
       continue;
@@ -93,9 +101,11 @@ function bibdk_reservation_sbkopi_validate($form, &$form_state, &$type=NULL) {
   }
 
   if (!$old && !$new) {
-    return array('field' => 'form', 'message' => 'sb_kopi_fill_out_the_form_please');
+    return array(
+      'field' => 'form',
+      'message' => 'sb_kopi_fill_out_the_form_please'
+    );
   }
-
 
   if (is_array($old) && is_array($new)) {
     // both forms has been filled out; use the one for already registred users ($old)
@@ -120,7 +130,10 @@ function bibdk_reservation_sbkopi_validate($form, &$form_state, &$type=NULL) {
     if (isset($form_state['values']['bestil_kopi_cpr_number'])) {
       // cpr should be numeric
       if (!is_numeric($form_state['values']['bestil_kopi_cpr_number'])) {
-        return array('bestil_kopi_cpr_numer', 'CPR-number needs to be a valid CPR-number');
+        return array(
+          'bestil_kopi_cpr_numer',
+          'CPR-number needs to be a valid CPR-number'
+        );
       }
     }
   }
@@ -153,7 +166,6 @@ function bibdk_reservation_sanitize_for_order_copy(&$form, $form_state) {
   );
   $form['userdata']['userParameters']['userfields']['wrapper']['already_member'] = $element;
 
-
   $element = array(
     '#type' => 'link',
     '#title' => t('forgot_sb_pasword', array(), array('context' => 'bibdk_reservation')),
@@ -177,6 +189,7 @@ function bibdk_reservation_sanitize_for_order_copy(&$form, $form_state) {
   _bibdk_reservation_sbkopi_set_elements($form, $form_state);
   bibdk_reservation_set_sbkopi_type_description($form, $form_state);
   bibdk_reservation_set_sbkopi_general_description($form, $form_state);
+
   return $form;
 }
 
@@ -186,7 +199,7 @@ function bibdk_reservation_set_sbkopi_general_description(&$form, $form_state) {
     '#weight' => 100,
     '#attributes' => array(
       'class' => array(drupal_html_class('sbkopi_description_container')),
-      ),
+    ),
   );
 
   $form['general_description']['text'] = array(
@@ -213,20 +226,20 @@ function bibdk_reservation_sbkopi_get_general_description_txt() {
 /** \brief Set a form element for displaying description text
  *
  * @param type $form
- * @param type $form_state 
+ * @param type $form_state
  */
 function bibdk_reservation_set_sbkopi_type_description(&$form, $form_state) {
   $form['manifestation']['#weight'] = -4;
-  $form['branchdata']['#weight'] = -2; 
+  $form['branchdata']['#weight'] = -2;
   $form['userdata']['#weight'] = -1;
-   
+
   $form['sb_kopi']['#weight'] = -3;
-  
+
   $form['sb_kopi']['type'] = array(
     '#type' => 'container',
-     '#attributes' => array(
+    '#attributes' => array(
       'class' => array(drupal_html_class('sbkopi_description_container')),
-      ),
+    ),
   );
   $form['sb_kopi']['type']['text'] = array(
     '#markup' => bibdk_reservation_sbkopi_get_description_txt(),
@@ -235,7 +248,7 @@ function bibdk_reservation_set_sbkopi_type_description(&$form, $form_state) {
 
 /** \brief Get a description of either printed or electronic copy
  *
- * @return type 
+ * @return type
  */
 function bibdk_reservation_sbkopi_get_description_txt() {
   $type = BibdkReservationOrderObject::GetObject()->getSbKopi();
@@ -257,7 +270,7 @@ function bibdk_reservation_sbkopi_get_description_txt() {
  * ordering Tidsskriftsartikler from statsbiblioteket
  *
  * @param type $form
- * @param type $form_state 
+ * @param type $form_state
  */
 function _bibdk_reservation_sbkopi_unset_elements(&$form, $form_state) {
   // do not show needbefore date 
@@ -275,12 +288,17 @@ function _bibdk_reservation_sbkopi_unset_elements(&$form, $form_state) {
  * Both cases are handled here.
  *
  * @param array $form
- * @param type $form_state 
+ * @param type $form_state
  */
 function _bibdk_reservation_sbkopi_set_elements(&$form, $form_state) {
   // add form elements for NOT members (visually_hidden)
   // cpr, firstname, lastname, e-mail
-  $bestil_kopi_elements = array('bestil_kopi_cpr_number', 'bestil_kopi_firstname', 'bestil_kopi_lastname', 'bestil_kopi_e_mail');
+  $bestil_kopi_elements = array(
+    'bestil_kopi_cpr_number',
+    'bestil_kopi_firstname',
+    'bestil_kopi_lastname',
+    'bestil_kopi_e_mail'
+  );
   // set toggle class
   $elements['kopi_bestil'] = array(
     '#type' => 'container',
@@ -297,12 +315,11 @@ function _bibdk_reservation_sbkopi_set_elements(&$form, $form_state) {
     '#weight' => -100,
   );
 
-  
   $elements['kopi_bestil']['help_no_member'] = array(
     '#type' => 'container',
     '#attributes' => array(
       'class' => array(drupal_html_class('sbkopi_description_container')),
-      ),
+    ),
   );
   $elements['kopi_bestil']['help_no_member']['text'] = array(
     '#markup' => t('sbkopi_help_new_member', array(), array('context' => 'bibdk_reservation_sb_kopi')),
@@ -334,6 +351,7 @@ function bibdk_reservation_sbkopi_parse_response($xml) {
   $dom = new DomDocument();
   if (!$dom->loadXML($xml)) {
     watchdog('bibdk_reservation', t('could not load response: %xml', array('%xml' => var_export($xml, TRUE))), array(), WATCHDOG_ERROR);
+
     return FALSE;
   }
   $xpath = new DomXPATH($dom);
@@ -345,7 +363,6 @@ function bibdk_reservation_sbkopi_parse_response($xml) {
   // UserPending
   // UserNotAccepted
   // UserExists
-
 
   $status = $nodelist->item(0)->nodeValue;
   switch ($status) {
@@ -382,15 +399,15 @@ function bibdk_reservation_sbkopi_parse_response($xml) {
 /** \brief get default value for user setting (sbselfpickup)
  *
  * @global type $user
- * @return boolean 
+ * @return boolean
  */
 function _bibdk_reservation_sbkopi_get_value() {
   return bibdk_usersettings_user_settings_get('bibdk_actions_sb_selfpickup', 0);
 }
 
 /** \brief Parse response from openuserinfo (@see bibdk_provider::user_get_setting)
- * @param $xml xml from request to openuserinfo 
- * @return array 
+ * @param $xml xml from request to openuserinfo
+ * @return array
  */
 function _bibdk_reservation_openuser_parse_userinfo($xml) {
   $xpath = _bibdk_reservation_load_userinfo($xml);
@@ -419,13 +436,14 @@ function _bibdk_reservation_openuser_parse_userinfo($xml) {
     }
   }
   $resonsevalue = isset($sbselfpickup['oui:settingType']) ? $sbselfpickup : FALSE;
+
   return $resonsevalue;
 }
 
 /** \brief Initialize an x-path object for handling given xml
  *
  * @param string $xml
- * @return \DomXPATH 
+ * @return \DomXPATH
  */
 function _bibdk_reservation_load_userinfo($xml) {
   $dom = new DomDocument();
@@ -433,9 +451,11 @@ function _bibdk_reservation_load_userinfo($xml) {
     if (variable_get('bibdk_provider_enable_logging')) {
       watchdog('_bibdk_reservation', t('BIBDK userinfo could not load response: %xml', array('%xml' => var_export($xml, TRUE))), array(), WATCHDOG_ERROR);
     }
+
     return array();
   }
   $xpath = new DomXPATH($dom);
   $xpath->registerNamespace('oui', 'http://oss.dbc.dk/ns/openuserinfo');
+
   return $xpath;
 }

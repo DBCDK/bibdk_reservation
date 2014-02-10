@@ -100,6 +100,9 @@ class BibdkReservationOrderObject {
     return $this->agency;
   }
 
+  /**
+   * @return TingClientAgencyBranch
+   */
   public function getBranch() {
     return $this->branch;
   }
@@ -111,6 +114,7 @@ class BibdkReservationOrderObject {
         $ret[$bibnr] = unserialize($favourite);
       }
     }
+
     return $ret;
   }
 
@@ -149,7 +153,7 @@ class BibdkReservationOrderObject {
   public function setOrderParameters($orderParameters) {
     $this->orderParameters = $orderParameters;
   }
-  
+
   public function setFields($fields) {
     $this->fields = $fields;
   }
@@ -160,7 +164,7 @@ class BibdkReservationOrderObject {
   public function getFields() {
     return $this->fields;
   }
-  
+
   public static function reset() {
     if (isset($_SESSION['orderobject'])) {
       unset($_SESSION['orderobject']);
@@ -174,6 +178,7 @@ class BibdkReservationOrderObject {
     if (!isset($_SESSION['orderobject'])) {
       self::SetObject();
     }
+
     return $_SESSION['orderobject'];
   }
 
@@ -184,6 +189,7 @@ class BibdkReservationOrderObject {
     if (!isset($_SESSION['orderobject'])) {
       $_SESSION['orderobject'] = new BibdkReservationOrderObject();
     }
+
     return $_SESSION['orderobject'];
   }
 }
