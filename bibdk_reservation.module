@@ -275,7 +275,7 @@ function _bibdk_reservation_set_login_message() {
     )
   ));
 
-  drupal_set_message(t('It would be better for you if you were logged in: !link', array('!link' => $loginlink), array('context' => 'bibdk_reservation')), 'notice', FALSE);
+  drupal_set_message(t('It would be better for you if you were logged in: !link', array('!link' => $loginlink), array('context' => 'bibdk_reservation')), 'status', FALSE);
 }
 
 /**
@@ -583,7 +583,7 @@ function bibdk_reservation_mail_send($params, $form_state) {
 
     $result = drupal_mail($module, $key, $to, $language, $params, $from, $send);
     if ($result['result'] == TRUE) {
-      drupal_set_message(t('Your mail message has been sent.', array('context' => 'bibdk_reservation')), $type = 'notice');
+      drupal_set_message(t('Your mail message has been sent.', array('context' => 'bibdk_reservation')), $type = 'status');
     }
     else {
       drupal_set_message(t('There was a problem sending your message and it was not sent.', array('context' => 'bibdk_reservation')), $type = 'error');
