@@ -156,6 +156,14 @@ function bibdk_reservation_get_favourites_for_selector() {
 
 /**
  * Get policy messages
+ *
+ * If users try to order at a consordia library, a custom message on how to order
+ * at an consortia library are generated
+ *
+ * else if there is a lookup url return link to that url
+ *
+ * else if there is an url to the catalog return that url
+ *
  * @param $policy_response
  * @return array
  */
@@ -163,15 +171,7 @@ function _bibdk_reservation_generate_policy_messages($policy_response) {
   $msgs = array();
   $lookup_url = current($policy_response->getLookUpUrl());
   $agencyId = $policy_response->getAgencyId();
-  /**
-   * If users try to order at a consordia library, a custom message on how to order
-   * at an consortia library are generated
-   *
-   * else if there is a lookup url return link to that url
-   *
-   * else if there is an url to the catalog return that url
-   *
-   */
+
   if ($policy_response->getOrderPossibleReason() == 'not_owned_accepted_by_consortia' && $lookup_url) {
     $msgs = bibdk_reservation_get_consortia_message($lookup_url['url'], $lookup_url['agencyId'], $agencyId);
   }
@@ -185,6 +185,7 @@ function _bibdk_reservation_generate_policy_messages($policy_response) {
     $link_text = bibdk_reservation_translate('link_to_local_library_catalogue_url');
     $msgs = bibdk_reservation_get_lookup_url_link_element($catalog_url, $link_text);
   }
+  
   return $msgs;
 }
 
