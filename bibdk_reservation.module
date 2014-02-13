@@ -275,7 +275,7 @@ function _bibdk_reservation_set_login_message() {
     )
   ));
 
-  drupal_set_message(t('It would be better for you if you were logged in: !link', array('!link' => $loginlink), array('context' => 'bibdk_reservation')), 'status', FALSE);
+  drupal_set_message(t('It would be better for you if you were logged in: !link', array('!link' => $loginlink), array('context' => 'bibdk_reservation')), 'warning', FALSE);
 }
 
 /**
