@@ -1,6 +1,7 @@
 <?php
 
 module_load_include('inc', 'bibdk_reservation', 'includes/bibdk_reservation_helpers');
+module_load_include('inc', 'bibdk_reservation', 'includes/bibdk_reservation.mail');
 module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_button');
 module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation.action');
 module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_form_step_1');
@@ -120,7 +121,7 @@ function theme_bibdk_reservation_consortia_message($variables) {
 
   // Generate link to consortia catalog
   $link_text = t('!consortia\'s catalog', array('!consortia' => $variables['consortia_name']), array('context' => 'bibdk_reservation'));
-  $consortia_link = drupal_render(bibdk_reservation_get_lookup_url_render_array($variables['url'], $link_text));
+  $consortia_link = drupal_render(bibdk_reservation_get_lookup_url_link_element($variables['url'], $link_text));
 
   // Generate message using consortia_name, branch_name and consortia_link
   $message = t('!agency does not have the material but is in a consortia with !consortia, which has the material. Therefore, you must order it at !link. Use your usual card (health insurance or library card) to !agency when you order.',
@@ -744,5 +745,3 @@ function bibdk_reservation_mail_user() {
   return NULL;
 
 }
-
-
