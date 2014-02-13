@@ -1,5 +1,6 @@
 <?php
 
+module_load_include('inc', 'bibdk_reservation', 'includes/bibdk_reservation_helpers');
 module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_button');
 module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation.action');
 module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_form_step_1');
@@ -104,7 +105,32 @@ function bibdk_reservation_theme() {
       'variables' => array('text', 'path', 'query', 'class', 'orderedOnce'),
       'template' => 'template/bibdk_reservation_order_any_btn_list_item',
     ),
+    'bibdk_reservation_consortia_message' => array(
+      'variables' => array('agency_name' => '', 'consortia_name' => '', 'url' => ''),
+    ),
   );
+}
+
+/**
+ * Theme message for consortia reservations
+ * @param $variables
+ * @return string
+ */
+function theme_bibdk_reservation_consortia_message($variables) {
+
+  // Generate link to consortia catalog
+  $link_text = t('!consortia\'s catalog', array('!consortia' => $variables['consortia_name']), array('context' => 'bibdk_reservation'));
+  $consortia_link = drupal_render(bibdk_reservation_get_lookup_url_render_array($variables['url'], $link_text));
+
+  // Generate message using consortia_name, branch_name and consortia_link
+  $message = t('!agency does not have the material but is in a consortia with !consortia, which has the material. Therefore, you must order it at !link. Use your usual card (health insurance or library card) to !agency when you order.',
+    array(
+      '!agency' => $variables['agency_name'],
+      '!link' => $consortia_link,
+      '!consortia' => $variables['consortia_name'],
+    ), array('context' => 'bibdk_reservation'));
+
+  return $message;
 }
 
 /**
@@ -361,7 +387,7 @@ function bibdk_reservation_wizard_previous_submit($form, &$form_state) {
     $form_state['step'] = $current_step;
   }
   if ($current_step == 1) {
-    // Always clear previous search string  
+    // Always clear previous search string
     $form_state['values']['anyField'] = '';
   }
   $form_state['rebuild'] = TRUE;
@@ -545,7 +571,7 @@ function bibdk_reservation_mail_form_submit($form, &$form_state) {
 
   bibdk_reservation_mail_send($params, $form_state);
 
-  //force rebuild form_state for step 4  
+  //force rebuild form_state for step 4
   $form_state['step'] = 4;
   $form_state['rebuild'] = TRUE;
 
