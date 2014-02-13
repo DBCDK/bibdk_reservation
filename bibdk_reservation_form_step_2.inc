@@ -166,20 +166,24 @@ function _bibdk_reservation_generate_policy_messages($policy_response) {
   /**
    * If users try to order at a consordia library, a custom message on how to order
    * at an consortia library are generated
+   *
+   * else if there is a lookup url return link to that url
+   *
+   * else if there is an url to the catalog return that url
+   *
    */
-  if ($policy_response->getOrderPossibleReason() == 'not_owned_accepted_by_consortia' && isset($lookup_url)) {
-    $msgs['lookUpUrl'] = bibdk_reservation_get_consortia_message($lookup_url['url'], $lookup_url['agencyId'], $agencyId);
+  if ($policy_response->getOrderPossibleReason() == 'not_owned_accepted_by_consortia' && $lookup_url) {
+    $msgs = bibdk_reservation_get_consortia_message($lookup_url['url'], $lookup_url['agencyId'], $agencyId);
   }
-  else if (isset($lookup_url)) {
+  else if ($lookup_url) {
     $query = array('url' => $lookup_url['url'], 'agency_id' => $agencyId);
     $link_text = bibdk_reservation_translate('link_to_local_library_lookup_url');
     $path = 'reservations/catalogue_url';
-    $msgs['lookUpUrl'] = bibdk_reservation_get_lookup_url_render_array($path, $link_text, $query);
+    $msgs = bibdk_reservation_get_lookup_url_link_element($path, $link_text, $query);
   }
-
   else if ($catalog_url = $policy_response->getAgencyCatalogueUrl()) {
     $link_text = bibdk_reservation_translate('link_to_local_library_catalogue_url');
-    $msgs['lookUpUrl'] = bibdk_reservation_get_lookup_url_render_array($catalog_url, $link_text);
+    $msgs = bibdk_reservation_get_lookup_url_link_element($catalog_url, $link_text);
   }
   return $msgs;
 }
@@ -218,7 +222,7 @@ function bibdk_reservation_get_consortia_message($url, $consortiaId, $branchId) 
  * @param array $query
  * @return array
  */
-function bibdk_reservation_get_lookup_url_render_array($path, $link_text, $query = array()) {
+function bibdk_reservation_get_lookup_url_link_element($path, $link_text, $query = array()) {
 
   return array(
     '#theme' => 'link',
@@ -232,7 +236,6 @@ function bibdk_reservation_get_lookup_url_render_array($path, $link_text, $query
       'html' => FALSE,
     ),
   );
-
 }
 
 
