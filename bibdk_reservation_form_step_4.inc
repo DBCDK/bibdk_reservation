@@ -23,12 +23,14 @@ function bibdk_reservation_form_step_4_form($form, &$form_state, $orderId) {
   // Render the same fields as on step 3
   $form = bibdk_reservation_form_step_3($form, $form_state);
 
+  $form['#attached']['js'] = array(
+    drupal_get_path('module', 'bibdk_reservation') . '/js/bibdk_reservation.js'
+  );
+
   return $form;
 }
 
 function bibdk_reservation_form_step_4_do_order() {
-  global $language;
-  $lang = $language->language;
   $params = array();
   $pids = BibdkReservationOrderObject::GetObject()->getManifestationIds();
   $userdata = BibdkReservationOrderObject::GetObject()->getUserOrderData();
@@ -60,15 +62,44 @@ function bibdk_reservation_form_step_4_do_order() {
     $result = array('error' => t('An error happened and the order could not be completed.', array(), array('context' => 'bibdk_reservation')));
   }
   else {
-    $msg = check_plain(BibdkReservationOrderObject::GetObject()->getBranch()->getIllOrderReceiptText($lang));
-    if ($msg != 'ting_agency_no_order_receipt_text') {
-      drupal_set_message($msg, 'status');
-    }
+    bibdk_reservation_set_confirm_message();
     $result = bibdk_reservation_form_step_4_handle_response($response);
     module_invoke_all('bibdk_reservation_complete', $pids, $result);
   }
 
   return $result;
+}
+
+function bibdk_reservation_set_confirm_message(){
+  global $language;
+  $IllOrderReceiptText = check_plain(BibdkReservationOrderObject::GetObject()->getBranch()->getIllOrderReceiptText($language->language));
+
+  $msg = '';
+  if($IllOrderReceiptText != 'ting_agency_no_order_receipt_text'){
+    $msg = $IllOrderReceiptText;
+  }
+
+  $link = _bibdk_reservation_get_userstatus_link();
+
+  if(!empty($msg) && !empty($link)){
+    $msg .= '<br />';
+  }
+
+  $msg .= $link;
+
+  dpm(BibdkReservationOrderObject::GetObject()->getBranch());
+
+  if (!empty($msg)) {
+    drupal_set_message($msg, 'status');
+  }
+}
+
+function _bibdk_reservation_get_userstatus_link() {
+
+
+  $link = l('hest', '<front>', array('attributes' => array('class' => array('redirect-parent'))));
+  $msg = t('your_can_watch_order_status_here: !link', array('!link' => $link), array('context' => 'bibdk_reserveration'));
+  return $msg;
 }
 
 function bibdk_reservation_form_step_4_handle_response($response) {
