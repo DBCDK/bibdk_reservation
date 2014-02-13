@@ -180,32 +180,42 @@ function bibdk_reservation_ajax_check_reservability($uid, $pids) {
   $infotext = array_unique($infotext);
 
   $class = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '', $id));
-  $commands = array();
   $selector = '.msg-' . $uid;
   $type = 'status';
 
   if (!$isReservable) {
     $path = '';
-    $text = t('not_possible_to_borrow_material', array(), array('context' => 'bibdk_reservation'));
     if (sizeof($infotext) > 0) {
-      $text = implode("<br />", $infotext);
+      $commands = _bibdk_reservation_render_commands($infotext, $selector);
     }
-    $commands = _bibdk_reservation_ajax_infotext($text, $type, $selector);
+    else {
+      $text = t('not_possible_to_borrow_material', array(), array('context' => 'bibdk_reservation'));
+      $commands = _bibdk_reservation_ajax_infotext($text, $type, $selector);
+    }
   }
   else {
     global $base_root, $base_path;
     $root_url = drupal_parse_url($base_root . $base_path . $language_prefix . 'reservation/');
     $path = $root_url['path'] . '?ids=' . $pids;
-    if (sizeof($infotext) > 0) {
-      $text = implode("<br />", $infotext);
-      $commands = _bibdk_reservation_ajax_infotext($text, $type, $selector);
-    }
+    $commands = _bibdk_reservation_render_commands($infotext, $selector);
   }
 
   $commands[] = bibdk_reservation_ajax_command($isReservable, $class, $path);
 
   $page = array('#type' => 'ajax', '#commands' => $commands);
   ajax_deliver($page);
+}
+
+function _bibdk_reservation_render_commands($infotext, $selector) {
+  $commands = array();
+  foreach ($infotext as $type => $text) {
+    if (sizeof($infotext) > 0) {
+      $text = implode("<br />", $text);
+      $commands = _bibdk_reservation_ajax_infotext($text, $type, $selector);
+    }
+  }
+
+  return $commands;
 }
 
 /**
@@ -224,18 +234,18 @@ function _ting_openformat_get_infotext($manifestations) {
     $infocode = $manifestation->getInfotext();
     if ($manifestation->isReservable()) {
       if ($infocode == 'picture7' || $infocode == 'picture11' || $infocode == 'picture15' || $infocode == 'usergroupC' || $infocode == 'usergroupE' || $infocode == 'noLendingLibraries' || $infocode == 'saleonly') {
-        $infotext[] = _bibdk_reservation_render_infotext($infocode);
+        $infotext['error'][] = _bibdk_reservation_render_infotext($infocode);
       }
     }
     else if ($infocode == 'link' || $infocode == 'plusLink' || $infocode == 'linkE17' || $infocode == 'restrictedAccess') {
       if ($infocode == 'restrictedAccess' && in_array('literature', $manifestation->getType()) && in_array('online', $manifestation->getType()) && $manifestation->isLink()) {
         //this is a non-borrowable ebook
-        $infotext[] = t('this_is_not_a_free_ebook', array(), array('context' => 'bibdk_reservation'));
+        $infotext['warning'][] = t('this_is_not_a_free_ebook', array(), array('context' => 'bibdk_reservation'));
       }
-      $infotext[] = _ting_openformat_render_direct_link($infocode, $manifestation);
+      $infotext['warning'][] = _ting_openformat_render_direct_link($infocode, $manifestation);
     }
     else {
-      $infotext[] = _bibdk_reservation_render_infotext($infocode);
+      $infotext['status'][] = _bibdk_reservation_render_infotext($infocode);
     }
   }
 
