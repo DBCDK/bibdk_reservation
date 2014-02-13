@@ -206,6 +206,13 @@ function bibdk_reservation_ajax_check_reservability($uid, $pids) {
   ajax_deliver($page);
 }
 
+/**
+ * Parses the $infotext array and combines strings ordered by message type
+ *
+ * @param $infotext
+ * @param $selector
+ * @return array
+ */
 function _bibdk_reservation_render_commands($infotext, $selector) {
   $commands = array();
   foreach ($infotext as $type => $text) {
