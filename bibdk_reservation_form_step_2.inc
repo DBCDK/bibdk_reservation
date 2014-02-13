@@ -64,7 +64,6 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
 
       return $form;
     }
-    $reason = $orderpolicy->getOrderPossibleReason();
     $msgs = _bibdk_reservation_generate_policy_messages($orderpolicy);
 
     if ($msgs) {
@@ -73,7 +72,11 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
       );
       $form['messages_wrapper']['messages'] = $msgs;
     }
-    form_set_error('bibdk_reservation_form_step_2', t($reason, array(), array('context' => 'bibdk_reservation:error')));
+
+    if ($reason = $orderpolicy->getOrderPossibleReason()){
+      if ($reason != 'not_owned_accepted_by_consortia')
+        form_set_error('bibdk_reservation_form_step_2', t($reason, array(), array('context' => 'bibdk_reservation:error')));
+    }
   }
 
   $sbkopi = BibdkReservationOrderObject::GetObject()->getSbKopi();
@@ -185,7 +188,7 @@ function _bibdk_reservation_generate_policy_messages($policy_response) {
     $link_text = bibdk_reservation_translate('link_to_local_library_catalogue_url');
     $msgs = bibdk_reservation_get_lookup_url_link_element($catalog_url, $link_text);
   }
-  
+
   return $msgs;
 }
 
