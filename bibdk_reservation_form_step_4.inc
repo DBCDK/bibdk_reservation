@@ -87,17 +87,30 @@ function bibdk_reservation_set_confirm_message(){
 
   $msg .= $link;
 
-  dpm(BibdkReservationOrderObject::GetObject()->getBranch());
-
   if (!empty($msg)) {
     drupal_set_message($msg, 'status');
   }
 }
 
 function _bibdk_reservation_get_userstatus_link() {
+  $pickUpAgency = BibdkReservationOrderObject::GetObject()->getBranch();
+  $ncipLookUpUser = $pickUpAgency->getNcipLookUpUser();
+  $msg = '';
 
+  if(empty($ncipLookUpUser)){
+    $userStatusUrl = $pickUpAgency->getUserStatusUrl();
+    if(!empty($userStatusUrl)){
+      $url = $userStatusUrl;
+    } else {
+      return $msg;
+    }
+  } else if(user_is_logged_in()){
+    $url = 'user/0/bibdk_openuserstatus';
+  } else {
+    return $msg;
+  }
 
-  $link = l('hest', '<front>', array('attributes' => array('class' => array('redirect-parent'))));
+  $link = l($url, $url, array('attributes' => array('class' => array('redirect-parent'))));
   $msg = t('your_can_watch_order_status_here: !link', array('!link' => $link), array('context' => 'bibdk_reserveration'));
   return $msg;
 }
