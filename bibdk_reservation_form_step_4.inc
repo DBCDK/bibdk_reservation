@@ -115,7 +115,12 @@ function _bibdk_reservation_get_userstatus_link() {
   return $msg;
 }
 
+/**
+ * @param $response
+ * @return array
+ */
 function bibdk_reservation_form_step_4_handle_response($response) {
+  $result = array();
   if (isset($response->placeOrderResponse->orderPlaced)) {
     $orderId = $response->placeOrderResponse->orderPlaced->orderId->{'$'};
     $result = array('orderId' => $orderId);
