@@ -110,6 +110,8 @@ function _bibdk_reservation_get_userstatus_link() {
     return $msg;
   }
 
+  //TODO mmj implement method in .helpers.inc that creates the link to ease unittesting
+
   $link = l($url, $url, array('attributes' => array('class' => array('redirect-parent'))));
   $msg = t('your_can_watch_order_status_here: !link', array('!link' => $link), array('context' => 'bibdk_reserveration'));
   return $msg;
