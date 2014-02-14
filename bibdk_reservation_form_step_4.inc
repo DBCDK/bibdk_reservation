@@ -79,7 +79,8 @@ function bibdk_reservation_set_confirm_message(){
     $msg = $IllOrderReceiptText;
   }
 
-  $link = _bibdk_reservation_get_userstatus_link();
+  $pickUpAgency = BibdkReservationOrderObject::GetObject()->getBranch();
+  $link = _bibdk_reservation_get_userstatus_link($pickUpAgency);
 
   if(!empty($msg) && !empty($link)){
     $msg .= '<br />';
@@ -96,10 +97,10 @@ function bibdk_reservation_set_confirm_message(){
  * Generates a message based on the the current users loginstatus and the
  * pickUpAgency's userstatuspolicy
  *
+ * @param TingClientAgencyBranch $pickUpAgency
  * @return null|string
  */
-function _bibdk_reservation_get_userstatus_link() {
-  $pickUpAgency = BibdkReservationOrderObject::GetObject()->getBranch();
+function _bibdk_reservation_get_userstatus_link($pickUpAgency) {
   $ncipLookUpUser = $pickUpAgency->getNcipLookUpUser();
   $msg = '';
 
