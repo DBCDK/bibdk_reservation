@@ -171,7 +171,7 @@ function bibdk_reservation_get_favourites_for_selector() {
  *
  * else if there is an url to the catalog return that url
  *
- * @param $policy_response
+ * @param BibdkOpenorderPolicyResponse $policy_response
  * @return array
  */
 function _bibdk_reservation_generate_policy_messages($policy_response) {
@@ -196,7 +196,6 @@ function _bibdk_reservation_generate_policy_messages($policy_response) {
   return $msgs;
 }
 
-
 /**
  * Returns a translated message with the following format
  *
@@ -206,7 +205,8 @@ function _bibdk_reservation_generate_policy_messages($policy_response) {
  *
  * @param $url
  * @param $consortiaId
- * @return null|string
+ * @param $branchId
+ * @return array
  */
 function bibdk_reservation_get_consortia_message($url, $consortiaId, $branchId) {
 
