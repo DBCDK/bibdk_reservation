@@ -64,15 +64,19 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
 
       return $form;
     }
-    $reason = $orderpolicy->getOrderPossibleReason();
-    $msgs = _bibdk_reservation_generate_policy_messages();
+    $msgs = _bibdk_reservation_generate_policy_messages($orderpolicy);
+
     if ($msgs) {
       $form['messages_wrapper'] = array(
         '#type' => 'fieldset',
       );
       $form['messages_wrapper']['messages'] = $msgs;
     }
-    form_set_error('bibdk_reservation_form_step_2', t($reason, array(), array('context' => 'bibdk_reservation:error')));
+
+    if ($reason = $orderpolicy->getOrderPossibleReason()){
+      if ($reason != 'not_owned_accepted_by_consortia')
+        form_set_error('bibdk_reservation_form_step_2', t($reason, array(), array('context' => 'bibdk_reservation:error')));
+    }
   }
 
   $sbkopi = BibdkReservationOrderObject::GetObject()->getSbKopi();
@@ -157,38 +161,91 @@ function bibdk_reservation_get_favourites_for_selector() {
   return $ret;
 }
 
-function _bibdk_reservation_generate_policy_messages() {
+/**
+ * Get policy messages
+ *
+ * If users try to order at a consordia library, a custom message on how to order
+ * at an consortia library are generated
+ *
+ * else if there is a lookup url return link to that url
+ *
+ * else if there is an url to the catalog return that url
+ *
+ * @param $policy_response
+ * @return array
+ */
+function _bibdk_reservation_generate_policy_messages($policy_response) {
   $msgs = array();
-  $lookup_url = BibdkOpenorderPolicyResponse::GetObject()->getLookUpUrl();
-  if (isset($lookup_url)) {
-    $agencyId = BibdkOpenorderPolicyResponse::GetObject()->getAgencyId();
-    $msgs['lookUpUrl'] = array(
-      '#theme' => 'link',
-      '#text' => t('link_to_local_library_lookup_url', array(), array('context' => 'bibdk_reservation')),
-      '#path' => 'reservations/catalogue_url',
-      '#options' => array(
-        'query' => array('url' => $lookup_url, 'agency_id' => $agencyId),
-        'attributes' => array(
-          'target' => '_blank',
-        ),
-        'html' => FALSE,
-      ),
-    );
+  $lookup_url = current($policy_response->getLookUpUrl());
+  $agencyId = $policy_response->getAgencyId();
+
+  if ($policy_response->getOrderPossibleReason() == 'not_owned_accepted_by_consortia' && $lookup_url) {
+    $msgs = bibdk_reservation_get_consortia_message($lookup_url['url'], $lookup_url['agencyId'], $agencyId);
   }
-  if (BibdkOpenorderPolicyResponse::GetObject()->getAgencyCatalogueUrl()) {
-    $msgs['lookUpUrl'] = array(
-      '#theme' => 'link',
-      '#text' => t('link_to_local_library_catalogue_url', array(), array('context' => 'bibdk_reservation')),
-      '#path' => BibdkOpenorderPolicyResponse::GetObject()->getAgencyCatalogueUrl(),
-      '#options' => array(
-        'attributes' => array(),
-        'html' => FALSE,
-      ),
-    );
+  else if ($lookup_url) {
+    $query = array('url' => $lookup_url['url'], 'agency_id' => $agencyId);
+    $link_text = bibdk_reservation_translate('link_to_local_library_lookup_url');
+    $path = 'reservations/catalogue_url';
+    $msgs = bibdk_reservation_get_lookup_url_link_element($path, $link_text, $query);
+  }
+  else if ($catalog_url = $policy_response->getAgencyCatalogueUrl()) {
+    $link_text = bibdk_reservation_translate('link_to_local_library_catalogue_url');
+    $msgs = bibdk_reservation_get_lookup_url_link_element($catalog_url, $link_text);
   }
 
   return $msgs;
 }
+
+
+/**
+ * Returns a translated message with the following format
+ *
+ * [Agency] does not have the material but is in a consortia with [Consortia],
+ * which has the material. Therefore, you must order it at [link to consortia catalog].
+ * Use your usual card (health insurance or library card) to [Agency] when you order.
+ *
+ * @param $url
+ * @param $consortiaId
+ * @return null|string
+ */
+function bibdk_reservation_get_consortia_message($url, $consortiaId, $branchId) {
+
+  // Get names for consortia and branch
+  $consortia_name = bibdk_reservation_get_branch_name_from_id($consortiaId);
+  $branch_name = bibdk_reservation_get_branch_name_from_id($branchId);
+
+  // Generate message for consortia catalog
+  return array(
+    '#theme' => 'bibdk_reservation_consortia_message',
+    '#agency_name' => $branch_name,
+    '#consortia_name' => $consortia_name,
+    '#url' => $url,
+  );
+}
+
+/**
+ * Generates a lookup url link
+ * @param $path
+ * @param $link_text
+ * @param array $query
+ * @return array
+ */
+function bibdk_reservation_get_lookup_url_link_element($path, $link_text, $query = array()) {
+
+  return array(
+    '#theme' => 'link',
+    '#text' => $link_text,
+    '#path' => $path,
+    '#options' => array(
+      'query' => $query,
+      'attributes' => array(
+        'target' => '_blank',
+      ),
+      'html' => FALSE,
+    ),
+  );
+}
+
 
 function bibdk_reservation_manifestation_form_fields($form, &$form_state) {
   $form = array(
