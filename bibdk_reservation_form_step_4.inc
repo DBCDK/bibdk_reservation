@@ -116,7 +116,7 @@ function _bibdk_reservation_get_userstatus_link() {
     return $msg;
   }
 
-  $link = bibdk_reservation_link($url, $url, array('attributes' => array('class' => array('redirect-parent'))));
+  $link = bibdk_reservation_get_link($url, $url, array('attributes' => array('class' => array('redirect-parent'))));
   $msg = bibdk_reservation_translate('your_can_watch_order_status_here: !link', array('!link' => $link));
   return $msg;
 }

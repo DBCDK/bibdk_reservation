@@ -8,7 +8,6 @@ module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_form_step_1')
 module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_form_step_2');
 module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_form_step_3');
 module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_form_step_4');
-module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_helpers');
 
 include_once 'bibdk_reservation_sb_kopi.inc';
 

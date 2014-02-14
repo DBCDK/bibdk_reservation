@@ -33,6 +33,6 @@ function bibdk_reservation_translate($string, $args = array(), $options = array(
  * @param array $options
  * @return string
  */
-function bibdk_reservation_link($text, $path, $options = array()){
+function bibdk_reservation_get_link($text, $path, $options = array()){
   return l($text, $path, $options);
 }
