@@ -103,22 +103,33 @@ function bibdk_reservation_set_confirm_message(){
 function _bibdk_reservation_get_userstatus_link($pickUpAgency) {
   $ncipLookUpUser = $pickUpAgency->getNcipLookUpUser();
   $msg = '';
+  $attributes = array(
+    'attributes' => array(
+      'class' => array(
+        'redirect-parent',
+      ),
+      'target' => array(
+        '_parent',
+      ),
+    ),
+  );
 
   if(empty($ncipLookUpUser)){
     $userStatusUrl = $pickUpAgency->getUserStatusUrl();
     if(!empty($userStatusUrl)){
       $url = $userStatusUrl;
+      $attributes['attributes']['target'][0] = '_blank';
     } else {
       return $msg;
     }
-  } else if(user_is_logged_in()){
+  } else if(bibdk_reservation_user_is_logged_in()){
     $url = 'user/0/bibdk_openuserstatus';
   } else {
     return $msg;
   }
 
-  $link = bibdk_reservation_get_link($url, $url, array('attributes' => array('class' => array('redirect-parent'))));
-  $msg = bibdk_reservation_translate('your_can_watch_order_status_here: !link', array('!link' => $link));
+  $link = bibdk_reservation_get_link(bibdk_reservation_translate('link_to_userstatus'), $url, $attributes);
+  $msg = bibdk_reservation_translate('you_can_watch_order_status_here: !link', array('!link' => $link));
   return $msg;
 }
 
