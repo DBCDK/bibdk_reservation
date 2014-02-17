@@ -36,3 +36,12 @@ function bibdk_reservation_translate($string, $args = array(), $options = array(
 function bibdk_reservation_get_link($text, $path, $options = array()){
   return l($text, $path, $options);
 }
+
+/**
+ * Helper function to determine ifthe current user is logged in
+ *
+ * @return bool
+ */
+function bibdk_reservation_user_is_logged_in(){
+  return user_is_logged_in();
+}
