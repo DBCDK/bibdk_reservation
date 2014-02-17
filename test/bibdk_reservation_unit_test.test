@@ -118,4 +118,48 @@ class BibdkReservationUnitTestCase extends DrupalUnitTestCase {
     // assert result
     $this->assertEqual($result, $expected_result, 'consortia theme array returned');
   }
+
+  public function test__bibdk_reservation_get_userstatus_link(){
+    module_load_include('inc', 'bibdk_reservation', 'test/mockup/bibdk_reservation_helpers_muckup');
+    module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_form_step_4');
+    module_load_include('php', 'bibdk_reservation', 'test/mockup/Objects/pickUpAgencyMockup');
+
+    //no ncipLookUpUser
+    $ncipLookUpUser = '';
+    $getUserStatusUrl = 'userstatus_url';
+
+    $PickUpAgency = new PickUpAgencyMockup();
+    $PickUpAgency->setNcipLookUpUser($ncipLookUpUser);
+    $PickUpAgency->setUserStatusUrl($getUserStatusUrl);
+
+    $msg = _bibdk_reservation_get_userstatus_link($PickUpAgency);
+    $this->assertEqual('you_can_watch_order_status_here: userstatus_url', $msg, 'Message returned');
+
+    //no ncipLookUpUser + nu url
+    $ncipLookUpUser = '';
+    $getUserStatusUrl = '';
+
+    $PickUpAgency->setNcipLookUpUser($ncipLookUpUser);
+    $PickUpAgency->setUserStatusUrl($getUserStatusUrl);
+
+    $msg = _bibdk_reservation_get_userstatus_link($PickUpAgency);
+    $this->assertTrue(empty($msg), 'Got empty message as expected');
+
+    //ncipLookUpUser is set & user is not logged in
+    $GLOBALS['bibdk_reservation_user_test'] = 0;
+    $ncipLookUpUser = 'not empty';
+
+    $PickUpAgency->setNcipLookUpUser($ncipLookUpUser);
+
+    $msg = _bibdk_reservation_get_userstatus_link($PickUpAgency);
+    $this->assertTrue(empty($msg), 'Got empty message as expected');
+
+    //ncipLookUpUser is set & user is logged in
+    $GLOBALS['bibdk_reservation_user_test'] = 1;
+    $ncipLookUpUser = 'not empty';
+
+    $PickUpAgency->setNcipLookUpUser($ncipLookUpUser);
+    $msg = _bibdk_reservation_get_userstatus_link($PickUpAgency);
+    $this->assertEqual('you_can_watch_order_status_here: user/0/bibdk_openuserstatus', $msg, 'Message returned');
+  }
 }
