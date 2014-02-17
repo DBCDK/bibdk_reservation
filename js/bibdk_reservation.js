@@ -4,12 +4,15 @@
   BibdkReservation.redirectToUserStatus = function(context) {
     $('.redirect-parent', context).click(function(event) {
       event.preventDefault();
-      if(opener != null) {
-        opener.location.href = $('.redirect-parent').attr('href');
+      var href = $(this).attr('href');
+      var target = $(this).attr('target');
+
+      if(window.opener != null) {
+        window.opener.open(href, target);
         close();
       }
       else {
-        location.href = $('.redirect-parent').attr('href');
+        window.open(href, target);
       }
     });
   };
