@@ -3,7 +3,6 @@
 //include field info for button and infotext
 module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation.field');
 
-
 /**
  * Returns a link for reservation flow.
  * If more than one pid is present in $entity_ids a button will be
@@ -183,7 +182,7 @@ function bibdk_reservation_ajax_check_reservability($uid, $pids) {
   $class = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '', $id));
   $commands = array();
   $selector = '.msg-' . $uid;
-  $type = 'notice';
+  $type = 'status';
 
   if (!$isReservable) {
     $path = '';

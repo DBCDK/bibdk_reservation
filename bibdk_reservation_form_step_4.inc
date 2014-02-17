@@ -1,8 +1,10 @@
 <?php
+
 function bibdk_reservation_form_step_4($form, &$form_state) {
 
   $orderId = BibdkReservationOrderObject::GetObject()->getOrderId();
-  return bibdk_reservation_form_step_4_form($form,$form_state, $orderId);
+
+  return bibdk_reservation_form_step_4_form($form, $form_state, $orderId);
 }
 
 function bibdk_reservation_form_step_4_form($form, &$form_state, $orderId) {
@@ -10,13 +12,13 @@ function bibdk_reservation_form_step_4_form($form, &$form_state, $orderId) {
   // render OrderID
   $form['orderId'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Your order is complete', array(), array('context'=>'bibdk_reservation')),
+    '#title' => t('Your order is complete', array(), array('context' => 'bibdk_reservation')),
     '#attributes' => array('class' => array('bottom-space')),
   );
 
   $form['orderId']['container']['markup'] = bibdk_reservation_convert_array_to_table(array(
-      t('Your order ID', array(), array('context'=>'bibdk_reservation')) => $orderId,
-    ));
+    t('Your order ID', array(), array('context' => 'bibdk_reservation')) => $orderId,
+  ));
 
   // Render the same fields as on step 3
   $form = bibdk_reservation_form_step_3($form, $form_state);
@@ -34,7 +36,7 @@ function bibdk_reservation_form_step_4_do_order() {
 
   $articleDirect = BibdkReservationOrderObject::GetObject()->getArticleDirect();
   if (!empty($articleDirect)) {
-    $params += array('articleDirect'=>'pickup');
+    $params += array('articleDirect' => 'pickup');
   }
 
   $params += (isset($userdata)) ? $userdata : array();
@@ -51,12 +53,15 @@ function bibdk_reservation_form_step_4_do_order() {
     $error = $response->placeOrderResponse->orderNotPlaced->placeOrderError->{'$'};
     $pid = BibdkReservationOrderObject::GetObject()->getManifestationIds();
     $pickUpAgencyId = BibdkReservationOrderObject::GetObject()->getBranchId();
-    watchdog('bibdk_reservation_form_step_4', 'openOrder responded with an error: ' . $error . '. pid: #pid agencyId: #agency', array('#pid' => $pid[0], '#agency' => $pickUpAgencyId), WATCHDOG_ERROR);
-    $result = array('error' => t('An error happened and the order could not be completed.', array(), array('context'=>'bibdk_reservation')));
+    watchdog('bibdk_reservation_form_step_4', 'openOrder responded with an error: ' . $error . '. pid: #pid agencyId: #agency', array(
+      '#pid' => $pid[0],
+      '#agency' => $pickUpAgencyId
+    ), WATCHDOG_ERROR);
+    $result = array('error' => t('An error happened and the order could not be completed.', array(), array('context' => 'bibdk_reservation')));
   }
   else {
     $msg = check_plain(BibdkReservationOrderObject::GetObject()->getBranch()->getIllOrderReceiptText($lang));
-    if ( $msg != 'ting_agency_no_order_receipt_text' ) {
+    if ($msg != 'ting_agency_no_order_receipt_text') {
       drupal_set_message($msg, 'status');
     }
     $result = bibdk_reservation_form_step_4_handle_response($response);
@@ -71,19 +76,21 @@ function bibdk_reservation_form_step_4_handle_response($response) {
     $orderId = $response->placeOrderResponse->orderPlaced->orderId->{'$'};
     $result = array('orderId' => $orderId);
     $type = BibdkReservationOrderObject::GetObject()->getManifestation()->getSubType();
-    if(strtolower($type) != 'avis' && strtolower($type) != 'tidsskrift'){
+    if (strtolower($type) != 'avis' && strtolower($type) != 'tidsskrift') {
       bibdk_reservation_form_step_4_register_pid();
     }
   }
+
   return $result;
 }
 
-function bibdk_reservation_form_step_4_register_pid(){
+function bibdk_reservation_form_step_4_register_pid() {
   $pid = BibdkReservationOrderObject::GetObject()->getManifestationIds();
 
-  if(array_key_exists('orderedPids', $_SESSION)){
+  if (array_key_exists('orderedPids', $_SESSION)) {
     $_SESSION['orderedPids'] = array_merge($_SESSION['orderedPids'], $pid);
-  } else {
+  }
+  else {
     $_SESSION['orderedPids'] = $pid;
   }
 }
