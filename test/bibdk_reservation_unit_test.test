@@ -60,4 +60,23 @@ class BibdkReservationUnitTestCase extends DrupalUnitTestCase {
   private function _checkReservability($manifestation) {
     return _ting_openformat_material_is_reservable(array($manifestation));
   }
+
+  public function test__bibdk_reservation_render_commands(){
+    $infotext = array(
+      'error' => array(
+        'error_message',
+      ),
+    );
+    $selector = 'css_selector';
+    $result = _bibdk_reservation_render_commands($infotext, $selector);
+
+    $this->assertTrue(is_array($result), 'Got array');
+    $this->assertEqual(3, count($result), 'Got array of length 3');
+
+    $this->assertEqual($result[1]['selector'], $selector, 'Found selector');
+    $this->assertTrue(!empty($result[1]['data']), 'Found some rendered stuff');
+
+    $result = _bibdk_reservation_render_commands(array(), $selector);
+    $this->assertTrue(empty($result), 'Got empty array');
+  }
 }

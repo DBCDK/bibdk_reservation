@@ -177,7 +177,14 @@ function bibdk_reservation_ajax_check_reservability($uid, $pids) {
   $isReservable = _ting_openformat_material_is_reservable($manifestations);
 
   $infotext = _ting_openformat_get_infotext($manifestations);
-  $infotext = array_unique($infotext);
+  /*foreach($infotext as &$type){
+    if(is_array($type)){
+      $type = array_unique($type);
+    }
+  }
+  #$infotext = array_unique($infotext);
+  fb($infotext);*/
+
 
   $class = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '', $id));
   $selector = '.msg-' . $uid;
@@ -201,25 +208,32 @@ function bibdk_reservation_ajax_check_reservability($uid, $pids) {
   }
 
   $commands[] = bibdk_reservation_ajax_command($isReservable, $class, $path);
-
   $page = array('#type' => 'ajax', '#commands' => $commands);
   ajax_deliver($page);
 }
 
 /**
- * Parses the $infotext array and combines strings ordered by message type
+ * Parses the $infotext array and combines strings ordered by message type.
+ * Returns an array of ajax commands for inserting the messages.
  *
- * @param $infotext
- * @param $selector
+ * @param array $infotext
+ * @param string $selector
  * @return array
  */
 function _bibdk_reservation_render_commands($infotext, $selector) {
   $commands = array();
+  drupal_get_messages();
   foreach ($infotext as $type => $text) {
-    if (sizeof($infotext) > 0) {
-      $text = implode("<br />", $text);
-      $commands = _bibdk_reservation_ajax_infotext($text, $type, $selector);
-    }
+      if (sizeof($text) > 0) {
+        $text = implode("<br />", $text);
+      }
+      drupal_set_message($text, $type);
+  }
+
+  if(!empty($_SESSION['messages'])){
+    $commands[] = ajax_command_invoke($selector, 'hide');
+    $commands[] = ajax_command_html($selector, theme('status_messages'));
+    $commands[] = ajax_command_invoke($selector, 'fadeIn', array(100));
   }
 
   return $commands;
@@ -252,7 +266,7 @@ function _ting_openformat_get_infotext($manifestations) {
       $infotext['warning'][] = _ting_openformat_render_direct_link($infocode, $manifestation);
     }
     else {
-      $infotext['status'][] = _bibdk_reservation_render_infotext($infocode);
+      $infotext['warning'][] = _bibdk_reservation_render_infotext($infocode);
     }
   }
 
