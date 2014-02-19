@@ -515,14 +515,9 @@ function bibdk_reservation_catalog_callback() {
 
 /**
  * Submit form for sendmail button
- *
- * <<<<<<< HEAD
+
  * @param array $form
  * @param array $form_state
-=======
- * @param $form
- * @param $form_state
->>>>>>> feature/1276_order-login
  */
 function bibdk_reservation_mail_form_submit($form, &$form_state) {
 
