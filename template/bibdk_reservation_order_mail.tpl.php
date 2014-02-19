@@ -16,9 +16,7 @@
 
   print "\n\n"; print $manifestation; print "\n\n";
 
-  foreach ($title as $list) :
-    print $list; print "\n";
-  endforeach;
+  print $title . "\n";
 
   print "\n"; print $branch; print "\n";
   print "\n"; print $branchtext;
