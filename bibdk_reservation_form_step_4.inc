@@ -123,7 +123,8 @@ function _bibdk_reservation_get_userstatus_link($pickUpAgency) {
       return $msg;
     }
   } else if(bibdk_reservation_user_is_logged_in()){
-    $url = 'user/0/bibdk_openuserstatus';
+    global $user;
+    $url = 'user/' . $user->uid . '/bibdk_openuserstatus';
   } else {
     return $msg;
   }
