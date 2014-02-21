@@ -92,7 +92,8 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
   return $form;
 }
 
-/** \brief Hidden field to determine whether favourite has changed
+/**
+ * Hidden field to determine whether favourite has changed
  *
  * @return array; form element hidden
  */
@@ -105,8 +106,10 @@ function bibdk_reservation_hidden_favourite() {
   );
 }
 
-/** \brief Array for AcceptOrderFromUnknownUserText
+/**
+ * Array for AcceptOrderFromUnknownUserText
  *
+ * @param $AcceptOrderFromUnknownUserText
  * @return array; form element
  */
 function bibdk_reservation_accept_order_from_unknown($AcceptOrderFromUnknownUserText) {
@@ -116,7 +119,8 @@ function bibdk_reservation_accept_order_from_unknown($AcceptOrderFromUnknownUser
   );
 }
 
-/** \ brief Dropdown list to select another favourite library
+/**
+ * Dropdown list to select another favourite library
  *
  * @return array; form element dropdown box
  */
@@ -132,14 +136,14 @@ function bibdk_reservation_favourite_selector() {
 
   return array(
     '#type' => 'select',
-    //'#title' =>
     '#options' => $options,
     '#default_value' => 0,
     '#attributes' => array('class' => array(drupal_html_class('reservation_favourite_selector'))),
   );
 }
 
-/** \brief Get options for favourite select list
+/**
+ * Get options for favourite select list
  *
  * @return array; [agencyId]=>[branchName]
  */
@@ -167,7 +171,11 @@ function bibdk_reservation_get_favourites_for_selector() {
  *
  * else if there is an url to the catalog return that url
  *
+<<<<<<< HEAD
  * @param $policy_response
+=======
+ * @param BibdkOpenorderPolicyResponse $policy_response
+>>>>>>> feature/681_userstatus
  * @return array
  */
 function _bibdk_reservation_generate_policy_messages($policy_response) {
@@ -192,7 +200,6 @@ function _bibdk_reservation_generate_policy_messages($policy_response) {
   return $msgs;
 }
 
-
 /**
  * Returns a translated message with the following format
  *
@@ -202,7 +209,8 @@ function _bibdk_reservation_generate_policy_messages($policy_response) {
  *
  * @param $url
  * @param $consortiaId
- * @return null|string
+ * @param $branchId
+ * @return array
  */
 function bibdk_reservation_get_consortia_message($url, $consortiaId, $branchId) {
 
@@ -344,7 +352,6 @@ function bibdk_reservation_step_2_order_branch_fields($form, $form_state) {
   $moreinfo = theme('ting_agency_more_info', array(
     'branch' => $branch,
     'openingHours' => theme('ting_agency_opening_hours', array('branch' => $branch,)),
-    //'tools' => theme('ting_agency_tools', array('branch' => $branch)),
     'address' => theme('ting_agency_address', array('branch' => $branch)),
     'contact' => theme('ting_agency_contact', array('branch' => $branch)),
   ));
@@ -411,7 +418,6 @@ function bibdk_reservation_form_step_2_already_ordered() {
  * Implements hook_form_validate
  * Validate user input
  */
-
 function bibdk_reservation_form_step_2_validate(&$form, &$form_state) {
   //TODO: move to ting_agency
 

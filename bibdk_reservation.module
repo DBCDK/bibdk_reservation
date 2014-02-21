@@ -539,4 +539,3 @@ function bibdk_reservation_catalog_callback() {
     drupal_goto($url);
   }
 }
-

@@ -22,7 +22,7 @@ class BibdkReservationUnitTestCase extends DrupalUnitTestCase {
   }
 
   public function test_bibdk_reservation_mail_get_title() {
-    module_load_include('php', 'bibdk_reservation', 'test/mockup/objects/Manifestation_mockup');
+    module_load_include('php', 'bibdk_reservation', 'test/mockup/Objects/Manifestation_mockup');
     module_load_include('inc', 'bibdk_reservation', 'includes/bibdk_reservation.mail');
 
     $manifestation = new Manifestation_mockup();
@@ -59,8 +59,10 @@ class BibdkReservationUnitTestCase extends DrupalUnitTestCase {
     return _ting_openformat_material_is_reservable(array($manifestation));
   }
 
+
   public function test__bibdk_reservation_generate_policy_messages() {
     module_load_include('inc', 'bibdk_reservation', 'test/mockup/bibdk_reservation_helpers_muckup');
+    module_load_include('php', 'bibdk_reservation', 'test/mockup/Objects/policyResponseMuckup');
     module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_form_step_2');
 
     /** test no policy message **/
@@ -116,32 +118,48 @@ class BibdkReservationUnitTestCase extends DrupalUnitTestCase {
     // assert result
     $this->assertEqual($result, $expected_result, 'consortia theme array returned');
   }
-}
 
+  public function test__bibdk_reservation_get_userstatus_link(){
+    module_load_include('inc', 'bibdk_reservation', 'test/mockup/bibdk_reservation_helpers_muckup');
+    module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_form_step_4');
+    module_load_include('php', 'bibdk_reservation', 'test/mockup/Objects/pickUpAgencyMockup');
 
-/**
- * Class policyResponseMuckup
- * Mockup class to test _bibdk_reservation_generate_policy_messages
- */
-class PolicyResponseMockup {
+    //no ncipLookUpUser
+    $ncipLookUpUser = '';
+    $getUserStatusUrl = 'userstatus_url';
 
-  public $lookUpUrl = array(), $agencyId, $orderPossibleReason, $agencyCatalogueUrl;
+    $PickUpAgency = new PickUpAgencyMockup();
+    $PickUpAgency->setNcipLookUpUser($ncipLookUpUser);
+    $PickUpAgency->setUserStatusUrl($getUserStatusUrl);
 
-  public function getLookUpUrl() {
-    return $this->lookUpUrl;
+    $msg = _bibdk_reservation_get_userstatus_link($PickUpAgency);
+    $this->assertEqual('you_can_watch_order_status_here: userstatus_url', $msg, 'Message returned');
 
+    //no ncipLookUpUser + nu url
+    $ncipLookUpUser = '';
+    $getUserStatusUrl = '';
+
+    $PickUpAgency->setNcipLookUpUser($ncipLookUpUser);
+    $PickUpAgency->setUserStatusUrl($getUserStatusUrl);
+
+    $msg = _bibdk_reservation_get_userstatus_link($PickUpAgency);
+    $this->assertTrue(empty($msg), 'Got empty message as expected');
+
+    //ncipLookUpUser is set & user is not logged in
+    $GLOBALS['bibdk_reservation_user_test'] = 0;
+    $ncipLookUpUser = 'not empty';
+
+    $PickUpAgency->setNcipLookUpUser($ncipLookUpUser);
+
+    $msg = _bibdk_reservation_get_userstatus_link($PickUpAgency);
+    $this->assertTrue(empty($msg), 'Got empty message as expected');
+
+    //ncipLookUpUser is set & user is logged in
+    $GLOBALS['bibdk_reservation_user_test'] = 1;
+    $ncipLookUpUser = 'not empty';
+
+    $PickUpAgency->setNcipLookUpUser($ncipLookUpUser);
+    $msg = _bibdk_reservation_get_userstatus_link($PickUpAgency);
+    $this->assertEqual('you_can_watch_order_status_here: user/0/bibdk_openuserstatus', $msg, 'Message returned');
   }
-
-  public function getAgencyCatalogueUrl() {
-    return $this->agencyCatalogueUrl;
-  }
-
-  public function getOrderPossibleReason() {
-    return $this->orderPossibleReason;
-  }
-
-  public function getAgencyId() {
-    return $this->agencyId;
-  }
-
 }
