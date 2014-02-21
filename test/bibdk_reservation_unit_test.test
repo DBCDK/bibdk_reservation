@@ -59,7 +59,6 @@ class BibdkReservationUnitTestCase extends DrupalUnitTestCase {
     return _ting_openformat_material_is_reservable(array($manifestation));
   }
 
-
   public function test__bibdk_reservation_generate_policy_messages() {
     module_load_include('inc', 'bibdk_reservation', 'test/mockup/bibdk_reservation_helpers_muckup');
     module_load_include('php', 'bibdk_reservation', 'test/mockup/Objects/policyResponseMuckup');
@@ -161,5 +160,24 @@ class BibdkReservationUnitTestCase extends DrupalUnitTestCase {
     $PickUpAgency->setNcipLookUpUser($ncipLookUpUser);
     $msg = _bibdk_reservation_get_userstatus_link($PickUpAgency);
     $this->assertEqual('you_can_watch_order_status_here: user/0/bibdk_openuserstatus', $msg, 'Message returned');
+  }
+
+  public function test__bibdk_reservation_render_commands(){
+    $infotext = array(
+      'error' => array(
+        'error_message',
+      ),
+    );
+    $selector = 'css_selector';
+    $result = _bibdk_reservation_render_commands($infotext, $selector);
+
+    $this->assertTrue(is_array($result), 'Got array');
+    $this->assertEqual(3, count($result), 'Got array of length 3');
+
+    $this->assertEqual($result[1]['selector'], $selector, 'Found selector');
+    $this->assertTrue(!empty($result[1]['data']), 'Found some rendered stuff');
+
+    $result = _bibdk_reservation_render_commands(array(), $selector);
+    $this->assertTrue(empty($result), 'Got empty array');
   }
 }
