@@ -93,6 +93,9 @@ class BibdkReservationOrderObject {
     return unserialize($this->favourite);
   }
 
+  /**
+   * @return TingAgency
+   */
   public function getAgency() {
     return $this->agency;
   }

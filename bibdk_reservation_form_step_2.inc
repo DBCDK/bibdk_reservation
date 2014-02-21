@@ -54,7 +54,9 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
       }
     }
     $form['userdata'] = bibdk_reservation_step_2_user_form_fields(array(), $form_state);
-    $form['manifestation_userdata'] = bibdk_reservation_step_2_order_form_fields(array(), $form_state);
+    if($manifestation->getSpecifyArticleData()){
+      $form['manifestation_userdata'] = bibdk_reservation_step_2_order_form_fields(array(), $form_state);
+    }
     $form['manifestation']['date'] = bibdk_reservation_step_2_permanent_fields(array());
   }
   else {
@@ -296,16 +298,13 @@ function bibdk_reservation_step_2_user_form_fields($form, $form_state) {
  */
 function bibdk_reservation_step_2_order_form_fields($form, $form_state) {
   $manifestation = BibdkReservationOrderObject::GetObject()->getManifestation();
-  // Quickfix to make sure no Order Fields are present for articles.
-  if ($manifestation->getSubType() == 'Tidsskriftsartikel' || $manifestation->getSubType() == 'Avisartikel') {
-    return NULL;
-  }
+
   $valid_fields = bibdk_reservation_get_agency_fields();
   if (empty($valid_fields)) {
     return $form;
   }
 
-  $fields = bibdk_reservation_get_agency_fields()->getOrderParametersForType($manifestation->getOrsOrderMaterialType());
+  $fields = $valid_fields->getOrderParametersForType($manifestation->getOrsOrderMaterialType());
   if (!isset($fields)) {
     return $form;
   }
@@ -318,6 +317,7 @@ function bibdk_reservation_step_2_order_form_fields($form, $form_state) {
     '#type' => 'markup',
     '#markup' => t('Description for Order Parameters', array(), array('context' => 'bibdk_reservation')),
   );
+
   foreach ($fields as $itemParameter) {
     $type = $itemParameter['type'];
     $form['orderParameters'][$type] = array(
@@ -686,7 +686,6 @@ function bibdk_reservation_borchk_parse_response($response, $acceptOrderFromUnkn
     case 'service unavailable' :
     case 'borrowercheck_not_allowed' :
     default :
-      //watchdog(WATCHDOG_ERROR, 'Unknown response from openOrder', array('response' => $response));
       if ($acceptOrderAgencyOffline) {
         $message['status'] = t('We could not check your status', array(), array('context' => 'bibdk_reservation'));
       }
@@ -702,9 +701,10 @@ function bibdk_reservation_borchk_parse_response($response, $acceptOrderFromUnkn
 /**
  * Get fields required by Agency
  *
- * @return
+ * @return AgencyFields
  */
 function bibdk_reservation_get_agency_fields() {
+
   $agency = BibdkReservationOrderObject::GetObject()->getAgency();
   if (!is_object($agency)) {
     return NULL;
