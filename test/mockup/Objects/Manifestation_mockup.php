@@ -5,6 +5,7 @@
  */
 class Manifestation_mockup {
 
+  public $bibdk_order;
   public function getTitleSpecific() {
     return $this->_getTitle();
   }
@@ -17,8 +18,7 @@ class Manifestation_mockup {
    * @return bool|string
    */
   private function _getTitle() {
-    global $bibdk_order;
-    switch ($bibdk_order) {
+    switch ($this->bibdk_order) {
       case 'titleSpecfic':
         return 'TITLESPECIFIC_RETURN';
         break;
@@ -33,4 +33,4 @@ class Manifestation_mockup {
         break;
     }
   }
-} 
+}

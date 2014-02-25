@@ -23,12 +23,14 @@ function bibdk_reservation_form_step_4_form($form, &$form_state, $orderId) {
   // Render the same fields as on step 3
   $form = bibdk_reservation_form_step_3($form, $form_state);
 
+  $form['#attached']['js'] = array(
+    drupal_get_path('module', 'bibdk_reservation') . '/js/bibdk_reservation.js'
+  );
+
   return $form;
 }
 
 function bibdk_reservation_form_step_4_do_order() {
-  global $language;
-  $lang = $language->language;
   $params = array();
   $pids = BibdkReservationOrderObject::GetObject()->getManifestationIds();
   $userdata = BibdkReservationOrderObject::GetObject()->getUserOrderData();
@@ -60,10 +62,7 @@ function bibdk_reservation_form_step_4_do_order() {
     $result = array('error' => t('An error happened and the order could not be completed.', array(), array('context' => 'bibdk_reservation')));
   }
   else {
-    $msg = check_plain(BibdkReservationOrderObject::GetObject()->getBranch()->getIllOrderReceiptText($lang));
-    if ($msg != 'ting_agency_no_order_receipt_text') {
-      drupal_set_message($msg, 'status');
-    }
+    bibdk_reservation_set_confirm_message();
     $result = bibdk_reservation_form_step_4_handle_response($response);
     module_invoke_all('bibdk_reservation_complete', $pids, $result);
   }
@@ -71,7 +70,76 @@ function bibdk_reservation_form_step_4_do_order() {
   return $result;
 }
 
+function bibdk_reservation_set_confirm_message(){
+  global $language;
+  $IllOrderReceiptText = check_plain(BibdkReservationOrderObject::GetObject()->getBranch()->getIllOrderReceiptText($language->language));
+
+  $msg = '';
+  if($IllOrderReceiptText != 'ting_agency_no_order_receipt_text'){
+    $msg = $IllOrderReceiptText;
+  }
+
+  $pickUpAgency = BibdkReservationOrderObject::GetObject()->getBranch();
+  $link = _bibdk_reservation_get_userstatus_link($pickUpAgency);
+
+  if(!empty($msg) && !empty($link)){
+    $msg .= '<br />';
+  }
+
+  $msg .= $link;
+
+  if (!empty($msg)) {
+    drupal_set_message($msg, 'status');
+  }
+}
+
+/**
+ * Generates a message based on the the current users loginstatus and the
+ * pickUpAgency's userstatuspolicy
+ *
+ * @param TingClientAgencyBranch $pickUpAgency
+ * @return null|string
+ */
+function _bibdk_reservation_get_userstatus_link($pickUpAgency) {
+  $ncipLookUpUser = $pickUpAgency->getNcipLookUpUser();
+  $msg = '';
+  $attributes = array(
+    'attributes' => array(
+      'class' => array(
+        'redirect-parent',
+      ),
+      'target' => array(
+        '_parent',
+      ),
+    ),
+  );
+
+  if(empty($ncipLookUpUser)){
+    $userStatusUrl = $pickUpAgency->getUserStatusUrl();
+    if(!empty($userStatusUrl)){
+      $url = $userStatusUrl;
+      $attributes['attributes']['target'][0] = '_blank';
+    } else {
+      return $msg;
+    }
+  } else if(bibdk_reservation_user_is_logged_in()){
+    global $user;
+    $url = 'user/' . $user->uid . '/bibdk_openuserstatus';
+  } else {
+    return $msg;
+  }
+
+  $link = bibdk_reservation_get_link(bibdk_reservation_translate('link_to_userstatus'), $url, $attributes);
+  $msg = bibdk_reservation_translate('you_can_watch_order_status_here: !link', array('!link' => $link));
+  return $msg;
+}
+
+/**
+ * @param $response
+ * @return array
+ */
 function bibdk_reservation_form_step_4_handle_response($response) {
+  $result = array();
   if (isset($response->placeOrderResponse->orderPlaced)) {
     $orderId = $response->placeOrderResponse->orderPlaced->orderId->{'$'};
     $result = array('orderId' => $orderId);

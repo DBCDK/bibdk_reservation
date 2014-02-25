@@ -54,7 +54,9 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
       }
     }
     $form['userdata'] = bibdk_reservation_step_2_user_form_fields(array(), $form_state);
-    $form['manifestation_userdata'] = bibdk_reservation_step_2_order_form_fields(array(), $form_state);
+    if($manifestation->getSpecifyArticleData()){
+      $form['manifestation_userdata'] = bibdk_reservation_step_2_order_form_fields(array(), $form_state);
+    }
     $form['manifestation']['date'] = bibdk_reservation_step_2_permanent_fields(array());
   }
   else {
@@ -64,15 +66,19 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
 
       return $form;
     }
-    $reason = $orderpolicy->getOrderPossibleReason();
-    $msgs = _bibdk_reservation_generate_policy_messages();
+    $msgs = _bibdk_reservation_generate_policy_messages($orderpolicy);
+
     if ($msgs) {
       $form['messages_wrapper'] = array(
         '#type' => 'fieldset',
       );
       $form['messages_wrapper']['messages'] = $msgs;
     }
-    form_set_error('bibdk_reservation_form_step_2', t($reason, array(), array('context' => 'bibdk_reservation:error')));
+
+    if ($reason = $orderpolicy->getOrderPossibleReason()){
+      if ($reason != 'not_owned_accepted_by_consortia')
+        form_set_error('bibdk_reservation_form_step_2', t($reason, array(), array('context' => 'bibdk_reservation:error')));
+    }
   }
 
   $sbkopi = BibdkReservationOrderObject::GetObject()->getSbKopi();
@@ -88,7 +94,8 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
   return $form;
 }
 
-/** \brief Hidden field to determine whether favourite has changed
+/**
+ * Hidden field to determine whether favourite has changed
  *
  * @return array; form element hidden
  */
@@ -101,8 +108,10 @@ function bibdk_reservation_hidden_favourite() {
   );
 }
 
-/** \brief Array for AcceptOrderFromUnknownUserText
+/**
+ * Array for AcceptOrderFromUnknownUserText
  *
+ * @param $AcceptOrderFromUnknownUserText
  * @return array; form element
  */
 function bibdk_reservation_accept_order_from_unknown($AcceptOrderFromUnknownUserText) {
@@ -112,7 +121,8 @@ function bibdk_reservation_accept_order_from_unknown($AcceptOrderFromUnknownUser
   );
 }
 
-/** \ brief Dropdown list to select another favourite library
+/**
+ * Dropdown list to select another favourite library
  *
  * @return array; form element dropdown box
  */
@@ -128,14 +138,14 @@ function bibdk_reservation_favourite_selector() {
 
   return array(
     '#type' => 'select',
-    //'#title' =>
     '#options' => $options,
     '#default_value' => 0,
     '#attributes' => array('class' => array(drupal_html_class('reservation_favourite_selector'))),
   );
 }
 
-/** \brief Get options for favourite select list
+/**
+ * Get options for favourite select list
  *
  * @return array; [agencyId]=>[branchName]
  */
@@ -153,40 +163,95 @@ function bibdk_reservation_get_favourites_for_selector() {
   return $ret;
 }
 
-function _bibdk_reservation_generate_policy_messages() {
+/**
+ * Get policy messages
+ *
+ * If users try to order at a consordia library, a custom message on how to order
+ * at an consortia library are generated
+ *
+ * else if there is a lookup url return link to that url
+ *
+ * else if there is an url to the catalog return that url
+ *
+<<<<<<< HEAD
+ * @param $policy_response
+=======
+ * @param BibdkOpenorderPolicyResponse $policy_response
+>>>>>>> feature/681_userstatus
+ * @return array
+ */
+function _bibdk_reservation_generate_policy_messages($policy_response) {
   $msgs = array();
-  $lookup_url = BibdkOpenorderPolicyResponse::GetObject()->getLookUpUrl();
-  if (isset($lookup_url)) {
-    $agencyId = BibdkOpenorderPolicyResponse::GetObject()->getAgencyId();
-    $msgs['lookUpUrl'] = array(
-      '#theme' => 'link',
-      '#text' => t('link_to_local_library_lookup_url', array(), array('context' => 'bibdk_reservation')),
-      '#path' => 'reservations/catalogue_url',
-      '#options' => array(
-        'query' => array('url' => $lookup_url, 'agency_id' => $agencyId),
-        'attributes' => array(
-          'target' => '_blank',
-        ),
-        'html' => FALSE,
-      ),
-    );
-  }
-  if (BibdkOpenorderPolicyResponse::GetObject()->getAgencyCatalogueUrl()) {
-    $msgs['lookUpUrl'] = array(
-      '#theme' => 'link',
-      '#text' => t('link_to_local_library_catalogue_url', array(), array('context' => 'bibdk_reservation')),
-      '#path' => BibdkOpenorderPolicyResponse::GetObject()->getAgencyCatalogueUrl(),
-      '#options' => array(
-        'attributes' => array(),
-        'html' => FALSE,
-      ),
-    );
-  }
+  $lookup_url = current($policy_response->getLookUpUrl());
+  $agencyId = $policy_response->getAgencyId();
 
-  $order_condition = BibdkOpenorderPolicyResponse::GetObject()->getOrderCondition();
+  if ($policy_response->getOrderPossibleReason() == 'not_owned_accepted_by_consortia' && $lookup_url) {
+    $msgs = bibdk_reservation_get_consortia_message($lookup_url['url'], $lookup_url['agencyId'], $agencyId);
+  }
+  else if ($lookup_url) {
+    $query = array('url' => $lookup_url['url'], 'agency_id' => $agencyId);
+    $link_text = bibdk_reservation_translate('link_to_local_library_lookup_url');
+    $path = 'reservations/catalogue_url';
+    $msgs = bibdk_reservation_get_lookup_url_link_element($path, $link_text, $query);
+  }
+  else if ($catalog_url = $policy_response->getAgencyCatalogueUrl()) {
+    $link_text = bibdk_reservation_translate('link_to_local_library_catalogue_url');
+    $msgs = bibdk_reservation_get_lookup_url_link_element($catalog_url, $link_text);
+  }
 
   return $msgs;
 }
+
+/**
+ * Returns a translated message with the following format
+ *
+ * [Agency] does not have the material but is in a consortia with [Consortia],
+ * which has the material. Therefore, you must order it at [link to consortia catalog].
+ * Use your usual card (health insurance or library card) to [Agency] when you order.
+ *
+ * @param $url
+ * @param $consortiaId
+ * @param $branchId
+ * @return array
+ */
+function bibdk_reservation_get_consortia_message($url, $consortiaId, $branchId) {
+
+  // Get names for consortia and branch
+  $consortia_name = bibdk_reservation_get_branch_name_from_id($consortiaId);
+  $branch_name = bibdk_reservation_get_branch_name_from_id($branchId);
+
+  // Generate message for consortia catalog
+  return array(
+    '#theme' => 'bibdk_reservation_consortia_message',
+    '#agency_name' => $branch_name,
+    '#consortia_name' => $consortia_name,
+    '#url' => $url,
+  );
+}
+
+/**
+ * Generates a lookup url link
+ * @param $path
+ * @param $link_text
+ * @param array $query
+ * @return array
+ */
+function bibdk_reservation_get_lookup_url_link_element($path, $link_text, $query = array()) {
+
+  return array(
+    '#theme' => 'link',
+    '#text' => $link_text,
+    '#path' => $path,
+    '#options' => array(
+      'query' => $query,
+      'attributes' => array(
+        'target' => '_blank',
+      ),
+      'html' => FALSE,
+    ),
+  );
+}
+
 
 function bibdk_reservation_manifestation_form_fields($form, &$form_state) {
   $form = array(
@@ -233,16 +298,13 @@ function bibdk_reservation_step_2_user_form_fields($form, $form_state) {
  */
 function bibdk_reservation_step_2_order_form_fields($form, $form_state) {
   $manifestation = BibdkReservationOrderObject::GetObject()->getManifestation();
-  // Quickfix to make sure no Order Fields are present for articles.
-  if ($manifestation->getSubType() == 'Tidsskriftsartikel' || $manifestation->getSubType() == 'Avisartikel') {
-    return NULL;
-  }
+
   $valid_fields = bibdk_reservation_get_agency_fields();
   if (empty($valid_fields)) {
     return $form;
   }
 
-  $fields = bibdk_reservation_get_agency_fields()->getOrderParametersForType($manifestation->getOrsOrderMaterialType());
+  $fields = $valid_fields->getOrderParametersForType($manifestation->getOrsOrderMaterialType());
   if (!isset($fields)) {
     return $form;
   }
@@ -255,6 +317,7 @@ function bibdk_reservation_step_2_order_form_fields($form, $form_state) {
     '#type' => 'markup',
     '#markup' => t('Description for Order Parameters', array(), array('context' => 'bibdk_reservation')),
   );
+
   foreach ($fields as $itemParameter) {
     $type = $itemParameter['type'];
     $form['orderParameters'][$type] = array(
@@ -289,7 +352,6 @@ function bibdk_reservation_step_2_order_branch_fields($form, $form_state) {
   $moreinfo = theme('ting_agency_more_info', array(
     'branch' => $branch,
     'openingHours' => theme('ting_agency_opening_hours', array('branch' => $branch,)),
-    //'tools' => theme('ting_agency_tools', array('branch' => $branch)),
     'address' => theme('ting_agency_address', array('branch' => $branch)),
     'contact' => theme('ting_agency_contact', array('branch' => $branch)),
   ));
@@ -356,7 +418,6 @@ function bibdk_reservation_form_step_2_already_ordered() {
  * Implements hook_form_validate
  * Validate user input
  */
-
 function bibdk_reservation_form_step_2_validate(&$form, &$form_state) {
   //TODO: move to ting_agency
 
@@ -625,7 +686,6 @@ function bibdk_reservation_borchk_parse_response($response, $acceptOrderFromUnkn
     case 'service unavailable' :
     case 'borrowercheck_not_allowed' :
     default :
-      //watchdog(WATCHDOG_ERROR, 'Unknown response from openOrder', array('response' => $response));
       if ($acceptOrderAgencyOffline) {
         $message['status'] = t('We could not check your status', array(), array('context' => 'bibdk_reservation'));
       }
@@ -641,9 +701,10 @@ function bibdk_reservation_borchk_parse_response($response, $acceptOrderFromUnkn
 /**
  * Get fields required by Agency
  *
- * @return
+ * @return AgencyFields
  */
 function bibdk_reservation_get_agency_fields() {
+
   $agency = BibdkReservationOrderObject::GetObject()->getAgency();
   if (!is_object($agency)) {
     return NULL;
