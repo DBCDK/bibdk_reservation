@@ -177,14 +177,6 @@ function bibdk_reservation_ajax_check_reservability($uid, $pids) {
   $isReservable = _ting_openformat_material_is_reservable($manifestations);
 
   $infotext = _ting_openformat_get_infotext($manifestations);
-  /*foreach($infotext as &$type){
-    if(is_array($type)){
-      $type = array_unique($type);
-    }
-  }
-  #$infotext = array_unique($infotext);
-  fb($infotext);*/
-
 
   $class = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '', $id));
   $selector = '.msg-' . $uid;
@@ -224,13 +216,13 @@ function _bibdk_reservation_render_commands($infotext, $selector) {
   $commands = array();
   drupal_get_messages();
   foreach ($infotext as $type => $text) {
-      if (sizeof($text) > 0) {
-        $text = implode("<br />", $text);
-      }
-      drupal_set_message($text, $type);
+    if (sizeof($text) > 0) {
+      $text = implode("<br />", $text);
+    }
+    drupal_set_message($text, $type);
   }
 
-  if(!empty($_SESSION['messages'])){
+  if (!empty($_SESSION['messages'])) {
     $commands[] = ajax_command_invoke($selector, 'hide');
     $commands[] = ajax_command_html($selector, theme('status_messages'));
     $commands[] = ajax_command_invoke($selector, 'fadeIn', array(100));
@@ -250,9 +242,16 @@ function _bibdk_reservation_render_commands($infotext, $selector) {
  */
 function _ting_openformat_get_infotext($manifestations) {
   $infotext = array();
+  $messages = array();
+  
   /* @var $manifestation Manifestation */
   foreach ($manifestations as $manifestation) {
     $infocode = $manifestation->getInfotext();
+    #fb($infocode);
+    $messageCategory = $manifestation->getMessageCategory();
+    #fb($messageCategory);
+    $messages[$messageCategory][] = $infocode;
+    /*
     if ($manifestation->isReservable()) {
       if ($infocode == 'picture7' || $infocode == 'picture11' || $infocode == 'picture15' || $infocode == 'usergroupC' || $infocode == 'usergroupE' || $infocode == 'noLendingLibraries' || $infocode == 'saleonly') {
         $infotext['error'][] = _bibdk_reservation_render_infotext($infocode);
@@ -267,6 +266,34 @@ function _ting_openformat_get_infotext($manifestations) {
     }
     else {
       $infotext['warning'][] = _bibdk_reservation_render_infotext($infocode);
+    } */
+  }
+
+  fb($messages);
+
+  ksort($messages);
+  $toDisplay = reset($messages);
+
+  $specialnotes = array(
+    'link' => 'status',
+    'plusLink' => 'status',
+    'linkE17' => 'warning',
+    'restrictedAccess' => 'warning',
+    'noAccess' => 'error',
+  );
+
+  foreach ($toDisplay as $infocode) {
+    fb($infocode);
+
+    //Handling online materials
+    if (array_key_exists($infocode, $specialnotes)) {
+      $type = $specialnotes[$infocode];
+      fb($type, 'type');
+      if ($infocode == 'restrictedAccess' && in_array('literature', $manifestation->getType()) && in_array('online', $manifestation->getType()) && $manifestation->isLink()) {
+        //this is a non-borrowable ebook
+        $infotext['warning'][] = t('this_is_not_a_free_ebook', array(), array('context' => 'bibdk_reservation'));
+      }
+      $infotext[$type][] = _ting_openformat_render_direct_link($infocode, $manifestation);
     }
   }
 
