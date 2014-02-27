@@ -159,7 +159,8 @@ class BibdkReservationUnitTestCase extends DrupalUnitTestCase {
 
     $PickUpAgency->setNcipLookUpUser($ncipLookUpUser);
     $msg = _bibdk_reservation_get_userstatus_link($PickUpAgency);
-    $this->assertEqual('you_can_watch_order_status_here: user/0/bibdk_openuserstatus', $msg, 'Message returned');
+    global $user;
+    $this->assertEqual('you_can_watch_order_status_here: user/' . $user->uid . '/bibdk_openuserstatus', $msg, 'Message returned');
   }
 
   public function test__bibdk_reservation_render_commands(){
