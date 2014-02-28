@@ -327,8 +327,7 @@ function _ting_openformat_material_is_reservable($manifestations) {
  */
 function _ting_openformat_render_direct_link($infocode, $manifestation) {
   $links = _bibdk_reservation_get_access_links($manifestation);
-  //TODO mmj use helpers to ease unittesting
-  $message = t("$infocode !links", array('!links' => $links), array('context' => 'bibdk_reservation'), array('attributes' => array('target' => '_blank')));
+  $message = bibdk_reservation_translate("$infocode !links", array('!links' => $links));
 
   return $message;
 }
