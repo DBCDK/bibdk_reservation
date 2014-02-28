@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * unit tests for bibdk_reservation
+ */
 
 class BibdkReservationUnitTestCase extends DrupalUnitTestCase {
 
@@ -59,7 +63,7 @@ class BibdkReservationUnitTestCase extends DrupalUnitTestCase {
     return _ting_openformat_material_is_reservable(array($manifestation));
   }
 
-  public function test__bibdk_reservation_generate_policy_messages() {
+  public function _test__bibdk_reservation_generate_policy_messages() {
     module_load_include('inc', 'bibdk_reservation', 'test/mockup/bibdk_reservation_helpers_muckup');
     module_load_include('php', 'bibdk_reservation', 'test/mockup/Objects/policyResponseMuckup');
     module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_form_step_2');
@@ -118,7 +122,7 @@ class BibdkReservationUnitTestCase extends DrupalUnitTestCase {
     $this->assertEqual($result, $expected_result, 'consortia theme array returned');
   }
 
-  public function test__bibdk_reservation_get_userstatus_link(){
+  public function _test__bibdk_reservation_get_userstatus_link() {
     module_load_include('inc', 'bibdk_reservation', 'test/mockup/bibdk_reservation_helpers_muckup');
     module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_form_step_4');
     module_load_include('php', 'bibdk_reservation', 'test/mockup/Objects/pickUpAgencyMockup');
@@ -162,7 +166,7 @@ class BibdkReservationUnitTestCase extends DrupalUnitTestCase {
     $this->assertEqual('you_can_watch_order_status_here: user/0/bibdk_openuserstatus', $msg, 'Message returned');
   }
 
-  public function test__bibdk_reservation_render_commands(){
+  public function _test__bibdk_reservation_render_commands() {
     $infotext = array(
       'error' => array(
         'error_message',

@@ -16,11 +16,11 @@ include_once 'bibdk_reservation_sb_kopi.inc';
  */
 function bibdk_reservation_menu() {
   $items['reservation'] = array(
-    'title' => t('Make reservation', array(), array('context' => 'bibdk_reservation')),
+    'title' => 'Make reservation',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('bibdk_reservation_create_wizard_form'),
     'access callback' => TRUE,
-    'description' => t('Make reservation in 4 steps', array(), array('context' => 'bibdk_reservation')),
+    'description' => 'Make reservation in 4 steps',
   );
 
   // ajax call for for checking reservability
@@ -223,7 +223,7 @@ function bibdk_reservation_create_wizard_form($form, &$form_state) {
   $next_step_active = FALSE;
   $total_steps = count($form_state['step_information']);
 
-  if ( isset($next_step) && $next_step <= $total_steps && !isset($form_state['blocked']) ) { # && $step != 2) {
+  if ( isset($next_step) && $next_step <= $total_steps && !isset($form_state['blocked']) ) {
     $next_step_active = TRUE;
     // The Next button should be included on every step
     $form['navigation']['next'] = array(
@@ -511,7 +511,7 @@ function bibdk_reservation_step_guide($form, &$form_state, $current_step) {
     if ($step < $current_step) {
       $classes = array('active');
     }
-    else if ($step == $current_step || $current_step == 4) {
+    elseif ($step == $current_step || $current_step == 4) {
       $classes = array('btn-grey', 'btn');
     } // These classes is just for test - should be replaced with current
     // Create step button for $step

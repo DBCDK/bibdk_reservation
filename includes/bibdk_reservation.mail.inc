@@ -135,7 +135,7 @@ function _bibdk_reservation_mail_get_title($manifestation) {
   if (!empty($titleSpecific)) {
     return ' - ' . $titleSpecific;
   }
-  else if (!empty($title)) {
+  elseif (!empty($title)) {
     return ' - ' . $title;
   }
   else {

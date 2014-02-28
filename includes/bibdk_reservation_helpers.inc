@@ -9,8 +9,8 @@
  * @param $agencyId
  * @return null
  */
-function bibdk_reservation_get_branch_name_from_id($agencyId){
-  $consortia = new TingAgency($agencyId);
+function bibdk_reservation_get_branch_name_from_id($agency_id) {
+  $consortia = new TingAgency($agency_id);
   return $consortia->getBranch()->agencyName;
 }
 
@@ -33,7 +33,7 @@ function bibdk_reservation_translate($string, $args = array(), $options = array(
  * @param array $options
  * @return string
  */
-function bibdk_reservation_get_link($text, $path, $options = array()){
+function bibdk_reservation_get_link($text, $path, $options = array()) {
   return l($text, $path, $options);
 }
 
@@ -42,6 +42,6 @@ function bibdk_reservation_get_link($text, $path, $options = array()){
  *
  * @return bool
  */
-function bibdk_reservation_user_is_logged_in(){
+function bibdk_reservation_user_is_logged_in() {
   return user_is_logged_in();
 }
