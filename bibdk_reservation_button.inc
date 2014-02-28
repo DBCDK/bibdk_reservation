@@ -176,7 +176,7 @@ function bibdk_reservation_ajax_check_reservability($uid, $pids) {
 
   $isReservable = _ting_openformat_material_is_reservable($manifestations);
 
-  $infotext = _ting_openformat_get_infotext($manifestations);
+  $infotext = _bibdk_reservation_get_infotext($manifestations);
 
   $class = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '', $id));
   $selector = '.msg-' . $uid;
@@ -240,7 +240,7 @@ function _bibdk_reservation_render_commands($infotext, $selector) {
  * @internal ManifestationMaster $manifestation
  * @return array
  */
-function _ting_openformat_get_infotext($manifestations) {
+function _bibdk_reservation_get_infotext($manifestations) {
   $infotext = array();
   $messages = array();
 
