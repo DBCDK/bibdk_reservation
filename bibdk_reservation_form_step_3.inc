@@ -13,6 +13,7 @@ function bibdk_reservation_form_step_3($form, &$form_state) {
   $manifestation = BibdkReservationOrderObject::GetObject()->getManifestation();
   $form['manifestation'] = bibdk_reservation_render_custom_manifestation_view($manifestation);
 
+dpm($form);
   //render branch
   $branch = BibdkReservationOrderObject::GetObject()->getBranch();
   $form['branchdata'] = bibdk_reservation_render_custom_branch_view($branch, $form_state); //bibdk_reservation_step_2_order_branch_fields(array(), $form_state);
@@ -100,13 +101,24 @@ function bibdk_reservation_render_custom_branch_view($branch, $form_state) {
   );
 
   if ($form_state['step'] == 2) {
-    $form['branchParameters']['chg_lib_btn'] = array(
-      '#type' => 'submit',
-      '#value' => t('Pick another library', array(), array('context' => 'bibdk_reservation')),
-      '#submit' => array('bibdk_reservation_wizard_previous_submit'),
-      '#limit_validation_errors' => array(),
-      '#attributes' => array('class' => array('button-as-link')),
+    foreach (drupal_get_query_parameters() as $key => $value) {
+      $params[] = $key . '=' . $value;
+    }
+    $form['branchParameters']['chg_lib_link'] = array(
+      '#theme' => 'link',
+      '#text' => t('Pick another library', array(), array('context' => 'bibdk_reservation')),
+      '#path' => 'reservation/?' . implode('&', $params),
+      '#options' => array(
+        'attributes' => array(
+          'id' => drupal_html_id('chg_lib_link'),
+          drupal_get_query_parameters(),
+        ),
+        'html' => FALSE,
+      ),
+      '#prefix' => '<div class="chg-lib-link">',
+      '#suffix' => '</div>',
     );
+
   }
 
   return $form;

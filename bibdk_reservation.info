@@ -31,3 +31,4 @@ files[] = test/mockup/bibdk_reservation_helpers_muckup.inc
 
 scripts[] = js/check_reservability.js
 scripts[] = js/sbCopySwitchMe.js
+scripts[] = js/bibdk_reservation.js

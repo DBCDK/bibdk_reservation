@@ -23,10 +23,6 @@ function bibdk_reservation_form_step_4_form($form, &$form_state, $orderId) {
   // Render the same fields as on step 3
   $form = bibdk_reservation_form_step_3($form, $form_state);
 
-  $form['#attached']['js'] = array(
-    drupal_get_path('module', 'bibdk_reservation') . '/js/bibdk_reservation.js'
-  );
-
   return $form;
 }
 
