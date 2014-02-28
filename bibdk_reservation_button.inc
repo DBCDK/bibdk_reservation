@@ -243,36 +243,13 @@ function _bibdk_reservation_render_commands($infotext, $selector) {
 function _ting_openformat_get_infotext($manifestations) {
   $infotext = array();
   $messages = array();
-  
+
   /* @var $manifestation Manifestation */
   foreach ($manifestations as $manifestation) {
     $infocode = $manifestation->getInfotext();
-    #fb($infocode);
     $messageCategory = $manifestation->getMessageCategory();
-    #fb($messageCategory);
     $messages[$messageCategory][] = $infocode;
-    /*
-    if ($manifestation->isReservable()) {
-      if ($infocode == 'picture7' || $infocode == 'picture11' || $infocode == 'picture15' || $infocode == 'usergroupC' || $infocode == 'usergroupE' || $infocode == 'noLendingLibraries' || $infocode == 'saleonly') {
-        $infotext['error'][] = _bibdk_reservation_render_infotext($infocode);
-      }
-    }
-    else if ($infocode == 'link' || $infocode == 'plusLink' || $infocode == 'linkE17' || $infocode == 'restrictedAccess') {
-      if ($infocode == 'restrictedAccess' && in_array('literature', $manifestation->getType()) && in_array('online', $manifestation->getType()) && $manifestation->isLink()) {
-        //this is a non-borrowable ebook
-        $infotext['warning'][] = t('this_is_not_a_free_ebook', array(), array('context' => 'bibdk_reservation'));
-      }
-      $infotext['warning'][] = _ting_openformat_render_direct_link($infocode, $manifestation);
-    }
-    else {
-      $infotext['warning'][] = _bibdk_reservation_render_infotext($infocode);
-    } */
   }
-
-  fb($messages);
-
-  ksort($messages);
-  $toDisplay = reset($messages);
 
   $specialnotes = array(
     'link' => 'status',
@@ -282,22 +259,48 @@ function _ting_openformat_get_infotext($manifestations) {
     'noAccess' => 'error',
   );
 
-  foreach ($toDisplay as $infocode) {
-    fb($infocode);
+  ksort($messages);
+  $type = _bibdk_reservation_get_message_type(key($messages));
+  $toDisplay = reset($messages);
 
+  foreach ($toDisplay as $infocode) {
     //Handling online materials
     if (array_key_exists($infocode, $specialnotes)) {
       $type = $specialnotes[$infocode];
-      fb($type, 'type');
       if ($infocode == 'restrictedAccess' && in_array('literature', $manifestation->getType()) && in_array('online', $manifestation->getType()) && $manifestation->isLink()) {
         //this is a non-borrowable ebook
         $infotext['warning'][] = t('this_is_not_a_free_ebook', array(), array('context' => 'bibdk_reservation'));
       }
       $infotext[$type][] = _ting_openformat_render_direct_link($infocode, $manifestation);
+    } else {
+      $infotext[$type][] = _bibdk_reservation_render_infotext($infocode);
     }
   }
 
   return $infotext;
+}
+
+/**
+ * Returns the appropriate type of message based on the given index param
+ * @param int $index
+ * @return string
+ */
+function _bibdk_reservation_get_message_type($index) {
+  switch ($index) {
+    case 1:
+      return 'status';
+      break;
+    case 2:
+      return 'warning';
+      break;
+    case 3:
+    case 4:
+      return 'error';
+      break;
+    default:
+      return 'status';
+      break;
+  }
 }
 
 /**
@@ -324,6 +327,7 @@ function _ting_openformat_material_is_reservable($manifestations) {
  */
 function _ting_openformat_render_direct_link($infocode, $manifestation) {
   $links = _bibdk_reservation_get_access_links($manifestation);
+  //TODO mmj use helpers to ease unittesting
   $message = t("$infocode !links", array('!links' => $links), array('context' => 'bibdk_reservation'), array('attributes' => array('target' => '_blank')));
 
   return $message;
