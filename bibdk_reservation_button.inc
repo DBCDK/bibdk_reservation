@@ -262,6 +262,7 @@ function _bibdk_reservation_get_infotext($manifestations) {
   ksort($messages);
   $type = _bibdk_reservation_get_message_type(key($messages));
   $toDisplay = reset($messages);
+  $toDisplay = array_unique($toDisplay);
 
   foreach ($toDisplay as $infocode) {
     //Handling online materials
