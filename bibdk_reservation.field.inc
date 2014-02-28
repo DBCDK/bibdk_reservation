@@ -112,7 +112,8 @@ function bibdk_reservation_field_formatter_view($entity_type, $entity, $field, $
  */
 function _bibdk_reservation_render_infotext($string) {
   $message = NULL;
-  if(!empty($string)){
+  if(!empty($string)) {
+    //TODO mmj move t() method to helpers to ease unittesting
     $message = t("drupal_text_" . $string, array(), array('context' => 'bibdk_reservation'));
   }
   return $message;
