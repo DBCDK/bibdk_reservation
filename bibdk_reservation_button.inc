@@ -270,9 +270,10 @@ function _bibdk_reservation_get_infotext($manifestations) {
       $type = $specialnotes[$infocode];
       if ($infocode == 'restrictedAccess' && in_array('literature', $manifestation->getType()) && in_array('online', $manifestation->getType()) && $manifestation->isLink()) {
         //this is a non-borrowable ebook
-        $infotext['warning'][] = t('this_is_not_a_free_ebook', array(), array('context' => 'bibdk_reservation'));
+        $infotext['warning'][] = bibdk_reservation_translate('this_is_not_a_free_ebook');
+      } else {
+        $infotext[$type][] = _ting_openformat_render_direct_link($infocode, $manifestation);
       }
-      $infotext[$type][] = _ting_openformat_render_direct_link($infocode, $manifestation);
     } else {
       $infotext[$type][] = _bibdk_reservation_render_infotext($infocode);
     }
