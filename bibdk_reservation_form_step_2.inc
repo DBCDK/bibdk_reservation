@@ -215,18 +215,19 @@ function _bibdk_reservation_generate_policy_messages($policy_response) {
  * @return array
  */
 function bibdk_reservation_get_consortia_message($url, $consortiaId, $branchId) {
-
   // Get names for consortia and branch
   $consortia_name = bibdk_reservation_get_branch_name_from_id($consortiaId);
-  $branch_name = bibdk_reservation_get_branch_name_from_id($branchId);
+  $branch_name = bibdk_reservation_get_branch_name_from_id($branchId,'short');
 
   // Generate message for consortia catalog
-  return array(
+  //return array(
+  $ret = array(
     '#theme' => 'bibdk_reservation_consortia_message',
     '#agency_name' => $branch_name,
     '#consortia_name' => $consortia_name,
     '#url' => $url,
   );
+  return $ret;
 }
 
 /**
