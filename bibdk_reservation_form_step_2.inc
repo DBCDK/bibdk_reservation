@@ -220,14 +220,12 @@ function bibdk_reservation_get_consortia_message($url, $consortiaId, $branchId) 
   $branch_name = bibdk_reservation_get_branch_name_from_id($branchId,'short');
 
   // Generate message for consortia catalog
-  //return array(
-  $ret = array(
+  return array(
     '#theme' => 'bibdk_reservation_consortia_message',
     '#agency_name' => $branch_name,
     '#consortia_name' => $consortia_name,
     '#url' => $url,
   );
-  return $ret;
 }
 
 /**
