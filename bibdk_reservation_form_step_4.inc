@@ -41,6 +41,14 @@ function bibdk_reservation_form_step_4_do_order() {
     $params += array('articleDirect' => 'pickup');
   }
 
+  if(count(BibdkReservationOrderObject::GetObject()->getManifestationIds()) > 1){
+    $exactEdition = 'false';
+  }
+  else{
+    $exactEdition = 'true';
+  }
+  $params += array('exactEdition' => $exactEdition);
+
   $params += (isset($userdata)) ? $userdata : array();
   $params += (isset($orderdata)) ? $orderdata : array();
   $params += array(
