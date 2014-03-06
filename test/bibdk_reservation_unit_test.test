@@ -122,7 +122,7 @@ class BibdkReservationUnitTestCase extends DrupalUnitTestCase {
     $this->assertEqual($result, $expected_result, 'consortia theme array returned');
   }
 
-  public function _test__bibdk_reservation_get_userstatus_link() {
+  public function test__bibdk_reservation_get_userstatus_link() {
     module_load_include('inc', 'bibdk_reservation', 'test/mockup/bibdk_reservation_helpers_muckup');
     module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_form_step_4');
     module_load_include('php', 'bibdk_reservation', 'test/mockup/Objects/pickUpAgencyMockup');
