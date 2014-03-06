@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Functions for reservation buttons
+ */
 
 //include field info for button and infotext
 module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation.field');
@@ -129,14 +133,12 @@ function _bibdk_reservation_create_type_button($type, $ids, $uid) {
   $attributes['class'][] = 'use-ajax';
   $attributes['id'][] = 'any_edtion_order_' . $class;
 
-  $orderedOnceWork = FALSE;
-
   $link = theme('bibdk_reservation_order_any_btn_list_item', array(
     'text' => $text,
     'path' => $path,
     'query' => $query,
     'class' => $class,
-    'orderedOnce' => $orderedOnceWork,
+    'orderedOnce' => FALSE,
   ));
 
   return $link;
@@ -171,10 +173,10 @@ function bibdk_reservation_ajax_check_reservability($uid, $pids) {
   $ids = explode(',', $pids);
   $id = $ids[0];
 
-  $bibdkWorkEntity = ting_openformat_get_manifestations($ids);
-  $manifestations = $bibdkWorkEntity[$id]->getManifestations();
+  $bibdk_work_entity = ting_openformat_get_manifestations($ids);
+  $manifestations = $bibdk_work_entity[$id]->getManifestations();
 
-  $isReservable = _ting_openformat_material_is_reservable($manifestations);
+  $is_reservable = _ting_openformat_material_is_reservable($manifestations);
 
   $infotext = _ting_openformat_get_infotext($manifestations);
   /*foreach($infotext as &$type){
@@ -190,9 +192,10 @@ function bibdk_reservation_ajax_check_reservability($uid, $pids) {
   $selector = '.msg-' . $uid;
   $type = 'status';
 
-  if (!$isReservable) {
+  if (!$is_reservable) {
     $path = '';
     if (sizeof($infotext) > 0) {
+      drupal_get_messages(); // flush queue
       $commands = _bibdk_reservation_render_commands($infotext, $selector);
     }
     else {
@@ -204,10 +207,11 @@ function bibdk_reservation_ajax_check_reservability($uid, $pids) {
     global $base_root, $base_path;
     $root_url = drupal_parse_url($base_root . $base_path . $language_prefix . 'reservation/');
     $path = $root_url['path'] . '?ids=' . $pids;
+    drupal_get_messages(); // flush queue
     $commands = _bibdk_reservation_render_commands($infotext, $selector);
   }
 
-  $commands[] = bibdk_reservation_ajax_command($isReservable, $class, $path);
+  $commands[] = bibdk_reservation_ajax_command($is_reservable, $class, $path);
   $page = array('#type' => 'ajax', '#commands' => $commands);
   ajax_deliver($page);
 }
@@ -222,7 +226,6 @@ function bibdk_reservation_ajax_check_reservability($uid, $pids) {
  */
 function _bibdk_reservation_render_commands($infotext, $selector) {
   $commands = array();
-  drupal_get_messages();
   foreach ($infotext as $type => $text) {
       if (sizeof($text) > 0) {
         $text = implode("<br />", $text);

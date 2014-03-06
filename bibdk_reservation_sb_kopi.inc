@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * Functions for ordering articles at StatsBiblioteket
+ */
 
 /** Implements form_FORM_ID_alter (bibdk_reservation_create_wizard_form($form, &$form_state)
  *
@@ -52,7 +56,7 @@ function bibdk_reservation_sb_kopi_old_user_fields() {
  */
 function bibdk_reservation_sb_kopi_validate_wrapper($form, &$form_state) {
   // clear error messages
-  //drupal_get_messages();  
+  //drupal_get_messages();
   // pass var $type as reference to set type of sbkopiuser
   $errors = bibdk_reservation_sbkopi_validate($form, $form_state, $type);
   if (is_array($errors)) {
@@ -169,7 +173,7 @@ function bibdk_reservation_sanitize_for_order_copy(&$form, $form_state) {
   $element = array(
     '#type' => 'link',
     '#title' => t('forgot_sb_pasword', array(), array('context' => 'bibdk_reservation')),
-    // @TODO this link is hardcoded .. 
+    // @TODO this link is hardcoded ..
     '#href' => 'https://www.statsbiblioteket.dk/casext/forgotPassword',
     '#attributes' => array('target' => '_blank'),
   );
@@ -273,7 +277,7 @@ function bibdk_reservation_sbkopi_get_description_txt() {
  * @param type $form_state
  */
 function _bibdk_reservation_sbkopi_unset_elements(&$form, $form_state) {
-  // do not show needbefore date 
+  // do not show needbefore date
   // unset($form['manifestation']['date']);
   // do not show favourite selector
   unset($form['branchdata']['favouriteselector']);
@@ -350,7 +354,7 @@ function _bibdk_reservation_sbkopi_set_elements(&$form, $form_state) {
 function bibdk_reservation_sbkopi_parse_response($xml) {
   $dom = new DomDocument();
   if (!$dom->loadXML($xml)) {
-    watchdog('bibdk_reservation', t('could not load response: %xml', array('%xml' => var_export($xml, TRUE))), array(), WATCHDOG_ERROR);
+    watchdog('bibdk_reservation', 'could not load response: ' . var_export($xml, TRUE), array(), WATCHDOG_ERROR);
 
     return FALSE;
   }
@@ -449,7 +453,7 @@ function _bibdk_reservation_load_userinfo($xml) {
   $dom = new DomDocument();
   if (!@$dom->loadXML($xml)) {
     if (variable_get('bibdk_provider_enable_logging')) {
-      watchdog('_bibdk_reservation', t('BIBDK userinfo could not load response: %xml', array('%xml' => var_export($xml, TRUE))), array(), WATCHDOG_ERROR);
+      watchdog('_bibdk_reservation', 'BIBDK userinfo could not load response: ' . var_export($xml, TRUE), array(), WATCHDOG_ERROR);
     }
 
     return array();
