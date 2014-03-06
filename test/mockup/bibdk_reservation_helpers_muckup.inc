@@ -44,3 +44,7 @@ function bibdk_reservation_get_link($text, $path, $options = array()) {
 function bibdk_reservation_user_is_logged_in() {
   return $GLOBALS['bibdk_reservation_user_test'];
 }
+
+function _ting_openformat_parse_element($info, $delimiter = '<br/>') {
+  return 'parsed_link';
+}
