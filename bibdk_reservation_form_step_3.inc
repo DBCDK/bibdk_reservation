@@ -100,13 +100,23 @@ function bibdk_reservation_render_custom_branch_view($branch, $form_state) {
   );
 
   if ($form_state['step'] == 2) {
-    $form['branchParameters']['chg_lib_btn'] = array(
-      '#type' => 'submit',
-      '#value' => t('Pick another library', array(), array('context' => 'bibdk_reservation')),
-      '#submit' => array('bibdk_reservation_wizard_previous_submit'),
-      '#limit_validation_errors' => array(),
-      '#attributes' => array('class' => array('button-as-link')),
+    foreach (drupal_get_query_parameters() as $key => $value) {
+      $params[] = $key . '=' . $value;
+    }
+    $form['branchParameters']['chg_lib_link'] = array(
+      '#theme' => 'link',
+      '#text' => t('Pick another library', array(), array('context' => 'bibdk_reservation')),
+      '#path' => 'reservation/?' . implode('&', $params),
+      '#options' => array(
+        'attributes' => array(
+          'id' => drupal_html_id('chg_lib_link'),
+        ),
+        'html' => FALSE,
+      ),
+      '#prefix' => '<div class="chg-lib-link">',
+      '#suffix' => '</div>',
     );
+
   }
 
   return $form;

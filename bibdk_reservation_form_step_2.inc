@@ -28,6 +28,7 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
     $infotxt = t('accept_order_from_unknown_standard_txt', array(), array('context' => 'bibdk_reservation'));
   }
 
+
   $form['branchdata']['infotext'] = bibdk_reservation_accept_order_from_unknown($infotxt);
   $form['branchdata']['hidden_favourite'] = bibdk_reservation_hidden_favourite();
 
@@ -115,10 +116,14 @@ function bibdk_reservation_hidden_favourite() {
  * @return array; form element
  */
 function bibdk_reservation_accept_order_from_unknown($AcceptOrderFromUnknownUserText) {
-  return array(
-    '#name' => 'AcceptOrderFromUnknownUser',
-    '#markup' => $AcceptOrderFromUnknownUserText,
-  );
+  $form['infotext_wrapper'] = array(
+   '#type' => 'container',
+   '#attributes' => array('class' => array('bibdk_reservation_infotekst_wrapper'),
+   ));
+ $form['infotext_wrapper']['info_text'] = array(
+   '#markup' =>$AcceptOrderFromUnknownUserText,
+   );
+ return $form;
 }
 
 /**
@@ -215,10 +220,9 @@ function _bibdk_reservation_generate_policy_messages($policy_response) {
  * @return array
  */
 function bibdk_reservation_get_consortia_message($url, $consortiaId, $branchId) {
-
   // Get names for consortia and branch
   $consortia_name = bibdk_reservation_get_branch_name_from_id($consortiaId);
-  $branch_name = bibdk_reservation_get_branch_name_from_id($branchId);
+  $branch_name = bibdk_reservation_get_branch_name_from_id($branchId,'short');
 
   // Generate message for consortia catalog
   return array(
@@ -333,9 +337,14 @@ function bibdk_reservation_step_2_order_form_fields($form, $form_state) {
 
 /**
  * Render branch fields;
+ * 
+ */
+
+/*
+ * @TODO delete this if not used...
  */
 function bibdk_reservation_step_2_order_branch_fields($form, $form_state) {
-
+    
   $branch = BibdkReservationOrderObject::GetObject()->getBranch();
 
   $form['branchParameters'] = array(

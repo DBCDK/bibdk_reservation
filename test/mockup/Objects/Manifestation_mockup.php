@@ -6,12 +6,39 @@
 class Manifestation_mockup {
 
   public $bibdk_order;
+  public $messageCategory;
+  public $infoText = NULL;
+  public $type = array();
+  public $isLink;
+
   public function getTitleSpecific() {
     return $this->_getTitle();
   }
 
   public function getTitle() {
     return $this->_getTitle();
+  }
+
+  public function getInfotext(){
+    return (!empty($this->infoText)) ? $this->infoText : 'infotext';
+  }
+
+  public function getMessageCategory(){
+    return $this->messageCategory;
+  }
+
+  public function getAccessInformation(){
+    return array(
+      'accessUrl' => "http://accessurl.url",
+    );
+  }
+
+  public function getType(){
+    return $this->type;
+  }
+
+  public function isLink(){
+    return $this->isLink;
   }
 
   /**

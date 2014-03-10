@@ -9,9 +9,16 @@
  * @param $agencyId
  * @return null
  */
-function bibdk_reservation_get_branch_name_from_id($agencyId){
+function bibdk_reservation_get_branch_name_from_id($agencyId, $type = 'long') {
+  global $language;
+  $lang = $language->language;
   $consortia = new TingAgency($agencyId);
-  return $consortia->getBranch()->agencyName;
+  if ($type == 'short') {
+    return $consortia->getBranch()->getBranchShortName($lang);
+  }
+  else {
+    return $consortia->getBranch()->getBranchName($lang);
+  }
 }
 
 /**
@@ -33,7 +40,7 @@ function bibdk_reservation_translate($string, $args = array(), $options = array(
  * @param array $options
  * @return string
  */
-function bibdk_reservation_get_link($text, $path, $options = array()){
+function bibdk_reservation_get_link($text, $path, $options = array()) {
   return l($text, $path, $options);
 }
 
@@ -42,6 +49,6 @@ function bibdk_reservation_get_link($text, $path, $options = array()){
  *
  * @return bool
  */
-function bibdk_reservation_user_is_logged_in(){
+function bibdk_reservation_user_is_logged_in() {
   return user_is_logged_in();
 }

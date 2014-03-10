@@ -2,7 +2,7 @@ name = Bibliotek.dk  - Reservation
 description = Implementation of reservation functionality on bibdk entities
 package = Bibliotek.dk
 core = 7.x
-version = 7.x-0.33
+version = 7.x-0.34
 php = 5.2.4
 
 dependencies[] = bibdk_favourite
@@ -31,3 +31,4 @@ files[] = test/mockup/bibdk_reservation_helpers_muckup.inc
 
 scripts[] = js/check_reservability.js
 scripts[] = js/sbCopySwitchMe.js
+scripts[] = js/bibdk_reservation.js

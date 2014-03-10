@@ -23,10 +23,6 @@ function bibdk_reservation_form_step_4_form($form, &$form_state, $orderId) {
   // Render the same fields as on step 3
   $form = bibdk_reservation_form_step_3($form, $form_state);
 
-  $form['#attached']['js'] = array(
-    drupal_get_path('module', 'bibdk_reservation') . '/js/bibdk_reservation.js'
-  );
-
   return $form;
 }
 
@@ -40,6 +36,14 @@ function bibdk_reservation_form_step_4_do_order() {
   if (!empty($articleDirect)) {
     $params += array('articleDirect' => 'pickup');
   }
+
+  if(count(BibdkReservationOrderObject::GetObject()->getManifestationIds()) > 1){
+    $exactEdition = 'false';
+  }
+  else{
+    $exactEdition = 'true';
+  }
+  $params += array('exactEdition' => $exactEdition);
 
   $params += (isset($userdata)) ? $userdata : array();
   $params += (isset($orderdata)) ? $orderdata : array();

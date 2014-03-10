@@ -9,8 +9,8 @@
  * @param $agencyId
  * @return null
  */
-function bibdk_reservation_get_branch_name_from_id($agencyId){
-  return $agencyId . '_name';
+function bibdk_reservation_get_branch_name_from_id($agency_id) {
+  return $agency_id . '_name';
 }
 
 /**
@@ -32,7 +32,7 @@ function bibdk_reservation_translate($string, $args = array(), $options = array(
  * @param array $options
  * @return string
  */
-function bibdk_reservation_get_link($text, $path, $options = array()){
+function bibdk_reservation_get_link($text, $path, $options = array()) {
   return $path;
 }
 
@@ -41,6 +41,10 @@ function bibdk_reservation_get_link($text, $path, $options = array()){
  *
  * @return bool
  */
-function bibdk_reservation_user_is_logged_in(){
+function bibdk_reservation_user_is_logged_in() {
   return $GLOBALS['bibdk_reservation_user_test'];
+}
+
+function _ting_openformat_parse_element($info, $delimiter = '<br/>') {
+  return 'parsed_link';
 }

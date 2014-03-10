@@ -16,11 +16,11 @@ include_once 'bibdk_reservation_sb_kopi.inc';
  */
 function bibdk_reservation_menu() {
   $items['reservation'] = array(
-    'title' => t('Make reservation', array(), array('context' => 'bibdk_reservation')),
+    'title' => 'Make reservation',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('bibdk_reservation_create_wizard_form'),
     'access callback' => TRUE,
-    'description' => t('Make reservation in 4 steps', array(), array('context' => 'bibdk_reservation')),
+    'description' => 'Make reservation in 4 steps',
   );
 
   // ajax call for for checking reservability
@@ -185,6 +185,7 @@ function _bibdk_reservation_steps() {
  * @return array $form
  */
 function bibdk_reservation_create_wizard_form($form, &$form_state) {
+
   // Initialize a description of the steps for the wizard.
   if (empty($form_state['step']) || !empty($form_state['input']['favourite_selected'])) {
     bibdk_reservation_new_order_object();
@@ -217,6 +218,22 @@ function bibdk_reservation_create_wizard_form($form, &$form_state) {
     '#type' => 'container',
   );
 
+  // Show the Next button only if there are more steps defined.
+  $next_step = $form_state['step_information'][$step]['next_step'];
+  $next_step_active = FALSE;
+  $total_steps = count($form_state['step_information']);
+
+  if ( isset($next_step) && $next_step <= $total_steps && !isset($form_state['blocked']) ) {
+    $next_step_active = TRUE;
+    // The Next button should be included on every step
+    $form['navigation']['next'] = array(
+      '#type' => 'submit',
+      '#value' => isset($form_state['step_information'][$step]['next button text']) ? $form_state['step_information'][$step]['next button text'] : t('Next', array(), array('context' => 'bibdk_reservation')),
+      '#name' => 'next',
+      '#submit' => array('bibdk_reservation_wizard_next_submit'),
+    );
+  }
+
   // Show the 'previous' button if appropriate.
   if ($form_state['step_information'][$step]['previous_step']) {
     $form['navigation']['prev'] = array(
@@ -228,19 +245,15 @@ function bibdk_reservation_create_wizard_form($form, &$form_state) {
     );
   }
 
-  // Show the Next button only if there are more steps defined.
-  $next_step = $form_state['step_information'][$step]['next_step'];
-  $total_steps = count($form_state['step_information']);
-  if (isset($next_step) && $next_step <= $total_steps && !isset($form_state['blocked'])) { # && $step != 2) {
-    // The Next button should be included on every step
-    $form['navigation']['next'] = array(
-      '#type' => 'submit',
-      '#value' => isset($form_state['step_information'][$step]['next button text']) ? $form_state['step_information'][$step]['next button text'] : t('Next', array(), array('context' => 'bibdk_reservation')),
-      '#name' => 'next',
-      '#submit' => array('bibdk_reservation_wizard_next_submit'),
+
+  if ( !$next_step_active && isset($next_step) && $next_step > $total_steps ) {
+
+    // Final submit button
+    $button_text = isset($form_state['step_information'][$step]['next button text']) ? $form_state['step_information'][$step]['next button text'] : t('Finish', array(), array('context' => 'bibdk_reservation'));
+    $form['navigation']['finish'] = array(
+      '#type' => 'markup',
+      '#markup' => '<a href="JavaScript:window.close();" class="btn btn-blue form-submit" />' . $button_text . '</a>',
     );
-  }
-  else if (isset($next_step) && $next_step > $total_steps) {
 
     // Email submit button
     $form['navigation']['sendmail'] = array(
@@ -248,13 +261,6 @@ function bibdk_reservation_create_wizard_form($form, &$form_state) {
       '#submit' => array('bibdk_reservation_mail_form_submit'),
       '#name' => 'sendmail',
       '#value' => t('sendmail', array(), array('context' => 'bibdk_reservation')),
-    );
-
-    // Final submit button
-    $button_text = isset($form_state['step_information'][$step]['next button text']) ? $form_state['step_information'][$step]['next button text'] : t('Finish', array(), array('context' => 'bibdk_reservation'));
-    $form['navigation']['finish'] = array(
-      '#type' => 'markup',
-      '#markup' => '<a href="JavaScript:window.close();" class="btn btn-blue form-submit" />' . $button_text . '</a>',
     );
 
     //Add a print button
@@ -505,7 +511,7 @@ function bibdk_reservation_step_guide($form, &$form_state, $current_step) {
     if ($step < $current_step) {
       $classes = array('active');
     }
-    else if ($step == $current_step || $current_step == 4) {
+    elseif ($step == $current_step || $current_step == 4) {
       $classes = array('btn-grey', 'btn');
     } // These classes is just for test - should be replaced with current
     // Create step button for $step

@@ -1,4 +1,8 @@
 <?php
+/**
+ * @file
+ * web tests for bibdk_reservation
+ */
 
 class BibdkReservationWebTestCase extends DrupalWebTestCase {
 
@@ -82,7 +86,7 @@ class BibdkReservationWebTestCase extends DrupalWebTestCase {
     $this->assertLink(t('accessUrl'));
   }
 
-  private function _test_ting_openformat_render_direct_link(){
+  private function _test_ting_openformat_render_direct_link() {
     debug('Testing single URL');
     $singleUrlManifestation = new Manifestation(unserialize(file_get_contents(drupal_get_path('module', 'bibdk_reservation') . '/test/mockup/serialized/singleUrl.serialized')));
     $infocode = $singleUrlManifestation->getInfoText();
