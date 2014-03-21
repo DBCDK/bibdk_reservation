@@ -83,7 +83,7 @@ class BibdkReservationWebTestCase extends DrupalWebTestCase {
 
     // confim reservation link is present
     $this->drupalGet('work/874310-katalog:DBB0038373');
-    $this->assertLink(t('accessUrl'));
+    $this->assertLink(t('Order this Lydbog (net)'));
   }
 
   private function _test_ting_openformat_render_direct_link() {
