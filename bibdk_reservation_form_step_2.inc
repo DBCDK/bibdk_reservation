@@ -8,7 +8,7 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
 
   //render branch
   $branch = BibdkReservationOrderObject::GetObject()->getBranch();
-
+  
   if ($branch->getTemporarilyClosedReason($language->language) != 'ting_agency_no_temporarilyClosedReason') {
     //set closed information
     drupal_set_message($branch->getTemporarilyClosedReason($language->language), 'warning');
@@ -28,8 +28,8 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
     $infotxt = t('accept_order_from_unknown_standard_txt', array(), array('context' => 'bibdk_reservation'));
   }
 
-
   $form['branchdata']['infotext'] = bibdk_reservation_accept_order_from_unknown($infotxt);
+  $form['branchdata']['infotextlink'] = bibdk_reservation_registrationUrl($branch);
   $form['branchdata']['hidden_favourite'] = bibdk_reservation_hidden_favourite();
 
   $orderpolicy = bibdk_reservation_form_step_2_do_policycheck();
@@ -725,3 +725,40 @@ function bibdk_reservation_get_agency_fields() {
 
   return $fields;
 }
+
+/**
+ * Array for registrationUrl and text
+ *
+ * @param $branch
+ * @return array; link element
+ */
+function bibdk_reservation_registrationUrl($branch) {
+
+  // url
+  $linkUrl = $branch->getRegistrationFormUrl();
+  if (empty($linkUrl)) {
+    return;
+  }
+  
+  //url text
+  $linkUrlText = $branch->getRegistrationFormUrlText();
+  if (empty($linkUrlText)) {
+    // set default text
+    $linkUrlText = t('registration_form_url_text', array(), array('context' => 'bibdk_reservation'));
+  }
+
+  //create link array
+  return array( '#type' => 'link',
+                '#title' => $linkUrlText,
+                '#href' => $branch->getRegistrationFormUrl(),
+                '#options' => array(
+                'html' => TRUE
+                 ),
+                  '#attributes' => array(
+                     'class' => array(
+                     'clearfix',
+                   ),
+                    'target' => '_blank',
+                 ), 
+              );
+ }
