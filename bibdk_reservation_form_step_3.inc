@@ -124,17 +124,15 @@ function bibdk_reservation_render_custom_branch_view($branch, $form_state) {
 
 function bibdk_reservation_render_custom_manifestation_view(Manifestation $manifestation) {
   $title = $manifestation->getTitleSpecific();
-  
   $creators = $manifestation->getCreator();
   $author = '';
   if (isset($creators)) {
     foreach ($creators as $creator) {
       foreach ($creator as $key => $value) {
-        $author = $author . ' ' . $value[0][0]['display'];
+        $author .= ' ' . $value[0][0]['display'];
       }
     }
   }
- 
   $type = $manifestation->getSubType();
 
   $markup = theme('bibdk_reservation_manifestation', array(
