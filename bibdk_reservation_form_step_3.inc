@@ -1,6 +1,13 @@
 <?php
 
 function bibdk_reservation_form_step_3($form, &$form_state) {
+  global $language;
+
+  $orderpolicy = bibdk_reservation_form_step_2_do_policycheck();
+  if ($orderpolicy->getOrderPossible()) {
+    form_notice_wrapper($form, $orderpolicy);
+  }
+
   //Render user parameters
   $form['userParameters'] = array(
     '#type' => 'fieldset',
@@ -35,6 +42,7 @@ function bibdk_reservation_form_step_3($form, &$form_state) {
 
   return $form;
 }
+
 
 /**
  * Implements _form_validate().

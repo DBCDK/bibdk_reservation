@@ -35,25 +35,9 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
   $orderpolicy = bibdk_reservation_form_step_2_do_policycheck();
 
   bibdk_reservation_form_step_2_already_ordered();
+
   if ($orderpolicy->getOrderPossible()) {
-    if ($orderpolicy->getOrderPossibleReason() == 'not_owned_ILL_loc') {
-      if ($order_condition = $orderpolicy->getOrderCondition($language->language)) {
-        $notice['notice_wrapper'] = array(
-          '#type' => 'fieldset',
-          '#attributes' => array(
-            'class' => array(
-              'order-condition',
-              'messages',
-              'warning'
-            )
-          ),
-          'messages' => array(
-            '#markup' => $order_condition,
-          ),
-        );
-        array_unshift($form, $notice);
-      }
-    }
+    form_notice_wrapper($form, $orderpolicy);
     $form['userdata'] = bibdk_reservation_step_2_user_form_fields(array(), $form_state);
     if($manifestation->getSpecifyArticleData()){
       $form['manifestation_userdata'] = bibdk_reservation_step_2_order_form_fields(array(), $form_state);
@@ -91,9 +75,37 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
   if (!user_is_logged_in()) {
     _bibdk_reservation_set_login_message();
   }
-
   return $form;
 }
+
+/**
+ * Helper function for bibdk_reservation_form_step_2() & bibdk_reservation_form_step_3()
+ *
+ * @return array; form
+ */
+function form_notice_wrapper(&$form, $orderpolicy) {
+  global $language;
+
+  if ($orderpolicy->getOrderPossibleReason() == 'not_owned_ILL_loc') {
+    if ($order_condition = $orderpolicy->getOrderCondition($language->language)) {
+      $notice['notice_wrapper'] = array(
+        '#type' => 'fieldset',
+        '#attributes' => array(
+          'class' => array(
+            'order-condition',
+            'messages',
+            'warning'
+          )
+        ),
+        'messages' => array(
+          '#markup' => $order_condition,
+        ),
+      );
+      $form = $notice + $form;
+    }
+  }
+}
+
 
 /**
  * Hidden field to determine whether favourite has changed
