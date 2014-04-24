@@ -93,8 +93,9 @@ function form_notice_wrapper(&$form, $orderpolicy) {
         '#attributes' => array(
           'class' => array(
             'order-condition',
+            'message',
             'messages',
-            'warning'
+            'message--warning',
           )
         ),
         'messages' => array(
