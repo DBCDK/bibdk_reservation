@@ -5,7 +5,7 @@ function bibdk_reservation_form_step_3($form, &$form_state) {
 
   $orderpolicy = bibdk_reservation_form_step_2_do_policycheck();
   if ($orderpolicy->getOrderPossible()) {
-    form_notice_wrapper($form, $orderpolicy);
+    bibdk_reservation_form_notice_wrapper($form, $orderpolicy);
   }
 
   //Render user parameters

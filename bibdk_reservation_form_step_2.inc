@@ -37,7 +37,7 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
   bibdk_reservation_form_step_2_already_ordered();
 
   if ($orderpolicy->getOrderPossible()) {
-    form_notice_wrapper($form, $orderpolicy);
+    bibdk_reservation_form_notice_wrapper($form, $orderpolicy);
     $form['userdata'] = bibdk_reservation_step_2_user_form_fields(array(), $form_state);
     if($manifestation->getSpecifyArticleData()){
       $form['manifestation_userdata'] = bibdk_reservation_step_2_order_form_fields(array(), $form_state);
@@ -83,7 +83,7 @@ function bibdk_reservation_form_step_2($form, &$form_state) {
  *
  * @return array; form
  */
-function form_notice_wrapper(&$form, $orderpolicy) {
+function bibdk_reservation_form_notice_wrapper(&$form, $orderpolicy) {
   global $language;
 
   if ($orderpolicy->getOrderPossibleReason() == 'not_owned_ILL_loc') {
