@@ -19,7 +19,7 @@ function bibdk_reservation_mail_form_submit($form, &$form_state) {
   $params = array();
   $params['manifestations'] = $pids;
 
-  $params += array('subject' => t('Your order reciept', array('context' => 'bibdk_reservation')));
+  $params += array('subject' => t('Your order reciept', array(), array('context' => 'bibdk_reservation')));
 
   $articleDirect = BibdkReservationOrderObject::GetObject()->getArticleDirect();
   if (!empty($articleDirect)) {
@@ -58,7 +58,7 @@ function bibdk_reservation_mail_send($params, $form_state) {
   if (!empty($params['userMail'])) {
     $to = $params['userMail'];
   }
-  // check for user alternattive email
+  // check for user alternative email
   if (empty($to) && !empty($form_state['values']['email'])) {
     $to = $form_state['values']['email'];
   }
@@ -113,9 +113,8 @@ function bibdk_reservation_mail($key, &$message, $params) {
       'citytext' => $branch->city,
       'orderparameters' => t('Order Parameters', array(), array('context' => 'bibdk_reservation')),
       'orderinfo' => bibdk_reservation_mail_order_parameters(),
-      'IllOrderReceiptText' => $branch->getIllOrderReceiptText($language),
+      'IllOrderReceiptText' => $branch->getIllOrderReceiptText($language->language),
     ));
-
     $message['body'][] = !empty($footer) ? t($footer, array(), array('context' => 'bibdk_reservation')) : '';
   }
 
