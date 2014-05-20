@@ -66,7 +66,12 @@ function bibdk_reservation_form_step_4_do_order() {
     $result = array('error' => t('An error happened and the order could not be completed.', array(), array('context' => 'bibdk_reservation')));
   }
   else {
-    bibdk_reservation_set_confirm_message();
+    // do not set confirm message for sb_copy service
+    $sb_copy = BibdkReservationOrderObject::GetObject()->getSbKopi();
+    if(empty($sb_copy)){
+      bibdk_reservation_set_confirm_message();
+    }
+
     $result = bibdk_reservation_form_step_4_handle_response($response);
     module_invoke_all('bibdk_reservation_complete', $pids, $result);
   }
