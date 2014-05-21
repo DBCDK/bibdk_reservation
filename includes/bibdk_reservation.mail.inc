@@ -128,18 +128,31 @@ function bibdk_reservation_mail($key, &$message, $params) {
  * @return string
  */
 function _bibdk_reservation_mail_get_title($manifestation) {
+  
   $titleSpecific = $manifestation->getTitleSpecific();
-  $title = $manifestation->getTitle();
+  $creators = $manifestation->getCreator();
+  $author = '';
+  if (isset($creators)) {
+    foreach ($creators as $creator) {
+      foreach ($creator as $key => $value) {
+        $author .= ' ' . $value[0][0]['display'];
+      }
+    }
+  }
+  $type = $manifestation->getSubType();
 
   if (!empty($titleSpecific)) {
-    return ' - ' . $titleSpecific;
+    $returnTitle = ' - ' . $titleSpecific;
+    if (!empty($author)) {
+      $returnTitle .= ', ' . $author;
+    }
+    if (!empty($type)) {
+      $returnTitle .= ', ' . $type;
+    }
+    return $returnTitle;
   }
-  elseif (!empty($title)) {
-    return ' - ' . $title;
-  }
-  else {
-    return '';
-  }
+  return '';
+
 }
 
 /**

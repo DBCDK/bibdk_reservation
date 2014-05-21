@@ -10,6 +10,8 @@ class Manifestation_mockup {
   public $infoText = NULL;
   public $type = array();
   public $isLink;
+  public $creator = array();
+  public $subtype;
 
   public function getTitleSpecific() {
     return $this->_getTitle();
@@ -41,6 +43,14 @@ class Manifestation_mockup {
     return $this->isLink;
   }
 
+  public function getCreator() {
+    return $this->creator;
+  }
+  
+  public function getSubType(){
+    return $this->subtype;
+  }
+  
   /**
    * @return bool|string
    */
