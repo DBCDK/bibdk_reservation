@@ -637,7 +637,8 @@ function bibdk_reservation_form_step_2_submit($form, &$form_state) {
  * Validate up against Borchk
  */
 function bibdk_reservation_borchk_validate($form_state) {
-  if ($form_state['clicked_button']['#name'] == 'next') {
+
+  if ($form_state['clicked_button']['#name'] == 'next' &&  empty($form_state['input']['favourite_selected']) ) {
     // @TODO check that object is set
     $agencySettings = BibdkReservationOrderObject::GetObject()->getFields();
 
