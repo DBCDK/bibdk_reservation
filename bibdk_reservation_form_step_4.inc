@@ -33,8 +33,16 @@ function bibdk_reservation_form_step_4_do_order() {
   $orderdata = BibdkReservationOrderObject::GetObject()->getOrderParameters();
 
   $articleDirect = BibdkReservationOrderObject::GetObject()->getArticleDirect();
-  if (!empty($articleDirect)) {
+  if ( !empty($articleDirect) ) {
     $params += array('articleDirect' => 'pickup');
+  } else {
+    $articleType = BibdkReservationOrderObject::GetObject()->getSbKopi();
+    if ( $articleType == 'FREE' ) {
+      $params += array('articleDirect' => 'electronic');
+    }
+    if ( $articleType == 'PAY' ) {
+      $params += array('articleDirect' => 'postal');
+    }
   }
 
   if(count(BibdkReservationOrderObject::GetObject()->getManifestationIds()) > 1){
