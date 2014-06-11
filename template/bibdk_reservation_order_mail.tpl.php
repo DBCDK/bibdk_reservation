@@ -16,7 +16,9 @@
 
   print "\n\n"; print $manifestation; print "\n\n";
 
+  print $subtype . "\n";
   print $title . "\n";
+  print $author . "\n";
 
   print "\n"; print $branch; print "\n";
   print "\n"; print $branchtext;
