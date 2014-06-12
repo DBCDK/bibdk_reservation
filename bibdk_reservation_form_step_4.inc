@@ -7,18 +7,29 @@ function bibdk_reservation_form_step_4($form, &$form_state) {
   return bibdk_reservation_form_step_4_form($form, $form_state, $orderId);
 }
 
-function bibdk_reservation_form_step_4_form($form, &$form_state, $orderId) {
+function bibdk_reservation_form_step_4_form($form, &$form_state, $orderId=FALSE) {
 
-  // render OrderID
-  $form['orderId'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Your order is complete', array(), array('context' => 'bibdk_reservation')),
-    '#attributes' => array('class' => array('bottom-space')),
-  );
-
-  $form['orderId']['container']['markup'] = bibdk_reservation_convert_array_to_table(array(
-    t('Your order ID', array(), array('context' => 'bibdk_reservation')) => $orderId,
-  ));
+  if ( $orderId ) {
+  
+    // render OrderID
+    $form['orderId'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Your order is complete', array(), array('context' => 'bibdk_reservation')),
+      '#attributes' => array('class' => array('bottom-space')),
+    );
+    $form['orderId']['container']['markup'] = bibdk_reservation_convert_array_to_table(array(
+      t('Your order ID', array(), array('context' => 'bibdk_reservation')) => $orderId,
+    ));
+  
+  }
+  else {
+    // openOrder error message
+    $form['orderId'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('empty_orderid_error_message', array(), array('context' => 'bibdk_reservation:error')),
+      '#attributes' => array('class' => array('bottom-space')),
+    );
+  }
 
   // Render the same fields as on step 3
   $form = bibdk_reservation_form_step_3($form, $form_state);
@@ -63,8 +74,17 @@ function bibdk_reservation_form_step_4_do_order() {
 
   bibdk_reservation_form_step_4_register_pid();
   $response = bibdk_openorder_do_placeOrder($params);
-  if (isset($response->placeOrderResponse->orderNotPlaced)) {
-    $error = $response->placeOrderResponse->orderNotPlaced->placeOrderError->{'$'};
+
+  // orderId may be NULL in case of a timeout or a 404
+  $orderId = NULL;
+  if ( isset($response->placeOrderResponse->orderPlaced) ) {
+    $orderId = $response->placeOrderResponse->orderPlaced->orderId->{'$'};
+  }
+
+  if ( isset($response->placeOrderResponse->orderNotPlaced) || empty($orderId) ) {
+    $error = ( isset($response->placeOrderResponse->orderNotPlaced->placeOrderError->{'$'}) ) 
+      ? $response->placeOrderResponse->orderNotPlaced->placeOrderError->{'$'} 
+      : t('empty_orderid_error_message', array(), array('context' => 'bibdk_reservation:error'));
     $pid = BibdkReservationOrderObject::GetObject()->getManifestationIds();
     $pickUpAgencyId = BibdkReservationOrderObject::GetObject()->getBranchId();
     watchdog('bibdk_reservation_form_step_4', 'openOrder responded with an error: ' . $error . '. pid: #pid agencyId: #agency', array(
