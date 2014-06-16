@@ -105,7 +105,9 @@ function bibdk_reservation_mail($key, &$message, $params) {
       'userparameter' => t('User Parameters', array(), array('context' => 'bibdk_reservation')),
       'userinfo' => bibdk_reservation_mail_user(),
       'manifestation' => t('Manifestation', array(), array('context' => 'bibdk_reservation')),
-      'title' => _bibdk_reservation_mail_get_title($manifestation),
+      'subtype' => $manifestation->getSubType(),
+      'title' => $manifestation->getTitleSpecific(),
+      'author' => _bibdk_reservation_mail_get_author($manifestation),
       'branch' => t('Branch', array(), array('context' => 'bibdk_reservation')),
       'branchtext' => $branch->getBranchShortName($language->language),
       'addresstext' => $branch->postalAddress,
@@ -121,6 +123,29 @@ function bibdk_reservation_mail($key, &$message, $params) {
 }
 
 /**
+ * Retreives the author from the ordered material. If no author is found an empty
+ * string is returned.
+ *
+ * @param Manifestation $manifestation
+ * @return string
+ */
+function _bibdk_reservation_mail_get_author($manifestation) {
+  $creators = $manifestation->getCreator();
+  $author = '';
+  if (isset($creators)) {
+    foreach ($creators as $creator) {
+      foreach ($creator as $key => $value) {
+        if (!empty($author)) {
+          $author .= ' ';
+        }
+        $author .= $value[0][0]['display'];
+      }
+    }
+  }
+  return $author;
+}
+
+/**
  * Retreives the title from the ordered material. If no title is found an empty
  * string is returned.
  *
@@ -128,18 +153,31 @@ function bibdk_reservation_mail($key, &$message, $params) {
  * @return string
  */
 function _bibdk_reservation_mail_get_title($manifestation) {
+  
   $titleSpecific = $manifestation->getTitleSpecific();
-  $title = $manifestation->getTitle();
+  $creators = $manifestation->getCreator();
+  $author = '';
+  if (isset($creators)) {
+    foreach ($creators as $creator) {
+      foreach ($creator as $key => $value) {
+        $author .= ' ' . $value[0][0]['display'];
+      }
+    }
+  }
+  $type = $manifestation->getSubType();
 
   if (!empty($titleSpecific)) {
-    return ' - ' . $titleSpecific;
+    $returnTitle = ' - ' . $titleSpecific;
+    if (!empty($author)) {
+      $returnTitle .= ', ' . $author;
+    }
+    if (!empty($type)) {
+      $returnTitle .= ', ' . $type;
+    }
+    return $returnTitle;
   }
-  elseif (!empty($title)) {
-    return ' - ' . $title;
-  }
-  else {
-    return '';
-  }
+  return '';
+
 }
 
 /**

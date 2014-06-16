@@ -451,8 +451,12 @@ function bibdk_reservation_form_step_2_validate(&$form, &$form_state) {
     form_set_error('userEmail', t('Email needs to be a valid email', array(), array('context' => 'bibdk_reservation:error')));
   }
 
-  if (!bibdk_reservation_validate_date($form_state['values']['needBeforeDate'])) {
+  if ( !bibdk_reservation_validate_date($form_state['values']['needBeforeDate']) ) {
     form_set_error('needBeforeDate', t('Date must be in the future', array(), array('context' => 'bibdk_reservation:error')));
+  }
+
+  if ( !bibdk_reservation_validate_date($form_state['values']['needBeforeDate'], 7) ) {
+    form_set_error('needBeforeDate', t('Date must be at least 8 days from today', array(), array('context' => 'bibdk_reservation:error')));
   }
 
   if (!form_get_errors()) {
@@ -484,7 +488,7 @@ function bibdk_reservation_form_step_2_validate(&$form, &$form_state) {
  * @param $date
  * @return bool
  */
-function bibdk_reservation_validate_date($date) {
+function bibdk_reservation_validate_date($date, $buffer = 0) {
   if (!is_string($date)) {
     return FALSE;
   }
@@ -492,6 +496,9 @@ function bibdk_reservation_validate_date($date) {
   if (checkdate($dateArr[1], $dateArr[2], $dateArr[0])) {
     $needBeforeDate = new DateTime($date);
     $currentDate = new DateTime();
+    if ( $buffer ) {
+      $currentDate->add(new DateInterval('P' . (int)$buffer . 'D'));
+    }
     if ($needBeforeDate > $currentDate) {
       return TRUE;
     }
@@ -630,7 +637,8 @@ function bibdk_reservation_form_step_2_submit($form, &$form_state) {
  * Validate up against Borchk
  */
 function bibdk_reservation_borchk_validate($form_state) {
-  if ($form_state['clicked_button']['#name'] == 'next') {
+
+  if ($form_state['clicked_button']['#name'] == 'next' &&  empty($form_state['input']['favourite_selected']) ) {
     // @TODO check that object is set
     $agencySettings = BibdkReservationOrderObject::GetObject()->getFields();
 
