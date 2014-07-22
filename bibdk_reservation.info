@@ -12,17 +12,19 @@ dependencies[] = ting_client
 dependencies[] = ting_openformat
 dependencies[] = date_api
 
-files[] = bibdk_reservation.field.inc
-files[] = bibdk_reservation_form_step_1.inc
-files[] = bibdk_reservation_form_step_2.inc
-files[] = bibdk_reservation_form_step_3.inc
-files[] = bibdk_reservation_form_step_4.inc
-files[] = bibdk_reservation_form_step_5.inc
+files[] = includes/bibdk_reservation.action.inc
+files[] = includes/bibdk_reservation.button.inc
+files[] = includes/bibdk_reservation.field.inc
+files[] = includes/bibdk_reservation_form_step_1.inc
+files[] = includes/bibdk_reservation_form_step_2.inc
+files[] = includes/bibdk_reservation_form_step_3.inc
+files[] = includes/bibdk_reservation_form_step_4.inc
+files[] = includes/bibdk_reservation_sb_kopi.inc
+
+files[] = includes/bibdk_reservation_helpers.inc
+files[] = includes/bibdk_reservation.mail.inc
 
 files[] = BibdkReservationOrderObject.php
-
-files[] = includes/bibdk_reservation.mail.inc
-files[] = includes/bibdk_reservation_helpers.inc
 
 files[] = test/bibdk_reservation_web_test.test
 files[] = test/bibdk_reservation_unit_test.test

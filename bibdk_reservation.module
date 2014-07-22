@@ -2,14 +2,14 @@
 
 module_load_include('inc', 'bibdk_reservation', 'includes/bibdk_reservation_helpers');
 module_load_include('inc', 'bibdk_reservation', 'includes/bibdk_reservation.mail');
-module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_button');
-module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation.action');
-module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_form_step_1');
-module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_form_step_2');
-module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_form_step_3');
-module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_form_step_4');
+module_load_include('inc', 'bibdk_reservation', 'includes/bibdk_reservation_button');
+module_load_include('inc', 'bibdk_reservation', 'includes/bibdk_reservation.action');
+module_load_include('inc', 'bibdk_reservation', 'includes/bibdk_reservation_form_step_1');
+module_load_include('inc', 'bibdk_reservation', 'includes/bibdk_reservation_form_step_2');
+module_load_include('inc', 'bibdk_reservation', 'includes/bibdk_reservation_form_step_3');
+module_load_include('inc', 'bibdk_reservation', 'includes/bibdk_reservation_form_step_4');
 
-include_once 'bibdk_reservation_sb_kopi.inc';
+include_once 'includes/bibdk_reservation_sb_kopi.inc';
 
 /**
  * Implements hook_menu();
@@ -31,7 +31,7 @@ function bibdk_reservation_menu() {
     'access callback' => TRUE,
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
-    'file' => 'bibdk_reservation_button.inc'
+    'file' => 'includes/bibdk_reservation_button.inc'
   );
 
   $items['reservations/catalogue_url'] = array(

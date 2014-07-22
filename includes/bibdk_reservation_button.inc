@@ -5,7 +5,7 @@
  */
 
 //include field info for button and infotext
-module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation.field');
+module_load_include('inc', 'bibdk_reservation', 'includes/bibdk_reservation.field');
 
 /**
  * Returns a link for reservation flow.
@@ -81,6 +81,7 @@ function bibdk_reservation_order_any_edition_link($collection, $uid) {
   foreach ($collection as $type => $ids) {
     $items['items'][] = _bibdk_reservation_create_type_button($type, $ids, $uid);
   }
+
 
   $items['title'] = t('reservation_order_any', array(), array('context' => 'bibdk_reservation'));
   $items['type'] = 'ol';

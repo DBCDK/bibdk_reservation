@@ -18,7 +18,7 @@ class BibdkReservationUnitTestCase extends DrupalUnitTestCase {
   }
 
   public function setUp() {
-    module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_button');
+    module_load_include('inc', 'bibdk_reservation', 'includes/bibdk_reservation_button');
     parent::setUp();
   }
 
@@ -66,7 +66,7 @@ class BibdkReservationUnitTestCase extends DrupalUnitTestCase {
   public function _test__bibdk_reservation_generate_policy_messages() {
     module_load_include('inc', 'bibdk_reservation', 'test/mockup/bibdk_reservation_helpers_muckup');
     module_load_include('php', 'bibdk_reservation', 'test/mockup/Objects/policyResponseMuckup');
-    module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_form_step_2');
+    module_load_include('inc', 'bibdk_reservation', 'includes/bibdk_reservation_form_step_2');
 
     /** test no policy message **/
     $policy_response = new PolicyResponseMockup();
@@ -124,7 +124,7 @@ class BibdkReservationUnitTestCase extends DrupalUnitTestCase {
 
   public function test__bibdk_reservation_get_userstatus_link() {
     module_load_include('inc', 'bibdk_reservation', 'test/mockup/bibdk_reservation_helpers_muckup');
-    module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_form_step_4');
+    module_load_include('inc', 'bibdk_reservation', 'includes/bibdk_reservation_form_step_4');
     module_load_include('php', 'bibdk_reservation', 'test/mockup/Objects/pickUpAgencyMockup');
 
     //no ncipLookUpUser
@@ -189,7 +189,7 @@ class BibdkReservationUnitTestCase extends DrupalUnitTestCase {
   public function test__bibdk_reservation_get_infotext(){
     module_load_include('inc', 'bibdk_reservation', 'test/mockup/bibdk_reservation_helpers_muckup');
     module_load_include('php', 'bibdk_reservation', 'test/mockup/Objects/Manifestation_mockup');
-    module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_button');
+    module_load_include('inc', 'bibdk_reservation', 'includes/bibdk_reservation_button');
 
     //Ensure that only one of the same kind of message is displayed
     $manifestation = new Manifestation_mockup();
@@ -272,7 +272,7 @@ class BibdkReservationUnitTestCase extends DrupalUnitTestCase {
   }
 
   public function test__bibdk_reservation_get_message_type(){
-    module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_button');
+    module_load_include('inc', 'bibdk_reservation', 'includes/bibdk_reservation_button');
 
     $this->assertEqual('status', _bibdk_reservation_get_message_type(1));
     $this->assertEqual('warning', _bibdk_reservation_get_message_type(2));
