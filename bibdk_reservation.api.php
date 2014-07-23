@@ -44,6 +44,7 @@ function hook_bibdk_reservation_complete($pids, $result) {
  *
  * @see includes/common.inc - drupal_render();
  */
+//TODO mmj rewrite this to reflect latest changes
 function hook_order_any_btn_lists($lists, $collection) {
   $item1 = l('my-link-1', 'my/path/1');
   $item2 = l('my-link-2', 'my/path/2');

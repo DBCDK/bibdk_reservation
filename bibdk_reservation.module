@@ -91,10 +91,12 @@ function bibdk_reservation_theme() {
       'variables' => array('resume' => array()),
       'template' => 'template/bibdk_reservation_receipt',
     ),
+    //TODO mmj remove unused vars
     'bibdk_reservation_order_any_btn' => array(
       'variables' => array(
-        'lists' => array(),
+        #'lists' => array(),
         'addi_attributes' => array(),
+        'table' => '',
       ),
       'template' => 'template/bibdk_reservation_order_any_btn',
     ),

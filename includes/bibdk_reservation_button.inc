@@ -77,36 +77,65 @@ function bibdk_reservation_check_past_reservations($entity_ids) {
  */
 function bibdk_reservation_order_any_edition_link($collection, $uid) {
   $uid = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '', $uid));
-  $items = array();
+
+  $header = array('', 'Bestil');
+  $rows = array();
+
   foreach ($collection as $type => $ids) {
-    $items['items'][] = _bibdk_reservation_create_type_button($type, $ids, $uid);
+    $row = array();
+    $mat_type = t($type, array(), array('context' => 'material_type'));
+    $row[] = $mat_type;
+
+    $order_btn = _bibdk_reservation_create_type_button($type, $ids, $uid);
+    $row[] = $order_btn;
+
+    //TODO mmj rewrite documentation on this hook
+    $hook = module_invoke_all('order_any_btn_lists', $type, $ids);
+
+    foreach ($hook as $column => $element) {
+      $col_name = t($column, array(), array('context' => 'bibdk_reservation'));
+      if(!in_array($col_name, $header)){
+        array_push($header, $col_name);
+      }
+
+      $row[] = drupal_render($element);
+    }
+
+    $rows[] = $row;
   }
 
 
-  $items['title'] = t('reservation_order_any', array(), array('context' => 'bibdk_reservation'));
-  $items['type'] = 'ol';
-  $items['attributes'] = array(
-    'class' => 'order-list',
-  );
+//  $items['title'] = t('reservation_order_any', array(), array('context' => 'bibdk_reservation'));
+//  $items['type'] = 'ol';
+//  $items['attributes'] = array(
+//    'class' => 'order-list',
+//  );
+//
+//  $lists[] = array(
+//    '#theme' => 'bibdk_reservation_order_any_btn_list',
+//    '#column' => '1',
+//    '#items' => $items,
+//  );
 
-  $lists[] = array(
-    '#theme' => 'bibdk_reservation_order_any_btn_list',
-    '#column' => '1',
-    '#items' => $items,
-  );
-
-  $lists = module_invoke_all('order_any_btn_lists', $lists, $collection);
-  $rendered = array();
+//  dpm($lists, 'lists_1');
+//  $lists = module_invoke_all('order_any_btn_lists', $lists, $collection);
+//  dpm($lists, 'lists_2');
+  /*$rendered = array();
   foreach ($lists as $list) {
+//    dpm($list, 'list');
     $rendered[] = drupal_render($list);
-  }
+  }*/
 
   // set an id for the button
   $attributes = array('id' => 'any_edition_but_' . $uid);
   // also render additonal attributes
+
+
+  $table= theme('table', array('header' => $header, 'rows' => $rows));
+
   $button = theme('bibdk_reservation_order_any_btn', array(
-    'lists' => $rendered,
-    'addi_attributes' => $attributes
+    'table' => $table,
+    'addi_attributes' => $attributes //-- TODO mmj this var should propably be removed from the template
   ));
 
   return $button;
@@ -121,28 +150,20 @@ function bibdk_reservation_order_any_edition_link($collection, $uid) {
  * @return string
  */
 function _bibdk_reservation_create_type_button($type, $ids, $uid) {
+  //TODO mmj rewrite this to return a proper button and ideally avoid using the bibdk_reservation_order_any_btn_list_item template
   $text = t($type, array(), array('context' => 'material_type'));
   $url_arr = drupal_parse_url('reservation/ajax/' . $uid . '/');
   $path = $url_arr['path'];
   $query = implode(',', $ids);
   $class = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '', $ids[0]));
 
-  // This should be moved to the template
-  $attributes['data-rel'] = 'reservation';
-  $attributes['class'][] = 'bibdk-popup-order-work';
-  $attributes['class'][] = 'bibdk-popup-link-' . $class;
-  $attributes['class'][] = 'use-ajax';
-  $attributes['id'][] = 'any_edtion_order_' . $class;
+  $attributes = array(
+    'data-rel' => array('reservation'),
+    'class' => array('bibdk-popup-order-work', 'bibdk-popup-link-' . $class, 'use-ajax'),
+    'id' => array('any_edtion_order_' . $class),
+  );
 
-  $link = theme('bibdk_reservation_order_any_btn_list_item', array(
-    'text' => $text,
-    'path' => $path,
-    'query' => $query,
-    'class' => $class,
-    'orderedOnce' => FALSE,
-  ));
-
-  return $link;
+  return l($text, $path . $query, array('attributes' => $attributes)) ;
 }
 
 /**
