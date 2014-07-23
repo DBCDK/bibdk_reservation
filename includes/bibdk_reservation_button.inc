@@ -104,32 +104,9 @@ function bibdk_reservation_order_any_edition_link($collection, $uid) {
     $rows[] = $row;
   }
 
-
-//  $items['title'] = t('reservation_order_any', array(), array('context' => 'bibdk_reservation'));
-//  $items['type'] = 'ol';
-//  $items['attributes'] = array(
-//    'class' => 'order-list',
-//  );
-//
-//  $lists[] = array(
-//    '#theme' => 'bibdk_reservation_order_any_btn_list',
-//    '#column' => '1',
-//    '#items' => $items,
-//  );
-
-//  dpm($lists, 'lists_1');
-//  $lists = module_invoke_all('order_any_btn_lists', $lists, $collection);
-//  dpm($lists, 'lists_2');
-  /*$rendered = array();
-  foreach ($lists as $list) {
-//    dpm($list, 'list');
-    $rendered[] = drupal_render($list);
-  }*/
-
   // set an id for the button
   $attributes = array('id' => 'any_edition_but_' . $uid);
   // also render additonal attributes
-
 
   $table= theme('table', array('header' => $header, 'rows' => $rows));
 
