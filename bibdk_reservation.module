@@ -91,22 +91,12 @@ function bibdk_reservation_theme() {
       'variables' => array('resume' => array()),
       'template' => 'template/bibdk_reservation_receipt',
     ),
-    //TODO mmj remove unused vars
     'bibdk_reservation_order_any_btn' => array(
       'variables' => array(
-        #'lists' => array(),
         'addi_attributes' => array(),
         'table' => '',
       ),
       'template' => 'template/bibdk_reservation_order_any_btn',
-    ),
-    'bibdk_reservation_order_any_btn_list' => array(
-      'variables' => array('column' => '', 'items' => array()),
-      'template' => 'template/bibdk_reservation_order_any_btn_list',
-    ),
-    'bibdk_reservation_order_any_btn_list_item' => array(
-      'variables' => array('text', 'path', 'query', 'class', 'orderedOnce'),
-      'template' => 'template/bibdk_reservation_order_any_btn_list_item',
     ),
     'bibdk_reservation_consortia_message' => array(
       'variables' => array('agency_name' => '', 'consortia_name' => '', 'url' => ''),
