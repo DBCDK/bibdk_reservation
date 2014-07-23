@@ -81,7 +81,7 @@ function bibdk_reservation_order_any_edition_link($collection, $uid) {
   foreach ($collection as $type => $ids) {
     $items['items'][] = _bibdk_reservation_create_type_button($type, $ids, $uid);
   }
-dpm($items,'ITEMS');
+
   $items['title'] = t('reservation_order_any', array(), array('context' => 'bibdk_reservation'));
   $items['type'] = 'ol';
   $items['attributes'] = array(
