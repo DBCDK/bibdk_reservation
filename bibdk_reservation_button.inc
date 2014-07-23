@@ -125,9 +125,9 @@ function _bibdk_reservation_create_type_button($type, $ids, $uid) {
   if (!_bibdk_reservation_is_mattype_order_ok($text)) {
     // make not for order text
     $note = array(
-      '#prefix' => '<span class="not-for-order">',
-      '#markup' => $text . t(', not for order', array(), array('context' => 'bibdk_reservation')),
-      '#suffix' => '</span>',
+      '#prefix' => '<div class="not-for-order">',
+      '#markup' => $text . t(', not for ordering', array(), array('context' => 'bibdk_reservation')),
+      '#suffix' => '</div>',
     ); 
     return drupal_render($note);
   }
