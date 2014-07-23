@@ -142,7 +142,7 @@ function _bibdk_reservation_create_type_button($type, $ids, $uid) {
     ),
   );
 
-  return l($text, $path . $query, array('attributes' => $attributes)) ;
+  return l($text, $path . $query, array('attributes' => $attributes));
 }
 
 /**
