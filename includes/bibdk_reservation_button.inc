@@ -78,7 +78,7 @@ function bibdk_reservation_check_past_reservations($entity_ids) {
 function bibdk_reservation_order_any_edition_link($collection, $uid) {
   $uid = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '', $uid));
 
-  $header = array('', 'Bestil');
+  $header = array('', 'Bestil'); //TODO mmj should be in a t()
   $rows = array();
 
   foreach ($collection as $type => $ids) {
@@ -89,7 +89,6 @@ function bibdk_reservation_order_any_edition_link($collection, $uid) {
     $order_btn = _bibdk_reservation_create_type_button($type, $ids, $uid);
     $row[] = $order_btn;
 
-    //TODO mmj rewrite documentation on this hook
     $hook = module_invoke_all('order_any_btn_lists', $type, $ids);
 
     foreach ($hook as $column => $element) {
@@ -97,22 +96,15 @@ function bibdk_reservation_order_any_edition_link($collection, $uid) {
       if(!in_array($col_name, $header)){
         array_push($header, $col_name);
       }
-
       $row[] = drupal_render($element);
     }
-
     $rows[] = $row;
   }
-
-  // set an id for the button
-  $attributes = array('id' => 'any_edition_but_' . $uid);
-  // also render additonal attributes
-
   $table= theme('table', array('header' => $header, 'rows' => $rows));
 
   $button = theme('bibdk_reservation_order_any_btn', array(
     'table' => $table,
-    'addi_attributes' => $attributes //-- TODO mmj this var should propably be removed from the template
+    'addi_attributes' => array('id' => 'any_edition_but_' . $uid),
   ));
 
   return $button;
@@ -128,16 +120,26 @@ function bibdk_reservation_order_any_edition_link($collection, $uid) {
  */
 function _bibdk_reservation_create_type_button($type, $ids, $uid) {
   //TODO mmj rewrite this to return a proper button and ideally avoid using the bibdk_reservation_order_any_btn_list_item template
-  $text = t($type, array(), array('context' => 'material_type'));
+  $text = t('Order', array(), array('context' => 'bibdk_reservation'));
   $url_arr = drupal_parse_url('reservation/ajax/' . $uid . '/');
   $path = $url_arr['path'];
   $query = implode(',', $ids);
   $class = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '', $ids[0]));
 
   $attributes = array(
-    'data-rel' => array('reservation'),
-    'class' => array('bibdk-popup-order-work', 'bibdk-popup-link-' . $class, 'use-ajax'),
-    'id' => array('any_edtion_order_' . $class),
+    'data-rel' => array(
+      'reservation'
+    ),
+    'class' => array(
+      'bibdk-popup-order-work',
+      'bibdk-popup-link-' . $class,
+      'use-ajax',
+      'btn',
+      'btn-blue',
+    ),
+    'id' => array(
+      'any_edtion_order_' . $class
+    ),
   );
 
   return l($text, $path . $query, array('attributes' => $attributes)) ;
