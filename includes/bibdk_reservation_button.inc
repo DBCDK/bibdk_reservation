@@ -102,9 +102,13 @@ function bibdk_reservation_order_any_edition_link($collection, $uid) {
   }
   $table= theme('table', array('header' => $header, 'rows' => $rows));
 
+  $infotext = t('placeholder_infotext_on_order_any_edition_btn', array(), array('context' => 'bibdk_reservation'));
+
   $button = theme('bibdk_reservation_order_any_btn', array(
     'table' => $table,
     'addi_attributes' => array('id' => 'any_edition_but_' . $uid),
+    'infotext' => $infotext,
+    'hide' => empty($infotext) ?  'visuallyhidden' : '',
   ));
 
   return $button;
