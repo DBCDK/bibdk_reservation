@@ -78,7 +78,7 @@ function bibdk_reservation_check_past_reservations($entity_ids) {
 function bibdk_reservation_order_any_edition_link($collection, $uid) {
   $uid = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '', $uid));
 
-  $header = array('', 'Bestil'); //TODO mmj should be in a t()
+  $header = array('', t('Order', array(), array('context' => 'bibdk_reservation')));
   $rows = array();
 
   foreach ($collection as $type => $ids) {
@@ -119,7 +119,6 @@ function bibdk_reservation_order_any_edition_link($collection, $uid) {
  * @return string
  */
 function _bibdk_reservation_create_type_button($type, $ids, $uid) {
-  //TODO mmj rewrite this to return a proper button and ideally avoid using the bibdk_reservation_order_any_btn_list_item template
   $text = t('Order', array(), array('context' => 'bibdk_reservation'));
   $url_arr = drupal_parse_url('reservation/ajax/' . $uid . '/');
   $path = $url_arr['path'];
