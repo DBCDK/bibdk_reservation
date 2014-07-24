@@ -84,7 +84,7 @@ function bibdk_reservation_order_any_edition_link($collection, $uid) {
   foreach ($collection as $type => $ids) {
     $row = array();
     $mat_type = t($type, array(), array('context' => 'material_type'));
-    $row[] = $mat_type;
+    $row[] = ucfirst($mat_type);
 
     $order_btn = _bibdk_reservation_create_type_button($type, $ids, $uid);
     $row[] = $order_btn;
