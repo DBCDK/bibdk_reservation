@@ -86,7 +86,7 @@ function bibdk_reservation_order_any_edition_link($collection, $uid) {
     $mat_type = t($type, array(), array('context' => 'material_type'));
     $row[] = ucfirst($mat_type);
 
-    $order_btn = _bibdk_reservation_create_type_button($type, $ids, $uid);
+    $order_btn = _bibdk_reservation_create_type_button($mat_type, $ids, $uid);
     $row[] = $order_btn;
 
     $hook = module_invoke_all('order_any_btn_lists', $type, $ids);
@@ -143,6 +143,7 @@ function _bibdk_reservation_create_type_button($type, $ids, $uid) {
     'id' => array(
       'any_edtion_order_' . $class
     ),
+    'aria-label' => $text . ' ' . $type,
   );
 
   return l($text, $path . $query, array('attributes' => $attributes));
