@@ -78,7 +78,10 @@ function bibdk_reservation_check_past_reservations($entity_ids) {
 function bibdk_reservation_order_any_edition_link($collection, $uid) {
   $uid = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '', $uid));
 
-  $header = array('', t('Order', array(), array('context' => 'bibdk_reservation')));
+  $header = array(
+    '',
+    t('Order', array(), array('context' => 'bibdk_reservation'))
+  );
   $rows = array();
 
   foreach ($collection as $type => $ids) {
@@ -93,14 +96,14 @@ function bibdk_reservation_order_any_edition_link($collection, $uid) {
 
     foreach ($hook as $column => $element) {
       $col_name = t($column, array(), array('context' => 'bibdk_reservation'));
-      if(!in_array($col_name, $header)){
+      if (!in_array($col_name, $header)) {
         array_push($header, $col_name);
       }
       $row[] = drupal_render($element);
     }
     $rows[] = $row;
   }
-  $table= theme('table', array('header' => $header, 'rows' => $rows));
+  $table = theme('table', array('header' => $header, 'rows' => $rows));
 
   $infotext = t('placeholder_infotext_on_order_any_edition_btn', array(), array('context' => 'bibdk_reservation'));
 
@@ -108,7 +111,7 @@ function bibdk_reservation_order_any_edition_link($collection, $uid) {
     'table' => $table,
     'addi_attributes' => array('id' => 'any_edition_but_' . $uid),
     'infotext' => $infotext,
-    'hide' => empty($infotext) ?  'visuallyhidden' : '',
+    'hide' => empty($infotext) ? 'visuallyhidden' : '',
   ));
 
   return $button;
@@ -279,10 +282,12 @@ function _bibdk_reservation_get_infotext($manifestations) {
       if ($infocode == 'restrictedAccess' && in_array('literature', $manifestation->getType()) && in_array('online', $manifestation->getType()) && $manifestation->isLink()) {
         //this is a non-borrowable ebook
         $infotext['warning'][] = bibdk_reservation_translate('this_is_not_a_free_ebook');
-      } else {
+      }
+      else {
         $infotext[$type][] = _ting_openformat_render_direct_link($infocode, $manifestation);
       }
-    } else {
+    }
+    else {
       $infotext[$type][] = _bibdk_reservation_render_infotext($infocode);
     }
   }
