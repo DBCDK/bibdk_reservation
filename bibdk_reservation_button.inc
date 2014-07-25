@@ -121,6 +121,17 @@ function bibdk_reservation_order_any_edition_link($collection, $uid) {
  */
 function _bibdk_reservation_create_type_button($type, $ids, $uid) {
   $text = t($type, array(), array('context' => 'material_type'));
+  
+  if (!_bibdk_reservation_is_mattype_order_ok($text)) {
+    // make not for order text
+    $note = array(
+      '#prefix' => '<div class="not-for-order">',
+      '#markup' => $text . t(', can not be ordered', array(), array('context' => 'bibdk_reservation')),
+      '#suffix' => '</div>',
+    ); 
+    return drupal_render($note);
+  }
+  
   $url_arr = drupal_parse_url('reservation/ajax/' . $uid . '/');
   $path = $url_arr['path'];
   $query = implode(',', $ids);
@@ -364,4 +375,16 @@ function _bibdk_reservation_ajax_infotext($text, $type, $selector) {
   $commands[] = ajax_command_invoke($selector, 'fadeIn', array(100));
 
   return $commands;
+}
+
+/**
+ * Ckecks settings from admin Configuration -> Openformat -> Materiale types
+ * @return boolean, TRUE ok for order - else FALSE 
+ */
+function _bibdk_reservation_is_mattype_order_ok($text) {
+  $mattypes = variable_get('bibdk_mattype_settings', array());
+  foreach ($mattypes as $key => $mattype) {
+    if ($mattype['name'] == $text) { return FALSE; }
+  }
+  return TRUE;
 }

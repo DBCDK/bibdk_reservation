@@ -23,6 +23,7 @@ files[] = BibdkReservationOrderObject.php
 
 files[] = includes/bibdk_reservation.mail.inc
 files[] = includes/bibdk_reservation_helpers.inc
+files[] = includes/bibdk_reservation.admin.inc
 
 files[] = test/bibdk_reservation_web_test.test
 files[] = test/bibdk_reservation_unit_test.test

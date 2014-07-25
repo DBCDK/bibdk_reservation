@@ -8,6 +8,7 @@ module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_form_step_1')
 module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_form_step_2');
 module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_form_step_3');
 module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_form_step_4');
+module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation_form_step_4');
 
 include_once 'bibdk_reservation_sb_kopi.inc';
 
@@ -15,6 +16,29 @@ include_once 'bibdk_reservation_sb_kopi.inc';
  * Implements hook_menu();
  */
 function bibdk_reservation_menu() {
+  
+  //admin materialetype - not for order
+
+  $items['admin/config/ting/mattypes'] = array(
+    'title' => 'Materiale types',
+    'description' => 'Configure mattypes.',
+    'weight' => -20,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('bibdk_mattype_settings'),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'includes/bibdk_reservation.admin.inc',
+  );
+  
+  // admin materialetype delete - not for order
+  $items['admin/config/ting/mattypes/%/delete'] = array(
+    'title' => 'Delete materialetype',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('bibdk_mattype_settings_delete_mattype_submit',4),
+    'access arguments' => array('administer site configuration'),
+    'file' => 'includes/bibdk_reservation.admin.inc',
+    'type' => MENU_CALLBACK,
+  );
+  
   $items['reservation'] = array(
     'title' => 'Make reservation',
     'page callback' => 'drupal_get_form',
