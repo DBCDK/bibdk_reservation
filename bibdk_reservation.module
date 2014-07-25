@@ -100,7 +100,11 @@ function bibdk_reservation_theme() {
       'template' => 'template/bibdk_reservation_order_any_btn',
     ),
     'bibdk_reservation_consortia_message' => array(
-      'variables' => array('agency_name' => '', 'consortia_name' => '', 'url' => ''),
+      'variables' => array(
+        'agency_name' => '',
+        'consortia_name' => '',
+        'url' => ''
+      ),
     ),
   );
 }
@@ -117,8 +121,7 @@ function theme_bibdk_reservation_consortia_message($variables) {
   $consortia_link = drupal_render(bibdk_reservation_get_lookup_url_link_element($variables['url'], $link_text));
 
   // Generate message using consortia_name, branch_name and consortia_link
-  $message = t('!agency does not have the material but is in a consortia with !consortia, which has the material. Therefore, you must order it at !link. Use your usual card (health insurance or library card) to !agency when you order.',
-    array(
+  $message = t('!agency does not have the material but is in a consortia with !consortia, which has the material. Therefore, you must order it at !link. Use your usual card (health insurance or library card) to !agency when you order.', array(
       '!agency' => $variables['agency_name'],
       '!link' => $consortia_link,
       '!consortia' => $variables['consortia_name'],
@@ -216,7 +219,7 @@ function bibdk_reservation_create_wizard_form($form, &$form_state) {
   $next_step_active = FALSE;
   $total_steps = count($form_state['step_information']);
 
-  if ( isset($next_step) && $next_step <= $total_steps && !isset($form_state['blocked']) ) {
+  if (isset($next_step) && $next_step <= $total_steps && !isset($form_state['blocked'])) {
     $next_step_active = TRUE;
     // The Next button should be included on every step
     $form['navigation']['next'] = array(
@@ -238,8 +241,7 @@ function bibdk_reservation_create_wizard_form($form, &$form_state) {
     );
   }
 
-
-  if ( !$next_step_active && isset($next_step) && $next_step > $total_steps ) {
+  if (!$next_step_active && isset($next_step) && $next_step > $total_steps) {
 
     // Final submit button
     $button_text = isset($form_state['step_information'][$step]['next button text']) ? $form_state['step_information'][$step]['next button text'] : t('Finish', array(), array('context' => 'bibdk_reservation'));
