@@ -5,7 +5,7 @@
  */
 
 //include field info for button and infotext
-module_load_include('inc', 'bibdk_reservation', 'bibdk_reservation.field');
+module_load_include('inc', 'bibdk_reservation', 'includes/bibdk_reservation.field');
 
 /**
  * Returns a link for reservation flow.
@@ -77,35 +77,53 @@ function bibdk_reservation_check_past_reservations($entity_ids) {
  */
 function bibdk_reservation_order_any_edition_link($collection, $uid) {
   $uid = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '', $uid));
-  $items = array();
+
+  $header = array(
+    '',
+    t('Order', array(), array('context' => 'bibdk_reservation'))
+  );
+  $rows = array();
+
   foreach ($collection as $type => $ids) {
-    $items['items'][] = _bibdk_reservation_create_type_button($type, $ids, $uid);
+    $row = array();
+    $mat_type = t($type, array(), array('context' => 'material_type'));
+
+    if (!_bibdk_reservation_is_mattype_order_ok(ucfirst($mat_type))) {
+      // make not for order text
+      $note = array(
+        '#prefix' => '<div class="not-for-order">',
+        '#markup' => $mat_type, 
+        '#suffix' => '</div>',
+      ); 
+      $row[] = drupal_render($note);
+      $order_btn = t('can not be ordered', array(), array('context' => 'bibdk_reservation')); //$order_btn;
+      $row[] = $order_btn;
+    }
+    else {
+      $row[] = ucfirst($mat_type);
+      $order_btn = _bibdk_reservation_create_type_button($mat_type, $ids, $uid);
+      $row[] = $order_btn;
+    }
+    $hook = module_invoke_all('order_any_btn_lists', $type, $ids);
+
+    foreach ($hook as $column => $element) {
+      $col_name = t($column, array(), array('context' => 'bibdk_reservation'));
+      if (!in_array($col_name, $header)) {
+        array_push($header, $col_name);
+      }
+      $row[] = drupal_render($element);
+    }
+    $rows[] = $row;
   }
+  $table = theme('table', array('header' => $header, 'rows' => $rows));
 
-  $items['title'] = t('reservation_order_any', array(), array('context' => 'bibdk_reservation'));
-  $items['type'] = 'ol';
-  $items['attributes'] = array(
-    'class' => 'order-list',
-  );
+  $infotext = t('placeholder_infotext_on_order_any_edition_btn', array(), array('context' => 'bibdk_reservation'));
 
-  $lists[] = array(
-    '#theme' => 'bibdk_reservation_order_any_btn_list',
-    '#column' => '1',
-    '#items' => $items,
-  );
-
-  $lists = module_invoke_all('order_any_btn_lists', $lists, $collection);
-  $rendered = array();
-  foreach ($lists as $list) {
-    $rendered[] = drupal_render($list);
-  }
-
-  // set an id for the button
-  $attributes = array('id' => 'any_edition_but_' . $uid);
-  // also render additonal attributes
   $button = theme('bibdk_reservation_order_any_btn', array(
-    'lists' => $rendered,
-    'addi_attributes' => $attributes
+    'table' => $table,
+    'addi_attributes' => array('id' => 'any_edition_but_' . $uid),
+    'infotext' => $infotext,
+    'hide' => empty($infotext) ? 'visuallyhidden' : '',
   ));
 
   return $button;
@@ -120,39 +138,31 @@ function bibdk_reservation_order_any_edition_link($collection, $uid) {
  * @return string
  */
 function _bibdk_reservation_create_type_button($type, $ids, $uid) {
-  $text = t($type, array(), array('context' => 'material_type'));
-  
-  if (!_bibdk_reservation_is_mattype_order_ok($text)) {
-    // make not for order text
-    $note = array(
-      '#prefix' => '<div class="not-for-order">',
-      '#markup' => $text . t(', can not be ordered', array(), array('context' => 'bibdk_reservation')),
-      '#suffix' => '</div>',
-    ); 
-    return drupal_render($note);
-  }
-  
+
+  $text = t('Order', array(), array('context' => 'bibdk_reservation'));
   $url_arr = drupal_parse_url('reservation/ajax/' . $uid . '/');
   $path = $url_arr['path'];
   $query = implode(',', $ids);
   $class = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '', $ids[0]));
 
-  // This should be moved to the template
-  $attributes['data-rel'] = 'reservation';
-  $attributes['class'][] = 'bibdk-popup-order-work';
-  $attributes['class'][] = 'bibdk-popup-link-' . $class;
-  $attributes['class'][] = 'use-ajax';
-  $attributes['id'][] = 'any_edtion_order_' . $class;
+  $attributes = array(
+    'data-rel' => array(
+      'reservation'
+    ),
+    'class' => array(
+      'bibdk-popup-order-work',
+      'bibdk-popup-link-' . $class,
+      'use-ajax',
+      'btn',
+      'btn-blue',
+    ),
+    'id' => array(
+      'any_edtion_order_' . $class
+    ),
+    'aria-label' => $text . ' ' . $type,
+  );
 
-  $link = theme('bibdk_reservation_order_any_btn_list_item', array(
-    'text' => $text,
-    'path' => $path,
-    'query' => $query,
-    'class' => $class,
-    'orderedOnce' => FALSE,
-  ));
-
-  return $link;
+  return l($text, $path . $query, array('attributes' => $attributes));
 }
 
 /**
@@ -285,10 +295,12 @@ function _bibdk_reservation_get_infotext($manifestations) {
       if ($infocode == 'restrictedAccess' && in_array('literature', $manifestation->getType()) && in_array('online', $manifestation->getType()) && $manifestation->isLink()) {
         //this is a non-borrowable ebook
         $infotext['warning'][] = bibdk_reservation_translate('this_is_not_a_free_ebook');
-      } else {
+      }
+      else {
         $infotext[$type][] = _ting_openformat_render_direct_link($infocode, $manifestation);
       }
-    } else {
+    }
+    else {
       $infotext[$type][] = _bibdk_reservation_render_infotext($infocode);
     }
   }
