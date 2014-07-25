@@ -18,7 +18,8 @@ include_once 'bibdk_reservation_sb_kopi.inc';
 function bibdk_reservation_menu() {
   
   //admin materialetype - not for order
-  $items['admin/config/ting_openformat/mattypes'] = array(
+
+  $items['admin/config/ting/mattypes'] = array(
     'title' => 'Materiale types',
     'description' => 'Configure mattypes.',
     'weight' => -20,
@@ -29,7 +30,7 @@ function bibdk_reservation_menu() {
   );
   
   // admin materialetype delete - not for order
-  $items['admin/config/ting_openformat/mattypes/%/delete'] = array(
+  $items['admin/config/ting/mattypes/%/delete'] = array(
     'title' => 'Delete materialetype',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('bibdk_mattype_settings_delete_mattype_submit',4),

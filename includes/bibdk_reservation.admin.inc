@@ -38,7 +38,7 @@ function bibdk_mattype_settings($form_state) {
     $form[$form_name][$i]['delete'] = array(
       '#type' => 'link',
       '#title' => t('delete'),
-      '#href' =>  'admin/config/ting_openformat/mattypes/' . $mattype['name'] . '/delete',
+      '#href' =>  'admin/config/ting/mattypes/' . $mattype['name'] . '/delete',
       '#options' => array('attributes' => array('title' => t('Delete mattype.'))),
     );
     $i++;
@@ -93,5 +93,5 @@ function bibdk_mattype_settings_delete_mattype_submit($form, &$form_state) {
 
   variable_set('bibdk_mattype_settings', $mattypes);
   drupal_set_message(t('Materialetype deleted: ' . $delete_name , array(), array('context' => 'bibdk_reservation')));
-  $form_state['redirect'] = 'admin/config/ting_openformat/mattypes/';
+  $form_state['redirect'] = 'admin/config/ting/mattypes/';
 }
