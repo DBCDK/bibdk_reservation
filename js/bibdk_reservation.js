@@ -24,7 +24,7 @@
 
       $('.bibdk-popup-order-work').click(function(e) {
         $('.dropdown-toggle').not($(this)).removeClass('toggled');
-        $('.dropdown-toggle').not($(this)).next().addClass('visuallyhidden');
+        $('.dropdown-toggle').not($(this)).next().addClass('hidden');
       });
     }
   };
