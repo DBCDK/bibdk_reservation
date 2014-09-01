@@ -6,6 +6,7 @@
  * @return mixed
  */
 function bibdk_reservation_form_step_1($form, &$form_state) {
+
   $form['step_info'] = array(
     '#type' => 'container',
     '#attributes' => array('class' => array('form-wrapper', 'form-item')),
@@ -38,12 +39,21 @@ function bibdk_reservation_form_step_1($form, &$form_state) {
  * @param array $form_state
  */
 function bibdk_reservation_form_step_1_validate($form, &$form_state) {
+
   /**  if clicked button is a branch selector; don't validate on search field - it comes from a search result */
   if (strpos($form_state['clicked_button']['#name'], 'branch-') === 0) {
     return;
   }
+  
+  if (strpos($form_state['clicked_button']['#name'], 'branchId-') === 0) {
+    // make query for pickup-agencyid search 'biblioteksvæsen'
+    $query = check_plain($form_state['clicked_button']['#agencyid']);
+    $form_state['values']['anyField'] = $query;
+  } else {
+    // make standard query
+    $query = check_plain($form_state['values']['anyField']);
+  }
 
-  $query = check_plain($form_state['values']['anyField']);
   if (empty($query)) {
     form_set_error('anyField', t("You haven't entered any search criteria.", array(), array('context' => 'bibdk_reservation:error')));
   }
@@ -91,14 +101,22 @@ function bibdk_reservation_agency_search_form($form, &$form_state) {
  * @return array
  */
 function _bibdk_reservation_form_step_1_agency_result($form, &$form_state) {
+  
   $query = check_plain($form_state['values']['anyField']);
+  
   if (!isset($query)) {
     return;
+  } 
+  
+  if (strpos($form_state['clicked_button']['#name'], 'branchId-') === 0) {
+    // search for pickup agency 
+    $result = bibdk_vejviser_execute_pickup_agency_search($query);
+  } else {
+    // search for anny field
+    $result = bibdk_vejviser_execute_agency_search($query);
   }
 
-  $result = bibdk_vejviser_execute_agency_search($query);
   $form += bibdk_reservation_parse_agency_search_result($result);
-
   return $form;
 }
 
@@ -113,7 +131,6 @@ function bibdk_reservation_parse_agency_search_result($result) {
   if (!isset($result)) {
     return array();
   }
-
   $form = array();
   if (is_array($result)) {
     foreach ($result as $branch) {
@@ -134,7 +151,6 @@ function bibdk_reservation_parse_agency_search_result($result) {
  */
 function bibdk_reservation_form_step_1_submit($form, &$form_state) {
   BibdkReservationOrderObject::GetObject()->setBranch($form_state['clicked_button']['#branch']);
-
   return $form_state;
 }
 
@@ -194,18 +210,52 @@ function bibdk_reservation_view_agency_branch(TingClientAgencyBranch $branch) {
     //set button for reservation library
     $form[$branch->branchId]['action'] = bibdk_reservation_agency_branch_get_action_link($branch);
   }
+
+  $form[$branch->branchId]['actionlink'] = bibdk_reservation_get_agencyId_link($branch);
+  
   $form[$branch->branchId]['library']['#markup'] = theme('ting_agency_library', array(
     'branchName' => $branch->getBranchName($language->language),
     'actions' => drupal_render($form[$branch->branchId]['action']),
     'add_classes' => $classes,
     'moreinfo' => $moreinfo,
-    'branchid' => $branch->branchId
+    'branchid' => $branch->branchId,
+    'agencyName' => drupal_render($form[$branch->branchId]['actionlink'])
   ));
-
+  
   // place branch on top if set as order-agency
   if (isset($branch->orderLibrary) && $branch->orderLibrary == 'TRUE') {
     $form[$branch->branchId]['#weight'] = -1;
   }
 
   return $form;
+}
+
+/**
+ * create button as a agency_link . 
+ * @param String $branch
+ * @return $form
+ */
+function bibdk_reservation_get_agencyId_link($branch) {
+  
+  if (empty($branch->agencyId)) {
+    return;
+  }
+
+  $form['agency_searchId_fieldset']['searchId'] = array(
+      '#type' => 'submit',
+      '#name' => 'branchId-' . $branch->agencyId,
+      '#agencyid' => $branch->agencyId,
+      '#prefix' => '<div class="form-wrapper form-actions">',
+      '#submit' => array('bibdk_reservation_wizard_goto_step_submit'),
+      '#suffix' => '</div>',
+      '#value' => $branch->agencyName . ' ' . t( 'ting_show_all_libraries', array(), array('context' => 'bibdk_reservation')),
+      '#step' => 1,
+      '#attributes' => array(
+        'class' => array('popover-button-list', 'button-as-link'),
+        'data-id' => $branch->agencyId,
+      )
+  );  
+  
+  return $form;  
+
 }
