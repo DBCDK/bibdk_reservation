@@ -6,28 +6,50 @@
  * @return mixed
  */
 function bibdk_reservation_form_step_1($form, &$form_state) {
+  $ids = $_REQUEST['ids'];
+  // Set relevant messages for the given material
+  //bibdk_reservation_get_messages($ids);
+
+  // If user is not logged in - set message
+  if (!user_is_logged_in()) {
+    _bibdk_reservation_set_login_message();
+  }
+
+  /*// Get links to infomedia artikles/ SBkopi etc.
+  $links = bibdk_reservation_get_actions($ids);
+  if (!empty($links)) {
+    $form['links']   = array(
+      //'#type' => 'container',
+      //'#attributes' => array('class' => array('reservation-links')),
+    );
+    $form['links'] += $links;
+  }*/
+
+  // Get regular reservation step
   $form['step_info'] = array(
     '#type' => 'container',
     '#attributes' => array('class' => array('form-wrapper', 'form-item')),
   );
+  $form['step_info']['header'] = array(
+    '#theme' => 'html_tag',
+    '#tag' => 'h2',
+    '#value' => t('Order a local library', array(), array('context' => 'bibdk_reservation')),
+  );
+
   $form['step_info']['content'] = array(
     '#type' => 'markup',
     '#markup' => t('bibdk_reservation_step1_description', array(), array('context' => 'bibdk_reservation')),
   );
 
-  $form['agency_search_form_container'] = array(
+  $form['step_info']['agency_search_form_container'] = array(
     '#type' => 'container',
     '#attributes' => array('class' => array('form-wrapper')),
   );
 
-  $form['agency_search_form_container']['search_form'] = bibdk_reservation_agency_search_form(array(), $form_state);
-  
-  if (isset($form_state['values']['anyField'])) {
-    $form['agency_search_result'] = _bibdk_reservation_form_step_1_agency_result(array(), $form_state);
-  }
+  $form['step_info']['agency_search_form_container']['search_form'] = bibdk_reservation_agency_search_form(array(), $form_state);
 
-  if (!user_is_logged_in()) {
-    _bibdk_reservation_set_login_message();
+  if (isset($form_state['values']['anyField'])) {
+    $form['step_info']['agency_search_result'] = _bibdk_reservation_form_step_1_agency_result(array(), $form_state);
   }
 
   return $form;

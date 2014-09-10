@@ -48,7 +48,6 @@ function bibdk_reservation_link($entity_ids, $subtype, $entity_type) {
       'html' => FALSE,
     ),
   );
-
   return drupal_render($link);
 }
 
@@ -92,9 +91,9 @@ function bibdk_reservation_order_any_edition_link($collection, $uid) {
       // make not for order text
       $note = array(
         '#prefix' => '<div class="not-for-order">',
-        '#markup' => $mat_type, 
+        '#markup' => $mat_type,
         '#suffix' => '</div>',
-      ); 
+      );
       $row[] = drupal_render($note);
       $order_btn = t('can not be ordered', array(), array('context' => 'bibdk_reservation')); //$order_btn;
       $row[] = $order_btn;
@@ -140,9 +139,8 @@ function bibdk_reservation_order_any_edition_link($collection, $uid) {
 function _bibdk_reservation_create_type_button($type, $ids, $uid) {
 
   $text = t('Order', array(), array('context' => 'bibdk_reservation'));
-  $url_arr = drupal_parse_url('reservation/ajax/' . $uid . '/');
-  $path = $url_arr['path'];
-  $query = implode(',', $ids);
+  $path = 'reservation';
+  $query = array('ids' => implode(',', $ids));
   $class = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '', $ids[0]));
 
   $attributes = array(
@@ -151,8 +149,7 @@ function _bibdk_reservation_create_type_button($type, $ids, $uid) {
     ),
     'class' => array(
       'bibdk-popup-order-work',
-      'bibdk-popup-link-' . $class,
-      'use-ajax',
+      'bibdk-popup-link',
       'btn',
       'btn-blue',
     ),
@@ -162,7 +159,7 @@ function _bibdk_reservation_create_type_button($type, $ids, $uid) {
     'aria-label' => $text . ' ' . $type,
   );
 
-  return l($text, $path . $query, array('attributes' => $attributes));
+  return l($text, $path, array('attributes' => $attributes, 'query' => $query));
 }
 
 /**
@@ -196,6 +193,7 @@ function bibdk_reservation_ajax_check_reservability($uid, $pids) {
 
   $bibdk_work_entity = ting_openformat_get_manifestations($ids);
   $manifestations = $bibdk_work_entity[$id]->getManifestations();
+  //bibdk_reservation_article_reservation_link(reset($manifestations));
 
   $is_reservable = _ting_openformat_material_is_reservable($manifestations);
 
@@ -220,14 +218,21 @@ function bibdk_reservation_ajax_check_reservability($uid, $pids) {
     global $base_root, $base_path;
     $root_url = drupal_parse_url($base_root . $base_path . $language_prefix . 'reservation/');
     $path = $root_url['path'] . '?ids=' . $pids;
-    drupal_get_messages(); // flush queue
+    //drupal_get_messages(); // flush queue
     $commands = _bibdk_reservation_render_commands($infotext, $selector);
   }
 
   $commands[] = bibdk_reservation_ajax_command($is_reservable, $class, $path);
+
+
+
   $page = array('#type' => 'ajax', '#commands' => $commands);
+
+
+
   ajax_deliver($page);
 }
+
 
 /**
  * Parses the $infotext array and combines strings ordered by message type.
@@ -235,9 +240,8 @@ function bibdk_reservation_ajax_check_reservability($uid, $pids) {
  *
  * @param array $infotext
  * @param string $selector
- * @return array
  */
-function _bibdk_reservation_render_commands($infotext, $selector) {
+function _bibdk_reservation_render_commands($infotext) {
   $commands = array();
   foreach ($infotext as $type => $text) {
     if (sizeof($text) > 0) {
@@ -246,13 +250,13 @@ function _bibdk_reservation_render_commands($infotext, $selector) {
     drupal_set_message($text, $type);
   }
 
-  if (!empty($_SESSION['messages'])) {
+ /* if (!empty($_SESSION['messages'])) {
     $commands[] = ajax_command_invoke($selector, 'hide');
     $commands[] = ajax_command_html($selector, theme('status_messages'));
     $commands[] = ajax_command_invoke($selector, 'fadeIn', array(100));
   }
 
-  return $commands;
+  return $commands;*/
 }
 
 /**
@@ -270,42 +274,43 @@ function _bibdk_reservation_get_infotext($manifestations) {
 
   /* @var $manifestation Manifestation */
   foreach ($manifestations as $manifestation) {
-    $infocode = $manifestation->getInfotext();
-    $messageCategory = $manifestation->getMessageCategory();
-    $messages[$messageCategory][] = $infocode;
+    $messages[$manifestation->getMessageCategory()][] = _bibdk_reservation_parse_infotext($manifestation);
   }
-
-  $specialnotes = array(
-    'link' => 'status',
-    'plusLink' => 'status',
-    'linkE17' => 'warning',
-    'restrictedAccess' => 'warning',
-    'noAccess' => 'error',
-  );
 
   ksort($messages);
-  $type = _bibdk_reservation_get_message_type(key($messages));
-  $toDisplay = reset($messages);
-  $toDisplay = array_unique($toDisplay);
+  $firstMessageCategory = array_unique(reset($messages));
 
-  foreach ($toDisplay as $infocode) {
-    //Handling online materials
-    if (array_key_exists($infocode, $specialnotes)) {
-      $type = $specialnotes[$infocode];
-      if ($infocode == 'restrictedAccess' && in_array('literature', $manifestation->getType()) && in_array('online', $manifestation->getType()) && $manifestation->isLink()) {
-        //this is a non-borrowable ebook
-        $infotext['warning'][] = bibdk_reservation_translate('this_is_not_a_free_ebook');
-      }
-      else {
-        $infotext[$type][] = _ting_openformat_render_direct_link($infocode, $manifestation);
-      }
-    }
-    else {
-      $infotext[$type][] = _bibdk_reservation_render_infotext($infocode);
-    }
+  foreach ($firstMessageCategory as $message) {
+    $infotext[$message['type']][] = $message['infotext'];
+
+  }
+  return $infotext;
+}
+
+/** Get infotext for a given manifestation
+ * @param Manifestation $manifestation
+ * @return array
+ */
+function _bibdk_reservation_parse_infotext(Manifestation $manifestation) {
+  $infocode = $manifestation->getInfotext();
+  dpm($infocode);
+  if ($manifestation->isEbook()) {
+    $type = 'warning';
+    $infotext = bibdk_reservation_translate('this_is_not_a_free_ebook');
+  }
+  else if ($manifestation->hasDirectLink()) {
+    $type = _bibdk_reservation_get_message_type($manifestation->getInfotext());
+    $infotext = _ting_openformat_render_direct_link($infocode, $manifestation);
+  }
+  else {
+    $type = _bibdk_reservation_get_message_type($manifestation->getMessageCategory());
+    $infotext = _bibdk_reservation_render_infotext($infocode);
   }
 
-  return $infotext;
+  return array(
+    'type' => $type,
+    'infotext' => $infotext,
+  );
 }
 
 /**
@@ -315,14 +320,19 @@ function _bibdk_reservation_get_infotext($manifestations) {
  */
 function _bibdk_reservation_get_message_type($index) {
   switch ($index) {
-    case 1:
+    case '1':
+    case 'link':
+    case 'plusLink':
       return 'status';
       break;
-    case 2:
+    case '2':
+    case 'linkE17':
+    case 'restrictedAccess':
       return 'warning';
       break;
-    case 3:
-    case 4:
+    case '3':
+    case '4':
+    case 'noAccess':
       return 'error';
       break;
     default:
@@ -391,7 +401,7 @@ function _bibdk_reservation_ajax_infotext($text, $type, $selector) {
 
 /**
  * Ckecks settings from admin Configuration -> Openformat -> Materiale types
- * @return boolean, TRUE ok for order - else FALSE 
+ * @return boolean, TRUE ok for order - else FALSE
  */
 function _bibdk_reservation_is_mattype_order_ok($text) {
   $mattypes = variable_get('bibdk_mattype_settings', array());
