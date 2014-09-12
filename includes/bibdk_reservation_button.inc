@@ -162,77 +162,6 @@ function _bibdk_reservation_create_type_button($type, $ids, $uid) {
   return l($text, $path, array('attributes' => $attributes, 'query' => $query));
 }
 
-/**
- * @param $reservable
- * @param $class
- * @param $path
- * @return array
- */
-function bibdk_reservation_ajax_command($reservable, $class, $path) {
-  return array(
-    'command' => 'check_reservability',
-    'reservable' => $reservable,
-    'selector' => $class,
-    'path' => $path,
-  );
-}
-
-/**
- * AJAX callback for order any edition check
- * If material is not not reservable a message will appear otherwise the
- * reservation window will pop up.
- *
- * @param String $uid
- * @param array $pids
- */
-function bibdk_reservation_ajax_check_reservability($uid, $pids) {
-  global $language;
-  $language_prefix = (!empty($language->prefix)) ? $language->prefix . '/' : '';
-  $ids = explode(',', $pids);
-  $id = $ids[0];
-
-  $bibdk_work_entity = ting_openformat_get_manifestations($ids);
-  $manifestations = $bibdk_work_entity[$id]->getManifestations();
-  //bibdk_reservation_article_reservation_link(reset($manifestations));
-
-  $is_reservable = _ting_openformat_material_is_reservable($manifestations);
-
-  $infotext = _bibdk_reservation_get_infotext($manifestations);
-
-  $class = strtolower(preg_replace('/[^a-zA-Z0-9]+/', '', $id));
-  $selector = '.msg-' . $uid;
-  $type = 'status';
-
-  if (!$is_reservable) {
-    $path = '';
-    if (sizeof($infotext) > 0) {
-      drupal_get_messages(); // flush queue
-      $commands = _bibdk_reservation_render_commands($infotext, $selector);
-    }
-    else {
-      $text = t('not_possible_to_borrow_material', array(), array('context' => 'bibdk_reservation'));
-      $commands = _bibdk_reservation_ajax_infotext($text, $type, $selector);
-    }
-  }
-  else {
-    global $base_root, $base_path;
-    $root_url = drupal_parse_url($base_root . $base_path . $language_prefix . 'reservation/');
-    $path = $root_url['path'] . '?ids=' . $pids;
-    //drupal_get_messages(); // flush queue
-    $commands = _bibdk_reservation_render_commands($infotext, $selector);
-  }
-
-  $commands[] = bibdk_reservation_ajax_command($is_reservable, $class, $path);
-
-
-
-  $page = array('#type' => 'ajax', '#commands' => $commands);
-
-
-
-  ajax_deliver($page);
-}
-
 
 /**
  * Parses the $infotext array and combines strings ordered by message type.
@@ -241,22 +170,13 @@ function bibdk_reservation_ajax_check_reservability($uid, $pids) {
  * @param array $infotext
  * @param string $selector
  */
-function _bibdk_reservation_render_commands($infotext) {
-  $commands = array();
+function _bibdk_reservation_render_messages($infotext) {
   foreach ($infotext as $type => $text) {
     if (sizeof($text) > 0) {
       $text = implode("<br />", $text);
     }
     drupal_set_message($text, $type);
   }
-
- /* if (!empty($_SESSION['messages'])) {
-    $commands[] = ajax_command_invoke($selector, 'hide');
-    $commands[] = ajax_command_html($selector, theme('status_messages'));
-    $commands[] = ajax_command_invoke($selector, 'fadeIn', array(100));
-  }
-
-  return $commands;*/
 }
 
 /**
@@ -341,22 +261,6 @@ function _bibdk_reservation_get_message_type($index) {
   }
 }
 
-/**
- * Checks if any of the manifestations is reservable.
- *
- * @param array $manifestations
- * @return bool
- */
-function _ting_openformat_material_is_reservable($manifestations) {
-  /* @var $manifestation Manifestation */
-  foreach ($manifestations as $manifestation) {
-    if ($manifestation->isReservable()) {
-      return TRUE;
-    }
-  }
-
-  return FALSE;
-}
 
 /**
  * @param string $infocode
@@ -381,22 +285,6 @@ function _bibdk_reservation_get_access_links($manifestation) {
   $info = $manifestation->getAccessInformation();
 
   return _ting_openformat_parse_element($info, '<br/>');
-}
-
-/**
- * @param $text
- * @param $type
- * @param $selector
- * @return array
- */
-function _bibdk_reservation_ajax_infotext($text, $type, $selector) {
-  drupal_get_messages();
-  drupal_set_message($text, $type);
-  $commands[] = ajax_command_invoke($selector, 'hide');
-  $commands[] = ajax_command_html($selector, theme('status_messages'));
-  $commands[] = ajax_command_invoke($selector, 'fadeIn', array(100));
-
-  return $commands;
 }
 
 /**

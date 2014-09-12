@@ -46,17 +46,6 @@ function bibdk_reservation_menu() {
     'description' => 'Make reservation in 4 steps',
   );
 
-  // ajax call for for checking reservability
-  $items['reservation/ajax/%/%'] = array(
-    'title' => 'ajax_check_reservability',
-    'page callback' => 'bibdk_reservation_ajax_check_reservability',
-    'page arguments' => array(2, 3),
-    'access callback' => TRUE,
-    'access arguments' => array('access content'),
-    'type' => MENU_CALLBACK,
-    'file' => 'includes/bibdk_reservation_button.inc'
-  );
-
   $items['reservations/catalogue_url'] = array(
     'title' => 'local_catalogue_url',
     'page callback' => 'bibdk_reservation_catalog_callback',
