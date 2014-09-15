@@ -213,7 +213,6 @@ function _bibdk_reservation_get_infotext($manifestations) {
  */
 function _bibdk_reservation_parse_infotext(Manifestation $manifestation) {
   $infocode = $manifestation->getInfotext();
-  dpm($infocode);
   if ($manifestation->isEbook()) {
     $type = 'warning';
     $infotext = bibdk_reservation_translate('this_is_not_a_free_ebook');
