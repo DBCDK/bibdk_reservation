@@ -23,10 +23,13 @@ class BibdkReservationUnitTestCase extends DrupalUnitTestCase {
   }
 
   public function test_bibdk_reservation_mail_get_title() {
+    module_load_include('inc', 'ting_openformat', 'lib/ManifestationMaster');
+    module_load_include('inc', 'ting_openformat', 'lib/Manifestation');
     module_load_include('php', 'bibdk_reservation', 'test/mockup/Objects/Manifestation_mockup');
     module_load_include('inc', 'bibdk_reservation', 'includes/bibdk_reservation.mail');
 
     $manifestation = new Manifestation_mockup();
+
     $manifestation->bibdk_order = 'titleSpecfic';
     $return = _bibdk_reservation_mail_get_title($manifestation);
     $this->assertEqual($return, ' - TITLESPECIFIC_RETURN', 'Got string as expected');
@@ -40,30 +43,7 @@ class BibdkReservationUnitTestCase extends DrupalUnitTestCase {
     $this->assertEqual($return, '', 'Got empty string as expected');
   }
 
-  public function test_ting_openformat_material_is_reservable() {
-    module_load_include('inc', 'ting_openformat', 'ting_openformat.entities');
-    module_load_include('inc', 'ting_openformat', 'lib/ManifestationMaster');
-    module_load_include('inc', 'ting_openformat', 'lib/Manifestation');
-    $objects = json_decode(file_get_contents(drupal_get_path('module', 'bibdk_reservation') . '/test/mockup/test_objects.json'));
-
-    $manifestationIsNotReservable = new Manifestation($objects->isNotReservable);
-    $manifestationIsNot = new Manifestation($objects->isReservable);
-
-    $this->assertFalse($this->_checkReservability($manifestationIsNotReservable), 'Manifestation is not reservable');
-    $this->assertTrue($this->_checkReservability($manifestationIsNot), 'Manifestation is reservable');
-
-    $this->assertFalse(array(), 'FALSE returned as expected when empty array given');
-  }
-
-  /**
-   * @param $manifestation
-   * @return bool
-   */
-  private function _checkReservability($manifestation) {
-    return _ting_openformat_material_is_reservable(array($manifestation));
-  }
-
-  public function _test__bibdk_reservation_generate_policy_messages() {
+  public function test__bibdk_reservation_generate_policy_messages() {
     module_load_include('inc', 'bibdk_reservation', 'test/mockup/bibdk_reservation_helpers_muckup');
     module_load_include('php', 'bibdk_reservation', 'test/mockup/Objects/policyResponseMuckup');
     module_load_include('inc', 'bibdk_reservation', 'includes/bibdk_reservation_form_step_2');
@@ -167,30 +147,35 @@ class BibdkReservationUnitTestCase extends DrupalUnitTestCase {
     $this->assertEqual('you_can_watch_order_status_here: user/' . $user->uid . '/bibdk_openuserstatus', $msg, 'Message returned');
   }
 
-  public function _test__bibdk_reservation_render_commands() {
+  public function test__bibdk_reservation_render_commands() {
+    drupal_get_messages();
     $infotext = array(
       'error' => array(
         'error_message',
       ),
     );
-    $selector = 'css_selector';
-    $result = _bibdk_reservation_render_commands($infotext, $selector);
+    _bibdk_reservation_render_messages($infotext);
+    $messages = drupal_get_messages();
+    $expected  = array (
+      'error' =>
+        array (
+          0 => 'error_message',
+        ),
+    );
+    $this->assertEqual($messages, $expected, 'message is generated');
 
-    $this->assertTrue(is_array($result), 'Got array');
-    $this->assertEqual(3, count($result), 'Got array of length 3');
-
-    $this->assertEqual($result[1]['selector'], $selector, 'Found selector');
-    $this->assertTrue(!empty($result[1]['data']), 'Found some rendered stuff');
-
-    $result = _bibdk_reservation_render_commands(array(), $selector);
+    $result = _bibdk_reservation_render_messages(array());
     $this->assertTrue(empty($result), 'Got empty array');
   }
 
   public function test__bibdk_reservation_get_infotext(){
+    module_load_include('inc', 'ting_openformat', 'ting_openformat.entities');
+    module_load_include('inc', 'ting_openformat', 'lib/ManifestationMaster');
+    module_load_include('inc', 'ting_openformat', 'lib/Manifestation');
     module_load_include('inc', 'bibdk_reservation', 'test/mockup/bibdk_reservation_helpers_muckup');
     module_load_include('php', 'bibdk_reservation', 'test/mockup/Objects/Manifestation_mockup');
     module_load_include('inc', 'bibdk_reservation', 'includes/bibdk_reservation_button');
-
+    return;
     //Ensure that only one of the same kind of message is displayed
     $manifestation = new Manifestation_mockup();
     $manifestation->messageCategory = NULL;
