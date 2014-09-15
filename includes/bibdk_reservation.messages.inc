@@ -5,7 +5,7 @@ function bibdk_reservation_get_messages($bibdk_work_entity) {
   if (!$bibdk_work_entity->isReservable() && empty($infotexts)) {
     $infotexts['status'][] = t('not_possible_to_borrow_material', array(), array('context' => 'bibdk_reservation'));
   }
-  _bibdk_reservation_render_commands($infotexts);
+  _bibdk_reservation_render_messages($infotexts);
 }
 
 function bibdk_reservation_get_actions($ids, $bibdk_work_entity) {
