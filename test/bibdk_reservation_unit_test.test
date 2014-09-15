@@ -19,6 +19,7 @@ class BibdkReservationUnitTestCase extends DrupalUnitTestCase {
 
   public function setUp() {
     module_load_include('inc', 'bibdk_reservation', 'includes/bibdk_reservation_button');
+    module_load_include('inc', 'bibdk_reservation', 'includes/bibdk_reservation.messages');
     parent::setUp();
   }
 
