@@ -15,7 +15,7 @@ class BibdkReservationWebTestCase extends DrupalWebTestCase {
   }
 
   public function setUp() {
-    parent::setUp('ting_openformat');
+    parent::setUp('ting_openformat', 'ting_agency');
     variable_set('ting_search_url', 'http://bibdk-prod-ws.dbc.dk/opensearch/3.0/');
     variable_set('bibdk_provider_webservice_url', $this->getAbsoluteUrl('bibdk_webservice'));
     variable_set('bibdk_provider_security_code', 'securityCode');
