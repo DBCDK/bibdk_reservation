@@ -6,7 +6,7 @@
  * @return mixed
  */
 function bibdk_reservation_form_step_1($form, &$form_state) {
-  
+
   // If user is not logged in - set message
   if (!user_is_logged_in()) {
     _bibdk_reservation_set_login_message();
@@ -122,16 +122,18 @@ function bibdk_reservation_parse_agency_search_result($result) {
   if (!isset($result)) {
     return array();
   }
+  if (!is_array($result)){
+    $result = array($result);
+  }
 
   $form = array();
-  if (is_array($result)) {
-    foreach ($result as $branch) {
-      $form += bibdk_reservation_view_agency_branch($branch);
-    }
+  foreach ($result as $branch) {
+    $settings = array(
+      '#actions' =>  bibdk_reservation_agency_branch_get_action_link($branch),
+    );
+    $form +=ting_agency_view_agency_branch($branch, $settings);
   }
-  else {
-    $form += bibdk_reservation_view_agency_branch($result);
-  }
+
 
   return $form;
 }
@@ -143,7 +145,6 @@ function bibdk_reservation_parse_agency_search_result($result) {
  */
 function bibdk_reservation_form_step_1_submit($form, &$form_state) {
   BibdkReservationOrderObject::GetObject()->setBranch($form_state['clicked_button']['#branch']);
-
   return $form_state;
 }
 
@@ -152,69 +153,17 @@ function bibdk_reservation_form_step_1_submit($form, &$form_state) {
  * @return array
  */
 function bibdk_reservation_agency_branch_get_action_link($branch) {
-  $form = array(
-    '#value' => t('select_reservation_library', array(), array('context' => 'bibdk_reservation')),
-    '#name' => 'branch-' . $branch->branchId,
-    '#type' => 'submit',
-    '#submit' => array('bibdk_reservation_wizard_next_submit'),
-    '#step' => 2,
-    '#branch' => $branch,
-  );
+  $form = array();
 
-  return $form;
-}
-
-/**
- * Render the view of an agency branch and wrap it in an form element
- *
- * @param TingClientAgencyBranch $branch
- * @return mixed
- */
-function bibdk_reservation_view_agency_branch(TingClientAgencyBranch $branch) {
-  global $language;
-
-  $form['#title'] = $branch->getBranchName($language->language);
-
-  $moreinfo = theme('ting_agency_more_info', array(
-    'branch' => $branch,
-    'openingHours' => theme('ting_agency_opening_hours', array('branch' => $branch)),
-    'tools' => theme('ting_agency_tools', array('branch' => $branch)),
-    'address' => theme('ting_agency_address', array('branch' => $branch)),
-    'pickupallowed' => theme('ting_agency_pickup_allowed', array('branch' => $branch)),
-    'librarydkcontact' => theme('ting_agency_librarydk_contact', array('branch' => $branch)),
-    'contact' => theme('ting_agency_contact', array('branch' => $branch)),
-  ));
-
-  $classes = array();
-  $classes[] = 'favourite_' . $branch->branchId;
-  $classes[] = (isset($branch->orderLibrary) && $branch->orderLibrary == 'TRUE') ? 'order-agency' : NULL;
-
-  // Handle TemporarilyClosedReason
-  if ($branch->getTemporarilyClosedReason($language->language) != 'ting_agency_no_temporarilyClosedReason') {
-    $messages = drupal_get_messages();
-    drupal_set_message($branch->getTemporarilyClosedReason($language->language), 'warning');
-    $form[$branch->branchId]['librarymessage']['#markup'] = theme('status_messages');
-    foreach ($messages as $key => $message) {
-      drupal_set_message($message[0], $key);
-    }
+  if($branch->pickupAllowed){
+    $form = array(
+      '#value' => t('select_reservation_library', array(), array('context' => 'bibdk_reservation')),
+      '#name' => 'branch-' . $branch->branchId,
+      '#type' => 'submit',
+      '#submit' => array('bibdk_reservation_wizard_next_submit'),
+      '#step' => 2,
+      '#branch' => $branch,
+    );
   }
-
-  if ($branch->pickupAllowed) {
-    //set button for reservation library
-    $form[$branch->branchId]['action'] = bibdk_reservation_agency_branch_get_action_link($branch);
-  }
-  $form[$branch->branchId]['library']['#markup'] = theme('ting_agency_library', array(
-    'branchName' => $branch->getBranchName($language->language),
-    'actions' => drupal_render($form[$branch->branchId]['action']),
-    'add_classes' => $classes,
-    'moreinfo' => $moreinfo,
-    'branchid' => $branch->branchId
-  ));
-
-  // place branch on top if set as order-agency
-  if (isset($branch->orderLibrary) && $branch->orderLibrary == 'TRUE') {
-    $form[$branch->branchId]['#weight'] = -1;
-  }
-
   return $form;
 }
