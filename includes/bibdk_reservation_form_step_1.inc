@@ -6,24 +6,11 @@
  * @return mixed
  */
 function bibdk_reservation_form_step_1($form, &$form_state) {
-  $ids = $_REQUEST['ids'];
-  // Set relevant messages for the given material
-  //bibdk_reservation_get_messages($ids);
-
+  
   // If user is not logged in - set message
   if (!user_is_logged_in()) {
     _bibdk_reservation_set_login_message();
   }
-
-  /*// Get links to infomedia artikles/ SBkopi etc.
-  $links = bibdk_reservation_get_actions($ids);
-  if (!empty($links)) {
-    $form['links']   = array(
-      //'#type' => 'container',
-      //'#attributes' => array('class' => array('reservation-links')),
-    );
-    $form['links'] += $links;
-  }*/
 
   // Get regular reservation step
   $form['step_info'] = array(
