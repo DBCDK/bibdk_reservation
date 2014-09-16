@@ -26,7 +26,7 @@ function bibdk_reservation_get_actions($ids, $bibdk_work_entity) {
   if ($link = bibdk_reservation_get_sbkopi_link($ids)) {
     $links[] = $link;
   }
-  if(count($links)) {
+  if(!empty($links)) {
     $form = array(
       '#type' => 'container',
       '#attributes' => array(

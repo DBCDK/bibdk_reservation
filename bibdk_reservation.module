@@ -209,11 +209,8 @@ function bibdk_reservation_create_wizard_form($form, &$form_state) {
       );
       $form['links'] += $links;
     }
-    else {
-      bibdk_reservation_get_messages($bibdk_work_entity);
-    }
 
-
+    bibdk_reservation_get_messages($bibdk_work_entity);
 
     BibdkReservationOrderObject::GetObject()->setSbKopi(FALSE);
     if (isset($_GET['bestil_kopi'])) {
