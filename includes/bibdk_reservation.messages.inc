@@ -193,10 +193,9 @@ function _bibdk_reservation_get_message_type($index) {
  * @return string
  */
 function _ting_openformat_render_direct_link($infocode, $manifestation) {
-  $links = _bibdk_reservation_get_access_links($manifestation);
-  $message = bibdk_reservation_translate("$infocode !links", array('!links' => $links));
-
-  return $message;
+  if($links = _bibdk_reservation_get_access_links($manifestation)) {
+    return bibdk_reservation_translate("$infocode !links", array('!links' => $links));
+  }
 }
 
 /**
