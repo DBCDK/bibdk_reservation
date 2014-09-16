@@ -17,16 +17,7 @@ function bibdk_reservation_get_messages($bibdk_work_entity) {
  * @return array
  */
 function bibdk_reservation_get_actions($ids, $bibdk_work_entity) {
-  $links = array();
-  bibdk_reservation_get_sbkopi_link($ids);
-  $manifestation = reset($bibdk_work_entity->getManifestations());
-  if ($link = bibdk_reservation_article_infomedia_link($manifestation)) {
-    $links[] = $link;
-  }
-  if ($link = bibdk_reservation_get_sbkopi_link($ids)) {
-    $links[] = $link;
-  }
-  if(!empty($links)) {
+  if($links = bibdk_reservation_get_action_links($ids, $bibdk_work_entity)) {
     $form = array(
       '#type' => 'container',
       '#attributes' => array(
@@ -56,6 +47,21 @@ function bibdk_reservation_get_actions($ids, $bibdk_work_entity) {
 
     return $form;
 
+  }
+  return $links;
+}
+
+function bibdk_reservation_get_action_links($ids, BibdkWork $bibdk_work_entity) {
+  $links = array();
+  $manifestation = reset($bibdk_work_entity->getManifestations());
+  if ($link = bibdk_reservation_article_infomedia_link($manifestation)) {
+    $links[] = $link;
+  }
+  if ($link = bibdk_reservation_get_sbkopi_link($ids)) {
+    $links[] = $link;
+  }
+  if ($manifestation->hasDirectLink()) {
+    $links[]['#markup'] = _ting_openformat_render_direct_link($manifestation->getInfotext(), $manifestation);
   }
   return $links;
 }
@@ -140,10 +146,6 @@ function _bibdk_reservation_parse_infotext(Manifestation $manifestation) {
   if ($manifestation->isEbook()) {
     $type = 'warning';
     $infotext = bibdk_reservation_translate('this_is_not_a_free_ebook');
-  }
-  else if ($manifestation->hasDirectLink()) {
-    $type = _bibdk_reservation_get_message_type($manifestation->getInfotext());
-    $infotext = _ting_openformat_render_direct_link($infocode, $manifestation);
   }
   else {
     $type = _bibdk_reservation_get_message_type($manifestation->getMessageCategory());
