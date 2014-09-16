@@ -200,17 +200,18 @@ function bibdk_reservation_create_wizard_form($form, &$form_state) {
     bibdk_reservation_new_order_object();
     /** @var $bibdk_work_entity BibdkWork */
     $bibdk_work_entity = BibdkReservationOrderObject::GetObject()->getwork();
-    $links = bibdk_reservation_get_actions($_REQUEST['ids'], $bibdk_work_entity);
 
-    if (!empty($links)) {
-      $form['links']   = array(
-        //'#type' => 'container',
-        //'#attributes' => array('class' => array('reservation-links')),
-      );
-      $form['links'] += $links;
+    if (!isset($_GET['bestil_kopi'])) {
+      $links = bibdk_reservation_get_actions($_REQUEST['ids'], $bibdk_work_entity);
+      if (!empty($links)) {
+        $form['links']   = array(
+          //'#type' => 'container',
+          //'#attributes' => array('class' => array('reservation-links')),
+        );
+        $form['links'] += $links;
+      }
+      bibdk_reservation_get_messages($bibdk_work_entity);
     }
-
-    bibdk_reservation_get_messages($bibdk_work_entity);
 
     BibdkReservationOrderObject::GetObject()->setSbKopi(FALSE);
     if (isset($_GET['bestil_kopi'])) {
