@@ -3,7 +3,7 @@
 /**
  * Class Manifestation_mockup
  */
-class Manifestation_mockup {
+class Manifestation_mockup extends Manifestation{
 
   public $bibdk_order;
   public $messageCategory;
@@ -12,6 +12,10 @@ class Manifestation_mockup {
   public $isLink;
   public $creator = array();
   public $subtype;
+
+  public function __construct() {
+
+  }
 
   public function getTitleSpecific() {
     return $this->_getTitle();
@@ -46,11 +50,11 @@ class Manifestation_mockup {
   public function getCreator() {
     return $this->creator;
   }
-  
+
   public function getSubType(){
     return $this->subtype;
   }
-  
+
   /**
    * @return bool|string
    */
