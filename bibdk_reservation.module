@@ -3,6 +3,7 @@
 module_load_include('inc', 'bibdk_reservation', 'includes/bibdk_reservation_helpers');
 module_load_include('inc', 'bibdk_reservation', 'includes/bibdk_reservation.mail');
 module_load_include('inc', 'bibdk_reservation', 'includes/bibdk_reservation_button');
+module_load_include('inc', 'bibdk_reservation', 'includes/bibdk_reservation.messages');
 module_load_include('inc', 'bibdk_reservation', 'includes/bibdk_reservation.action');
 module_load_include('inc', 'bibdk_reservation', 'includes/bibdk_reservation_form_step_1');
 module_load_include('inc', 'bibdk_reservation', 'includes/bibdk_reservation_form_step_2');
@@ -14,7 +15,7 @@ module_load_include('inc', 'bibdk_reservation', 'includes/bibdk_reservation_sb_k
  * Implements hook_menu();
  */
 function bibdk_reservation_menu() {
-  
+
   //admin materialetype - not for order
 
   $items['admin/config/ting/mattypes'] = array(
@@ -26,7 +27,7 @@ function bibdk_reservation_menu() {
     'access arguments' => array('administer site configuration'),
     'file' => 'includes/bibdk_reservation.admin.inc',
   );
-  
+
   // admin materialetype delete - not for order
   $items['admin/config/ting/mattypes/%/delete'] = array(
     'title' => 'Delete materialetype',
@@ -36,24 +37,13 @@ function bibdk_reservation_menu() {
     'file' => 'includes/bibdk_reservation.admin.inc',
     'type' => MENU_CALLBACK,
   );
-  
+
   $items['reservation'] = array(
     'title' => 'Make reservation',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('bibdk_reservation_create_wizard_form'),
     'access callback' => TRUE,
     'description' => 'Make reservation in 4 steps',
-  );
-
-  // ajax call for for checking reservability
-  $items['reservation/ajax/%/%'] = array(
-    'title' => 'ajax_check_reservability',
-    'page callback' => 'bibdk_reservation_ajax_check_reservability',
-    'page arguments' => array(2, 3),
-    'access callback' => TRUE,
-    'access arguments' => array('access content'),
-    'type' => MENU_CALLBACK,
-    'file' => 'includes/bibdk_reservation_button.inc'
   );
 
   $items['reservations/catalogue_url'] = array(
@@ -204,10 +194,22 @@ function _bibdk_reservation_steps() {
  * @return array $form
  */
 function bibdk_reservation_create_wizard_form($form, &$form_state) {
-
+  $bibdk_work_entity = reset(ting_openformat_get_manifestations($_REQUEST['ids']));
   // Initialize a description of the steps for the wizard.
   if (empty($form_state['step']) || !empty($form_state['input']['favourite_selected'])) {
     bibdk_reservation_new_order_object();
+    /** @var $bibdk_work_entity BibdkWork */
+    $bibdk_work_entity = BibdkReservationOrderObject::GetObject()->getwork();
+
+    if (!isset($_GET['bestil_kopi'])) {
+      $links = bibdk_reservation_get_actions($_REQUEST['ids'], $bibdk_work_entity);
+      if (!empty($links)) {
+        $form['links'] = $links;
+      }
+      else {
+        bibdk_reservation_get_messages($bibdk_work_entity);
+      }
+    }
 
     BibdkReservationOrderObject::GetObject()->setSbKopi(FALSE);
     if (isset($_GET['bestil_kopi'])) {
@@ -225,6 +227,8 @@ function bibdk_reservation_create_wizard_form($form, &$form_state) {
 
     $form_state['step_information'] = _bibdk_reservation_steps();
   }
+
+  if ($bibdk_work_entity->isReservable()) {
 
   $step = $form_state['step'];
   drupal_set_title($form_state['step_information'][$step]['title']);
@@ -310,6 +314,8 @@ function bibdk_reservation_create_wizard_form($form, &$form_state) {
   $form['step_guide'] = bibdk_reservation_step_guide(array(), $form_state, $step);
 
   unset($form_state['blocked']);
+  }
+
 
   return $form;
 }
@@ -317,14 +323,7 @@ function bibdk_reservation_create_wizard_form($form, &$form_state) {
 function _bibdk_reservation_set_login_message() {
   $link = 'user/login';
 
-  $loginlink = l(t('login_link', array(), array('context' => 'bibdk_reservation')), $link, array(
-    'attributes' => array(
-      'class' => array(
-        'ctools-use-modal',
-        'ctools-modal-bibdk-modal-style'
-      )
-    )
-  ));
+  $loginlink = l(t('login_link', array(), array('context' => 'bibdk_reservation')), $link);
 
   drupal_set_message(t('It would be better for you if you were logged in: !link', array('!link' => $loginlink), array('context' => 'bibdk_reservation')), 'warning', FALSE);
 }
@@ -480,8 +479,8 @@ function bibdk_reservation_new_order_object() {
 
   BibdkReservationOrderObject::GetObject()->setManifestationIds($ids);
 
-  $manifestation = bibdk_reservation_get_manifestation($ids);
-  BibdkReservationOrderObject::GetObject()->setManifestation($manifestation);
+  $work = bibdk_reservation_get_manifestation($ids);
+  BibdkReservationOrderObject::GetObject()->setWork($work);
 
   return BibdkReservationOrderObject::GetObject();
 }
@@ -495,7 +494,9 @@ function bibdk_reservation_get_manifestation($id) {
     $id = reset($id);
   }
 
-  $result = ting_openformat_get_single($id);
+  $result = ting_openformat_get_manifestations($id);
+  return reset($result);
+
   $work = reset($result)->getManifestations();
 
   return reset($work);

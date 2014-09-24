@@ -63,11 +63,19 @@ class BibdkReservationOrderObject {
     $this->manifestation = $manifestation;
   }
 
+  public function setWork($work) {
+    $this->work = $work;
+  }
+
   /**
    * @return Manifestation
    */
   public function getManifestation() {
-    return $this->manifestation;
+    return reset($this->work->getManifestations());
+  }
+
+  public function getwork() {
+    return $this->work;
   }
 
   public function setBranchId($id) {
