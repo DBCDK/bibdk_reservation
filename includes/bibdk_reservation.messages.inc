@@ -76,6 +76,9 @@ function bibdk_reservation_article_infomedia_link(Manifestation $manifestation) 
     $link[] = array(
       '#theme' => 'ting_infomedia_button',
       '#ting_infomedia_button' => _ting_infomedia_get_link($manifestation->ding_entity_id, $manifestation->getInfomediaLink()),
+      '#attr' => array(
+        'class' => array('infomedia-button', 'text-small'),
+      ),
     );
   }
   return $link;
