@@ -17,11 +17,6 @@ function bibdk_reservation_form_step_1($form, &$form_state) {
     '#type' => 'container',
     '#attributes' => array('class' => array('form-wrapper', 'form-item')),
   );
-  $form['step_info']['header'] = array(
-    '#theme' => 'html_tag',
-    '#tag' => 'h2',
-    '#value' => t('Order a local library', array(), array('context' => 'bibdk_reservation')),
-  );
 
   $form['step_info']['content'] = array(
     '#type' => 'markup',
