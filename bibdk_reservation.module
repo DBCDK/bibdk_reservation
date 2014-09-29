@@ -194,7 +194,6 @@ function _bibdk_reservation_steps() {
  * @return array $form
  */
 function bibdk_reservation_create_wizard_form($form, &$form_state) {
-  $bibdk_work_entity = reset(ting_openformat_get_manifestations($_REQUEST['ids']));
   // Initialize a description of the steps for the wizard.
   if (empty($form_state['step']) || !empty($form_state['input']['favourite_selected'])) {
     bibdk_reservation_new_order_object();
@@ -226,6 +225,9 @@ function bibdk_reservation_create_wizard_form($form, &$form_state) {
     }
 
     $form_state['step_information'] = _bibdk_reservation_steps();
+  }
+  else {
+    $bibdk_work_entity = BibdkReservationOrderObject::GetObject()->getwork();
   }
 
   if ($bibdk_work_entity->isReservable()) {
