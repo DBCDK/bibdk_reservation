@@ -11,6 +11,7 @@ dependencies[] = bibdk_openorder
 dependencies[] = ting_client
 dependencies[] = ting_openformat
 dependencies[] = date_api
+dependencies[] = translatable
 
 files[] = includes/bibdk_reservation.action.inc
 files[] = includes/bibdk_reservation.button.inc

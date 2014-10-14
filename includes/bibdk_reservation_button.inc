@@ -116,7 +116,7 @@ function bibdk_reservation_order_any_edition_link($collection, $uid) {
   }
   $table = theme('table', array('header' => $header, 'rows' => $rows));
 
-  $infotext = t('placeholder_infotext_on_order_any_edition_btn', array(), array('context' => 'bibdk_reservation'));
+  $infotext = _bibdk_reservation_infotext_order_any_edition_create_link($uid);
 
   $button = theme('bibdk_reservation_order_any_btn', array(
     'table' => $table,
@@ -127,6 +127,45 @@ function bibdk_reservation_order_any_edition_link($collection, $uid) {
 
   return $button;
 }
+
+
+/**
+ * Get a 'More info' link for placeholder_infotext_on_order_any_edition_btn
+ */
+function _bibdk_reservation_infotext_order_any_edition_create_link($uid=NULL) {
+
+  $infotext['lead_text'] = array(
+    '#type' => 'translatable',
+    '#translate' => 'placeholder_infotext_on_order_any_edition_btn',
+    '#options' =>  array('context' => 'bibdk_reservation'),
+  );
+
+  $infotext['link'] = array(
+    '#theme' => 'link',
+    '#text' => array(
+      '#type' => 'translatable',
+      '#translate' => 'More info',
+      '#options' =>  array('context' => 'bibdk_reservation'),
+    ),
+    '#path' => '',
+    '#weight' => 10,
+    '#options' => array(
+      'fragment' => $uid,
+      'external' => TRUE,
+      'attributes' => array(
+        'class' => array(
+          'infotext-order-any-edition-link',
+        ),
+        'id' => drupal_html_id('infotext_order_any_edition_link ' . $uid),
+      ),
+      'html' => FALSE,
+    ),
+  );
+
+  return $infotext;
+}
+
+
 
 /**
  * Returns button with material type
