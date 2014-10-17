@@ -18,11 +18,6 @@ function bibdk_reservation_form_step_1($form, &$form_state) {
     '#attributes' => array('class' => array('form-wrapper', 'form-item')),
   );
 
-  $form['step_info']['content'] = array(
-    '#type' => 'markup',
-    '#markup' => t('bibdk_reservation_step1_description', array(), array('context' => 'bibdk_reservation')),
-  );
-
   $form['step_info']['agency_search_form_container'] = array(
     '#type' => 'container',
     '#attributes' => array('class' => array('form-wrapper')),
